@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Добро пожаловать на новостной портал</h1>
+
+        <section class="intro">
+            <p>Здесь вы найдете последние новости и актуальную информацию.</p>
+        </section>
+
+        <section class="sections">
+            <h2>Разделы новостей</h2>
+            <nav>
+                <ul>
+                    <li><a href="{{ path('app_news_section', {name: 'accidents'}) }}">Происшествия</a></li>
+                    <li><a href="{{ path('app_news_section', {name: 'sport'}) }}">Спорт</a></li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+{% endblock %}
