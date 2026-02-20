@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Новостной портал{% endblock %}</title>
+        <title>{% block title %}LearnSymfony{% endblock %}</title>
         {% block stylesheets %}
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +24,7 @@
     <body>
         <header>
             <div class="container">
-                <h1><a href="{{ path('app_home_index') }}" style="color: #fff; text-decoration: none;">Новостной портал</a></h1>
+                <h1><a href="{{ path('app_home_index') }}" style="color: #fff; text-decoration: none;">LearnSymfony</a></h1>
             </div>
         </header>
 
@@ -34,7 +34,7 @@
 
         <footer>
             <div class="container">
-                <p style="text-align: center; margin-top: 2rem; color: #666;">&copy; {{ 'now'|date('Y') }} Новостной портал</p>
+                <p style="text-align: center; margin-top: 2rem; color: #666;">&copy; {{ 'now'|date('Y') }} LearnSymfony</p>
             </div>
         </footer>
 

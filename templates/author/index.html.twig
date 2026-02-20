@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Authors{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Authors</h1>
+
+        <a href="{{ path('author_new') }}" class="btn btn-primary mb-3">Create New Author</a>
+
+        {% if authors is empty %}
+            <div class="alert alert-info">No authors found.</div>
+        {% else %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Books Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for author in authors %}
+                        <tr>
+                            <td>{{ author.name }}</td>
+                            <td>{{ author.books.count }}</td>
+                            <td>
+                                <a href="{{ path('author_show', {'id': author.id}) }}" class="btn btn-sm btn-info">View</a>
+                                <a href="{{ path('author_edit', {'id': author.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form method="post" action="{{ path('author_delete', {'id': author.id}) }}" style="display:inline-block;" onsubmit="return confirm('Are you sure?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ author.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

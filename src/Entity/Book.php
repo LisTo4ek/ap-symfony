@@ -40,4 +40,42 @@ class Book
 
         return $this;
     }
+
+    public function getAuthors(): Collection
+    {
+        return $this->authors;
+    }
+
+    public function setAuthor(?Author $author): static
+    {
+        if ($author !== null && !$this->authors->contains($author)) {
+            $this->authors->add($author);
+            $author->addBook($this);
+        } elseif ($author === null) {
+            $this->authors->clear();
+        }
+        return $this;
+    }
+
+    public function addAuthor(Author $author): static
+    {
+        if (!$this->authors->contains($author)) {
+            $this->authors->add($author);
+            $author->addBook($this);
+        }
+        return $this;
+    }
+
+    public function removeAuthor(Author $author): static
+    {
+        if ($this->authors->removeElement($author)) {
+            $author->removeBook($this);
+        }
+        return $this;
+    }
+
+    public function getAuthorCount(): int
+    {
+        return $this->authors->count();
+    }
 }
