@@ -1,5 +1,8 @@
 twig:
     file_name_pattern: '*.twig'
+#    form_themes:
+#        - '@SonataAdmin/Form/filter_admin_fields.html.twig'
+#        - '@SonataDoctrineORMAdmin/Form/form_admin_fields.html.twig'
 
 when@test:
     twig:
