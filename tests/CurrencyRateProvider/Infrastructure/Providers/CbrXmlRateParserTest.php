@@ -3,7 +3,7 @@
 namespace App\Tests\CurrencyRateProvider\Infrastructure\Providers;
 
 use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Parser\XmlProcessor;
+use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\XmlProcessor;
 use Exception;
 use PHPUnit\Framework\TestCase;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Providers\CbrProvider\Parser;
+namespace App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor;
 
 use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Domain\CurrencyRateProvider\Base\Entity\Rate;

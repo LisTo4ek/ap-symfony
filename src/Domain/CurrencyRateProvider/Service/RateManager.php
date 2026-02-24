@@ -96,8 +96,9 @@ class RateManager
      * Get rate history for a specific base currency
      * @return array<RateHistory>
      */
-    public function getRateHistoryByBaseCurrency(
+    public function getRateHistoryByCurrency(
         CurrencyEnum $baseCurrency,
+        ?CurrencyEnum $targetCurrency,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null
     ): array {
@@ -108,10 +109,15 @@ class RateManager
         // Query by base currency
         $qb = $this->rateHistoryRepository->createQueryBuilder('rh');
 
+        if ($targetCurrency) {
+            $qb->andWhere('rh.targetCurrency = :targetCurrency')
+               ->setParameter('targetCurrency', $targetCurrency);
+        }
+
         return $qb
             ->andWhere('rh.baseCurrency = :baseCurrency')
-            ->andWhere('rh.date BETWEEN :from AND :to')
             ->setParameter('baseCurrency', $baseCurrency)
+            ->andWhere('rh.date BETWEEN :from AND :to')
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->orderBy('rh.date', 'ASC')

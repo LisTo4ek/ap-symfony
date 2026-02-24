@@ -6,8 +6,8 @@ namespace App\Domain\CurrencyRateProvider\Providers\CbrProvider;
 
 use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Parser\RateProcessorInterface;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Parser\XmlProcessor;
+use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\RateProcessorInterface;
+use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\XmlProcessor;
 use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
 use DateTimeInterface;
 use Generator;

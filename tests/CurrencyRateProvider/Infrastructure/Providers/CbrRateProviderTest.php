@@ -4,7 +4,7 @@ namespace App\Tests\CurrencyRateProvider\Infrastructure\Providers;
 
 use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Domain\CurrencyRateProvider\Providers\CbrProvider\CbrProvider;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Parser\RateProcessorInterface;
+use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\RateProcessorInterface;
 use ArrayIterator;
 use DateTimeImmutable;
 use Exception;
