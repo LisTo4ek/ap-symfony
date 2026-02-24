@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}История курса {{ currency->value }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>История курса {{ currency->value }}/RUB</h1>
+
+        <div class="mb-3">
+            <a href="{{ path('app_home_index') }}" class="btn btn-secondary">← Назад к текущим курсам</a>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Фильтр</h5>
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="date" class="form-label">Дата</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="date"
+                            name="date"
+                            value="{{ filterDate }}"
+                        >
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block">Применить</button>
+                    </div>
+                    {% if filterDate %}
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <a href="{{ path('app_currency_history', {currency: currency}) }}" class="btn btn-secondary d-block">
+                                Сбросить
+                            </a>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        {% if pagination.items|length > 0 %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Номинал</th>
+                        <th>Курс (RUB)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rate in pagination %}
+                        <tr>
+                            <td>{{ rate.date|date('d.m.Y') }}</td>
+                            <td>{{ rate.nominal }}</td>
+                            <td>{{ rate.value }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                История курса не найдена
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+

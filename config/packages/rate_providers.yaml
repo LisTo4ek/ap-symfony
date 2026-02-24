@@ -1,0 +1,65 @@
+#rate_providers:
+#    # CBR Rate Provider (https://cbr.ru)
+#    cbr_rate_provider:
+#        monitored_currencies:
+#            - !php/enum App\RateProvider\Domain\ValueObject\Currency::USD
+#            - !php/enum App\RateProvider\Domain\ValueObject\Currency::EUR
+#            - !php/enum App\RateProvider\Domain\ValueObject\Currency::GBP
+#            - !php/enum App\RateProvider\Domain\ValueObject\Currency::CNY
+#        api_url: 'https://cbr.ru/scripts/XML_daily.asp'
+#        timeout: 30
+#        retry_attempts: 3
+#        base_currency: !php/enum App\RateProvider\Domain\ValueObject\Currency::RUB
+#        encoding: 'windows-1251'
+#
+#    # # Custom Rate Provider example
+#    # custom_rate_provider:
+#    #     param1: '<value1>'
+#    #     param2: '<value2>'
+#
+#when@test:
+#    rate_providers:
+#        cbr_rate_provider:
+#            monitored_currencies:
+#                - !php/enum App\RateProvider\Domain\ValueObject\Currency::USD
+#                - !php/enum App\RateProvider\Domain\ValueObject\Currency::EUR
+#            timeout: 5
+#            retry_attempts: 1
+#
+#when@dev:
+#    rate_providers:
+#        cbr_rate_provider:
+#            monitored_currencies:
+#                - !php/enum App\RateProvider\Domain\ValueObject\Currency::USD
+#                - !php/enum App\RateProvider\Domain\ValueObject\Currency::EUR
+#            timeout: 30
+#            retry_attempts: 1
+
+parameters:
+    rate_providers.cbr_rate_provider.api_url: 'https://cbr.ru/scripts/XML_daily.asp'
+    rate_providers.cbr_rate_provider.monitored_currencies:
+        - !php/enum App\RateProvider\Domain\ValueObject\Currency::USD
+        - !php/enum App\RateProvider\Domain\ValueObject\Currency::EUR
+        - !php/enum App\RateProvider\Domain\ValueObject\Currency::GBP
+        - !php/enum App\RateProvider\Domain\ValueObject\Currency::JPY
+        - !php/enum App\RateProvider\Domain\ValueObject\Currency::CNY
+    rate_providers.cbr_rate_provider.timeout: 30
+    rate_providers.cbr_rate_provider.retry_attempts: 3
+    rate_providers.cbr_rate_provider.base_currency: !php/enum App\RateProvider\Domain\ValueObject\Currency::RUB
+    rate_providers.cbr_rate_provider.encoding: 'windows-1251'
+
+when@test:
+    parameters:
+        rate_providers.cbr_rate_provider.monitored_currencies:
+            - !php/enum App\RateProvider\Domain\ValueObject\Currency::USD
+            - !php/enum App\RateProvider\Domain\ValueObject\Currency::EUR
+        rate_providers.cbr_rate_provider.timeout: 5
+        rate_providers.cbr_rate_provider.retry_attempts: 1
+
+when@dev:
+    parameters:
+        rate_providers.cbr_rate_provider.monitored_currencies:
+            - !php/enum App\RateProvider\Domain\ValueObject\Currency::USD
+            - !php/enum App\RateProvider\Domain\ValueObject\Currency::EUR
+        rate_providers.cbr_rate_provider.timeout: 60
+        rate_providers.cbr_rate_provider.retry_attempts: 1

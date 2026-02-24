@@ -1,0 +1,42 @@
+<?php
+
+namespace App\EventSubscriber;
+
+use App\Event\RateSavedEvent;
+use App\Repository\CurrentRateRepository;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class CurrencySyncSubscriber implements EventSubscriberInterface
+{
+    public function __construct(
+        private readonly CurrentRateRepository $repository
+    ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            RateSavedEvent::class => 'onRateSaved',
+        ];
+    }
+
+    public function onRateSaved(RateSavedEvent $event): void
+    {
+        $rate = $event->getRate();
+        $today = (new \DateTimeImmutable())->format('Y-m-d');
+
+        // Only update current course if the rate is for today
+        if ($rate->date->format('Y-m-d') === $today) {
+            $this->repository->updateOrCreate(
+                $rate->baseCurrency,
+                $rate->targetCurrency,
+                (string) $rate->value,
+            );
+
+            $currentRate = $this->repository->findByCurrency($rate->targetCurrency);
+            if ($currentRate) {
+                $this->repository->save($currentRate, true);
+            }
+        }
+    }
+}

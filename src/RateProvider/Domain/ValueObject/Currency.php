@@ -1,0 +1,16 @@
+<?php
+
+namespace App\RateProvider\Domain\ValueObject;
+
+enum Currency: string
+{
+    case AUD = 'AUD';
+    case CAD = 'CAD';
+    case CHF = 'CHF';
+    case CNY = 'CNY';
+    case EUR = 'EUR';
+    case GBP = 'GBP';
+    case JPY = 'JPY';
+    case RUB = 'RUB';
+    case USD = 'USD';
+}
