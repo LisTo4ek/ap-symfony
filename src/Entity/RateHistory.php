@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Repository\RateHistoryRepository;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RateHistoryRepository::class)]
@@ -15,23 +17,23 @@ class RateHistory {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: 'string', enumType: Currency::class)]
-    private Currency $baseCurrency;
+    #[ORM\Column(name: 'base_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
+    private CurrencyEnum $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: 'string', enumType: Currency::class)]
-    private Currency $targetCurrency;
+    #[ORM\Column(name: 'target_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
+    private CurrencyEnum $targetCurrency;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 8)]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
     private string $value;
 
-    #[ORM\Column(type: 'date_immutable')]
-    private \DateTimeImmutable $date;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private DateTimeInterface $date;
 
     public function __construct(
-        Currency           $baseCurrency,
-        Currency           $targetCurrency,
-        string             $value,
-        \DateTimeImmutable $date
+        CurrencyEnum $baseCurrency,
+        CurrencyEnum $targetCurrency,
+        string $value,
+        DateTimeInterface $date
     ) {
         $this->baseCurrency = $baseCurrency;
         $this->targetCurrency = $targetCurrency;
@@ -44,23 +46,13 @@ class RateHistory {
         return $this->id;
     }
 
-    public function getBaseCurrency(): Currency
-    {
-        return $this->baseCurrency;
-    }
-
-    public function setBaseCurrency(Currency $baseCurrency): self
+    public function setBaseCurrency(CurrencyEnum $baseCurrency): self
     {
         $this->baseCurrency = $baseCurrency;
         return $this;
     }
 
-    public function getTargetCurrency(): Currency
-    {
-        return $this->targetCurrency;
-    }
-
-    public function setTargetCurrency(Currency $targetCurrency): self
+    public function setTargetCurrency(CurrencyEnum $targetCurrency): self
     {
         $this->targetCurrency = $targetCurrency;
         return $this;
@@ -77,14 +69,24 @@ class RateHistory {
         return $this;
     }
 
-    public function getDate(): \DateTimeImmutable
+    public function getDate(): DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeImmutable $date): self
+    public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
         return $this;
+    }
+
+    public function getBaseCurrency(): CurrencyEnum
+    {
+        return $this->baseCurrency;
+    }
+
+    public function getTargetCurrency(): CurrencyEnum
+    {
+        return $this->targetCurrency;
     }
 }

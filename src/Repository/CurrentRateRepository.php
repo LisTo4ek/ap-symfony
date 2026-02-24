@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Entity\CurrentRate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -29,7 +29,7 @@ class CurrentRateRepository extends ServiceEntityRepository
     /**
      * Find rate for a specific currency pair
      */
-    public function findByCurrencyPair(Currency $baseCurrency, Currency $targetCurrency): ?CurrentRate
+    public function findByCurrencyPair(CurrencyEnum $baseCurrency, CurrencyEnum $targetCurrency): ?CurrentRate
     {
         return $this->findOneBy([
             'baseCurrency' => $baseCurrency,
@@ -41,9 +41,9 @@ class CurrentRateRepository extends ServiceEntityRepository
      * Upsert (insert or update) rate for currency pair
      */
     public function upsertForCurrencyPair(
-        Currency $baseCurrency,
-        Currency $targetCurrency,
-        string $value
+        CurrencyEnum $baseCurrency,
+        CurrencyEnum $targetCurrency,
+        string       $value
     ): CurrentRate {
         $entity = $this->findByCurrencyPair($baseCurrency, $targetCurrency);
 
@@ -59,7 +59,7 @@ class CurrentRateRepository extends ServiceEntityRepository
 
     /**
      * Get all current rates sorted by base currency
-     * @return CurrentRate[]
+     * @return array<CurrentRate>
      */
     public function findAll(): array
     {
@@ -68,18 +68,18 @@ class CurrentRateRepository extends ServiceEntityRepository
 
     /**
      * Get all rates for a specific base currency
-     * @return CurrentRate[]
+     * @return array<CurrentRate>
      */
-    public function findByBaseCurrency(Currency $baseCurrency): array
+    public function findByBaseCurrency(CurrencyEnum $baseCurrency): array
     {
         return $this->findBy(['baseCurrency' => $baseCurrency], ['targetCurrency' => 'ASC']);
     }
 
     /**
      * Get all rates for a specific target currency
-     * @return CurrentRate[]
+     * @return array<CurrentRate>
      */
-    public function findByTargetCurrency(Currency $targetCurrency): array
+    public function findByTargetCurrency(CurrencyEnum $targetCurrency): array
     {
         return $this->findBy(['targetCurrency' => $targetCurrency], ['baseCurrency' => 'ASC']);
     }

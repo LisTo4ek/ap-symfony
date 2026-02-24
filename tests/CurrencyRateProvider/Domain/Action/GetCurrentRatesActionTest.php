@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Tests\RateProvider\Domain\Action;
+namespace App\Tests\CurrencyRateProvider\Domain\Action;
 
-use App\RateProvider\Domain\Action\GetCurrentRatesAction;
-use App\RateProvider\Domain\Entity\Rate;
-use App\RateProvider\Domain\Service\RateFetcher;
-use App\RateProvider\Domain\Service\RateManager;
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Action\GetCurrentRatesAction;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Domain\CurrencyRateProvider\Service\RateFetcher;
+use App\Domain\CurrencyRateProvider\Service\RateManager;
 use App\Entity\CurrentRate;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
 class GetCurrentRatesActionTest extends TestCase
@@ -28,8 +29,8 @@ class GetCurrentRatesActionTest extends TestCase
      */
     public function testReturnsCurrentRatesWhenActual(): void
     {
-        $today = new \DateTimeImmutable('today');
-        $currentRate = new CurrentRate(Currency::USD, '75.50');
+        $today = new DateTimeImmutable('today');
+        $currentRate = new CurrentRate(CurrencyEnum::USD, '75.50');
 
         $this->rateManager
             ->expects($this->once())
@@ -52,10 +53,10 @@ class GetCurrentRatesActionTest extends TestCase
      */
     public function testFetchesRatesWhenNoCurrentRates(): void
     {
-        $today = new \DateTimeImmutable('today');
+        $today = new DateTimeImmutable('today');
         $rate = new Rate(
-            Currency::RUB,
-            Currency::USD,
+            CurrencyEnum::RUB,
+            CurrencyEnum::USD,
             75.50,
             $today
         );
@@ -76,7 +77,7 @@ class GetCurrentRatesActionTest extends TestCase
             ->method('saveRatesToHistory')
             ->with([$rate]);
 
-        $currentRate = new CurrentRate(Currency::USD, '75.50');
+        $currentRate = new CurrentRate(CurrencyEnum::USD, '75.50');
         $this->rateManager
             ->expects($this->exactly(2))
             ->method('getCurrentRates')
@@ -93,8 +94,8 @@ class GetCurrentRatesActionTest extends TestCase
      */
     public function testReturnsOldRatesWithWarningOnConnectionError(): void
     {
-        $yesterday = new \DateTimeImmutable('yesterday');
-        $currentRate = new CurrentRate(Currency::USD, '75.50');
+        $yesterday = new DateTimeImmutable('yesterday');
+        $currentRate = new CurrentRate(CurrencyEnum::USD, '75.50');
         // Set updated time to yesterday using reflection
         $reflection = new \ReflectionClass($currentRate);
         $property = $reflection->getProperty('updatedAt');

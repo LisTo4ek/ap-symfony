@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Event;
 
-use App\RateProvider\Domain\Entity\Rate;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class RateSavedEvent extends Event

@@ -1,14 +1,17 @@
 <?php
 
-namespace App\RateProvider\Domain\Service;
+declare(strict_types=1);
 
-use App\RateProvider\Domain\Entity\Rate;
-use App\RateProvider\Domain\ValueObject\Currency;
+namespace App\Domain\CurrencyRateProvider\Service;
+
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
 use App\Entity\CurrentRate;
 use App\Entity\RateHistory;
+use App\Event\RateSavedEvent;
 use App\Repository\CurrentRateRepository;
 use App\Repository\RateHistoryRepository;
-use App\Event\RateSavedEvent;
+use DateTimeInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -25,18 +28,19 @@ class RateManager
 
     /**
      * Save rates to history and dispatch events
-     * @param Rate[] $rates
+     * @param array<Rate> $rates
      */
     public function saveRatesToHistory(array $rates): void
     {
         foreach ($rates as $rate) {
             $historyEntity = $this->rateHistoryRepository->updateOrCreate(
+                $rate->baseCurrency,
                 $rate->targetCurrency,
-                (string) $rate->value,
+                (string) $rate->rate,
                 $rate->date
             );
 
-            $this->rateHistoryRepository->save($historyEntity, false);
+            $this->rateHistoryRepository->save($historyEntity);
 
             // Dispatch event for current rate update
             $this->eventDispatcher->dispatch(new RateSavedEvent($rate));
@@ -51,7 +55,7 @@ class RateManager
 
     /**
      * Get current rates from database
-     * @return CurrentRate[]
+     * @return array<CurrentRate>
      */
     public function getCurrentRates(): array
     {
@@ -68,19 +72,20 @@ class RateManager
 
     /**
      * Get rate history for a specific target currency
-     * @return RateHistory[]
+     * @return array<RateHistory>
      */
     public function getRateHistoryByTargetCurrency(
-        Currency $targetCurrency,
-        ?\DateTimeInterface $from = null,
-        ?\DateTimeInterface $to = null
-    ): array
-    {
+        CurrencyEnum $baseCurrency,
+        ?CurrencyEnum $targetCurrency,
+        ?DateTimeInterface $from = null,
+        ?DateTimeInterface $to = null
+    ): array {
         if (!$from || !$to) {
             return [];
         }
 
-        return $this->rateHistoryRepository->findByCharCodeAndDateRange(
+        return $this->rateHistoryRepository->findByCurrencyPairAndDateRange(
+            $baseCurrency,
             $targetCurrency,
             $from,
             $to
@@ -89,14 +94,13 @@ class RateManager
 
     /**
      * Get rate history for a specific base currency
-     * @return RateHistory[]
+     * @return array<RateHistory>
      */
     public function getRateHistoryByBaseCurrency(
-        Currency $baseCurrency,
-        ?\DateTimeInterface $from = null,
-        ?\DateTimeInterface $to = null
-    ): array
-    {
+        CurrencyEnum $baseCurrency,
+        ?DateTimeInterface $from = null,
+        ?DateTimeInterface $to = null
+    ): array {
         if (!$from || !$to) {
             return [];
         }

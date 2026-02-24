@@ -1,8 +1,10 @@
 <?php
 
-namespace App\RateProvider\Domain\ValueObject;
+declare(strict_types=1);
 
-enum Currency: string
+namespace App\Domain\CurrencyRateProvider\Base;
+
+enum CurrencyEnum: string
 {
     case AUD = 'AUD';
     case CAD = 'CAD';

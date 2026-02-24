@@ -1,47 +1,49 @@
 <?php
 
-    namespace App\Repository;
+declare(strict_types=1);
 
-    use App\Entity\Author;
-    use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-    use Doctrine\Persistence\ManagerRegistry;
+namespace App\Repository;
 
-    /**
-     * @extends ServiceEntityRepository<Author>
-     */
-    class AuthorRepository extends ServiceEntityRepository
+use App\Entity\Author;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+/**
+ * @extends ServiceEntityRepository<Author>
+ */
+class AuthorRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
     {
-        public function __construct(ManagerRegistry $registry)
-        {
-            parent::__construct($registry, Author::class);
-        }
+        parent::__construct($registry, Author::class);
+    }
 
-        public function save(Author $entity, bool $flush = false): void
-        {
-            $this->getEntityManager()->persist($entity);
+    public function save(Author $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
 
-            if ($flush) {
-                $this->getEntityManager()->flush();
-            }
-        }
-
-        public function remove(Author $entity, bool $flush = false): void
-        {
-            $this->getEntityManager()->remove($entity);
-
-            if ($flush) {
-                $this->getEntityManager()->flush();
-            }
-        }
-
-        /**
-         * @return Author[]
-         */
-        public function findAllOrderedByName(): array
-        {
-            return $this->createQueryBuilder('a')
-                ->orderBy('a.name', 'ASC')
-                ->getQuery()
-                ->getResult();
+        if ($flush) {
+            $this->getEntityManager()->flush();
         }
     }
+
+    public function remove(Author $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * @return array<Author>
+     */
+    public function findAllOrderedByName(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->orderBy('a.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+}

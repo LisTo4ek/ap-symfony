@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
-use App\RateProvider\Domain\Entity\Rate;
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Entity\RateHistory;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -27,104 +28,118 @@ class RateHistoryRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByCharCodeAndDate(Currency $currency, \DateTimeImmutable $date): ?RateHistory
-    {
+    public function findByCurrencyPairAndDate(
+        CurrencyEnum $baseCurrency,
+        CurrencyEnum $targetCurrency,
+        DateTimeInterface $date
+    ): ?RateHistory {
         return $this->createQueryBuilder('rh')
-            ->andWhere('rh.charCode = :code')
+            ->andWhere('rh.base_currency = :baseCurrency')
+            ->andWhere('rh.target_currency = :targetCurrency')
             ->andWhere('rh.date = :date')
-            ->setParameter('code', $currency->value)
+            ->setParameter('baseCurrency', $baseCurrency)
+            ->setParameter('targetCurrency', $targetCurrency)
             ->setParameter('date', $date)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     /**
-     * @return RateHistory[]
+     * @return array<RateHistory>
      */
-    public function findByCharCodeAndDateRange(
-        Currency $currency,
-        \DateTimeImmutable $from,
-        \DateTimeImmutable $to
+    public function findByCurrencyPairAndDateRange(
+        CurrencyEnum $baseCurrency,
+        ?CurrencyEnum $targetCurrency,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
     ): array {
-        return $this->createQueryBuilder('rh')
-            ->andWhere('rh.charCode = :code')
+        $query = $this->createQueryBuilder('rh')
+            ->andWhere('rh.base_currency = :baseCurrency')
             ->andWhere('rh.date BETWEEN :from AND :to')
-            ->setParameter('code', $currency->value)
+            ->setParameter('baseCurrency', $baseCurrency)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
-            ->orderBy('rh.date', 'ASC')
+            ->orderBy('rh.date', 'ASC');
+
+        if ($targetCurrency) {
+            $query->andWhere('rh.target_currency = :targetCurrency')
+                ->setParameter('targetCurrency', $targetCurrency);
+        }
+
+        return $query
             ->getQuery()
             ->getResult();
     }
 
     public function updateOrCreate(
-        Currency $currency,
+        CurrencyEnum $baseCurrency,
+        CurrencyEnum $targetCurrency,
         string $value,
-        \DateTimeImmutable $date
+        DateTimeInterface $date
     ): RateHistory {
-        $entity = $this->findByCharCodeAndDate($currency, $date);
+        $entity = $this->findByCurrencyPairAndDate($baseCurrency, $targetCurrency, $date);
 
         if ($entity) {
             $entity->setValue($value);
         } else {
-            $entity = new RateHistory($currency, $value, $date);
+            $entity = new RateHistory($baseCurrency, $targetCurrency, $value, $date);
             $this->getEntityManager()->persist($entity);
         }
 
         return $entity;
     }
+//
+//    /**
+//     * @param Rate[] $rates
+//     */
+//    public function upsertForDate(array $rates, DateTimeInterface $date): void
+//    {
+//        if ($rates === []) {
+//            return;
+//        }
+//
+//        $em = $this->getEntityManager();
+//
+//        $em->wrapInTransaction(function () use ($rates, $date, $em): void {
+//            $codes = array_values(array_unique(array_map(
+//                static fn(Rate $rate): CurrencyEnum => $rate->targetCurrency,
+//                $rates
+//            )));
+//
+//            $existing = $this->findByCurrencyAndDate($codes, $date);
+//            $existingByCode = [];
+//
+//            foreach ($existing as $entity) {
+//                $existingByCode[$entity->getBaseCurrency()->value] = $entity;
+//            }
+//
+//            foreach ($rates as $rate) {
+//                $code = $rate->targetCurrency->value;
+//
+//                if (isset($existingByCode[$code])) {
+//                    $entity = $existingByCode[$code];
+//                    $entity->setValue((string)$rate->rate);
+//                    continue;
+//                }
+//
+//                $entity = new RateHistory(
+//                    $rate->targetCurrency,
+//                    (string)$rate->rate,
+//                    DateTimeImmutable::createFromInterface($date)
+//                );
+//                $em->persist($entity);
+//                $existingByCode[$code] = $entity;
+//            }
+//
+//            $em->flush();
+//        });
+//    }
 
     /**
-     * @param Rate[] $rates
+     * @param CurrencyEnum[] $codes
+     * @return array<RateHistory>
      */
-    public function upsertForDate(array $rates, \DateTimeImmutable $date): void
-    {
-        if ($rates === []) {
-            return;
-        }
-
-        $em = $this->getEntityManager();
-
-        $em->wrapInTransaction(function () use ($rates, $date, $em): void {
-            $codes = array_values(array_unique(array_map(
-                static fn (Rate $rate): Currency => $rate->targetCurrency,
-                $rates
-            )));
-
-            $existing = $this->findByCurrencyAndDate($codes, $date);
-            $existingByCode = [];
-
-            foreach ($existing as $entity) {
-                $existingByCode[$entity->getBaseCurrency()->value] = $entity;
-            }
-
-            foreach ($rates as $rate) {
-                $code = $rate->targetCurrency->value;
-
-                if (isset($existingByCode[$code])) {
-                    $entity = $existingByCode[$code];
-                    $entity->setValue((string) $rate->value);
-                    continue;
-                }
-
-                $entity = new RateHistory(
-                    $rate->targetCurrency,
-                    (string) $rate->value,
-                    \DateTimeImmutable::createFromInterface($date)
-                );
-                $em->persist($entity);
-                $existingByCode[$code] = $entity;
-            }
-
-            $em->flush();
-        });
-    }
-
-    /**
-     * @param Currency[] $codes
-     * @return RateHistory[]
-     */
-    private function findByCurrencyAndDate(array $codes, \DateTimeImmutable $date): array
+    private function findByCurrencyAndDate(array $codes, DateTimeInterface $date): array
     {
         return $this->createQueryBuilder('rh')
             ->andWhere('rh.charCode IN (:codes)')
@@ -136,7 +151,7 @@ class RateHistoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param RateHistory[] $entities
+     * @param array<RateHistory> $entities
      */
     public function saveBatch(array $entities): void
     {

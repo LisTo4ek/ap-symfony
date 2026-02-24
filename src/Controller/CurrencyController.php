@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Repository\RateHistoryRepository;
+use DateTimeImmutable;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Knp\Component\Pager\PaginatorInterface;
 
 class CurrencyController extends AbstractController
 {
@@ -32,7 +35,7 @@ class CurrencyController extends AbstractController
 
         if ($filterDate) {
             try {
-                $dateObject = new \DateTimeImmutable($filterDate);
+                $dateObject = new DateTimeImmutable($filterDate);
             } catch (\Exception $e) {
                 $this->addFlash('warning', 'Неверный формат даты');
             }
@@ -66,7 +69,7 @@ class CurrencyController extends AbstractController
         );
 
         return $this->render('currency/history.html.twig', [
-            'currency' => Currency::from($currency),
+            'currency' => CurrencyEnum::from($currency),
             'pagination' => $pagination,
             'filterDate' => $filterDate,
         ]);

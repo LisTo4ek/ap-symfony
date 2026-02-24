@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
-use App\RateProvider\Domain\Contract\RateProviderInterface;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
+use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -15,22 +19,20 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(
-    name: 'app:currency:import',
+    name: 'app:currency:import:cbr',
     description: 'Import currency rates from CBR for a date range',
 )]
-class ImportCurrencyCbrCommand extends Command
+class CurrencyRateImportCbrCommand extends Command
 {
     private const int CHUNK_SIZE = 100;
 
     public function __construct(
-        private readonly RateProviderInterface $rateProvider,
+        private readonly CurrencyRateProviderInterface $rateProvider,
         private readonly RateHistoryRepository $historyRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -41,7 +43,7 @@ class ImportCurrencyCbrCommand extends Command
                 'from',
                 InputArgument::OPTIONAL,
                 'Start date (Y-m-d)',
-                (new \DateTime('-30 days'))->format('Y-m-d')
+                (new \DateTime())->format('Y-m-d')
             )
             ->addArgument(
                 'to',
@@ -62,8 +64,8 @@ class ImportCurrencyCbrCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            $from = new \DateTimeImmutable($input->getArgument('from'));
-            $to = new \DateTimeImmutable($input->getArgument('to'));
+            $from = new DateTimeImmutable($input->getArgument('from'));
+            $to = new DateTimeImmutable($input->getArgument('to'));
         } catch (\Exception $e) {
             $io->error('Invalid date format. Use Y-m-d format.');
             return Command::FAILURE;
@@ -99,24 +101,20 @@ class ImportCurrencyCbrCommand extends Command
             $progressBar->setMessage($date->format('Y-m-d'));
 
             try {
-                $rates = $this->rateProvider->getRates($date);
-
-                foreach (array_chunk($rates, self::CHUNK_SIZE) as $chunk) {
-                    // Convert Rate domain objects to RateHistory entities
+                /** @var array<Rate> $chunk */
+                foreach ($this->rateProvider->getRates($date, self::CHUNK_SIZE) as $chunk) {
                     $historyEntities = array_map(
-                        static fn ($rate) => new RateHistory(
+                        static fn(Rate $rate) => new RateHistory(
                             $rate->baseCurrency,
                             $rate->targetCurrency,
-                            (string) $rate->value,
-                            \DateTimeImmutable::createFromInterface($date)
+                            (string) $rate->rate,
+                            $rate->date
                         ),
                         $chunk
                     );
 
-                    // Batch save with transaction
                     $this->historyRepository->saveBatch($historyEntities);
 
-                    // Dispatch events for each saved rate
                     foreach ($chunk as $rate) {
                         $this->eventDispatcher->dispatch(new RateSavedEvent($rate));
                     }

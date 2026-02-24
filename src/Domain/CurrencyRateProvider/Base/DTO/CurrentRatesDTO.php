@@ -1,25 +1,28 @@
 <?php
 
-namespace App\RateProvider\Domain\DTO;
+declare(strict_types=1);
+
+namespace App\Domain\CurrencyRateProvider\Base\DTO;
 
 use App\Entity\CurrentRate;
+use DateTimeInterface;
 
 /**
  * DTO for current rates response
  *
- * @property CurrentRate[] $rates - Array of current exchange rates
- * @property \DateTimeInterface $date - Date of the rates
+ * @property array<CurrentRate> $rates - Array of current exchange rates
+ * @property DateTimeInterface $date - Date of the rates
  * @property bool $isActual - Whether rates are current (today's rates)
  * @property string|null $message - Error or warning message if any
  */
 class CurrentRatesDTO
 {
     /**
-     * @param CurrentRate[] $rates
+     * @param array<CurrentRate> $rates
      */
     public function __construct(
         public readonly array $rates,
-        public readonly \DateTimeInterface $date,
+        public readonly DateTimeInterface $date,
         public readonly bool $isActual,
         public readonly ?string $message = null
     ) {

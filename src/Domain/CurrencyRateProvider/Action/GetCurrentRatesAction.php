@@ -1,11 +1,13 @@
 <?php
 
-namespace App\RateProvider\Domain\Action;
+declare(strict_types=1);
 
-use App\RateProvider\Domain\DTO\CurrentRatesDTO;
-use App\RateProvider\Domain\Service\RateFetcher;
-use App\RateProvider\Domain\Service\RateManager;
-use App\Entity\CurrentRate;
+namespace App\Domain\CurrencyRateProvider\Action;
+
+use App\Domain\CurrencyRateProvider\Base\DTO\CurrentRatesDTO;
+use App\Domain\CurrencyRateProvider\Service\RateFetcher;
+use App\Domain\CurrencyRateProvider\Service\RateManager;
+use DateTimeImmutable;
 
 /**
  * Action to get current rates for today
@@ -21,7 +23,7 @@ class GetCurrentRatesAction
 
     public function __invoke(): CurrentRatesDTO
     {
-        $today = new \DateTimeImmutable('today');
+        $today = new DateTimeImmutable('today');
         $currentRates = $this->rateManager->getCurrentRates();
 
         // Check if we need to update rates
@@ -39,7 +41,7 @@ class GetCurrentRatesAction
         );
     }
 
-    private function needsUpdate(array $currentRates, \DateTimeImmutable $today): bool
+    private function needsUpdate(array $currentRates, DateTimeImmutable $today): bool
     {
         if (empty($currentRates)) {
             return true;
@@ -54,11 +56,10 @@ class GetCurrentRatesAction
         return false;
     }
 
-    private function fetchAndUpdateRates(\DateTimeImmutable $today, array $existingRates): CurrentRatesDTO
+    private function fetchAndUpdateRates(DateTimeImmutable $today, array $existingRates): CurrentRatesDTO
     {
         $rates = $this->rateFetcher->tryFetchRates($today);
 
-        // Requirement 1.1: Connection error with existing rates
         if ($rates === null && !empty($existingRates)) {
             return new CurrentRatesDTO(
                 rates: $existingRates,
@@ -68,7 +69,6 @@ class GetCurrentRatesAction
             );
         }
 
-        // Requirement 1.2: Connection error without existing rates
         if ($rates === null && empty($existingRates)) {
             return new CurrentRatesDTO(
                 rates: [],
@@ -78,7 +78,6 @@ class GetCurrentRatesAction
             );
         }
 
-        // Successfully fetched rates - save them
         $this->rateManager->saveRatesToHistory($rates);
 
         return new CurrentRatesDTO(

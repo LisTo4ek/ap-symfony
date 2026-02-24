@@ -1,21 +1,22 @@
 <?php
 
-namespace App\Tests\RateProvider\Domain\Service;
+namespace App\Tests\CurrencyRateProvider\Domain\Service;
 
-use App\RateProvider\Domain\Contract\RateProviderInterface;
-use App\RateProvider\Domain\Entity\Rate;
-use App\RateProvider\Domain\Service\RateFetcher;
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
+use App\Domain\CurrencyRateProvider\Service\RateFetcher;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
 class RateFetcherTest extends TestCase
 {
-    private RateProviderInterface $rateProvider;
+    private CurrencyRateProviderInterface $rateProvider;
     private RateFetcher $rateFetcher;
 
     protected function setUp(): void
     {
-        $this->rateProvider = $this->createMock(RateProviderInterface::class);
+        $this->rateProvider = $this->createMock(CurrencyRateProviderInterface::class);
         $this->rateFetcher = new RateFetcher($this->rateProvider);
     }
 
@@ -24,10 +25,10 @@ class RateFetcherTest extends TestCase
      */
     public function testFetchRatesSuccessfully(): void
     {
-        $date = new \DateTimeImmutable('2026-01-01');
+        $date = new DateTimeImmutable('2026-01-01');
         $expectedRate = new Rate(
-            Currency::RUB,
-            Currency::USD,
+            CurrencyEnum::RUB,
+            CurrencyEnum::USD,
             75.50,
             $date
         );
@@ -49,7 +50,7 @@ class RateFetcherTest extends TestCase
      */
     public function testFetchRatesThrowsException(): void
     {
-        $date = new \DateTimeImmutable('2026-01-01');
+        $date = new DateTimeImmutable('2026-01-01');
 
         $this->rateProvider
             ->expects($this->once())
@@ -68,7 +69,7 @@ class RateFetcherTest extends TestCase
      */
     public function testTryFetchRatesReturnsNullOnError(): void
     {
-        $date = new \DateTimeImmutable('2026-01-01');
+        $date = new DateTimeImmutable('2026-01-01');
 
         $this->rateProvider
             ->expects($this->once())
@@ -86,10 +87,10 @@ class RateFetcherTest extends TestCase
      */
     public function testTryFetchRatesReturnsRatesOnSuccess(): void
     {
-        $date = new \DateTimeImmutable('2026-01-01');
+        $date = new DateTimeImmutable('2026-01-01');
         $expectedRate = new Rate(
-            Currency::RUB,
-            Currency::EUR,
+            CurrencyEnum::RUB,
+            CurrencyEnum::EUR,
             85.00,
             $date
         );
@@ -113,10 +114,10 @@ class RateFetcherTest extends TestCase
     public function testWorksWithAnyRateProvider(): void
     {
         // This test demonstrates that RateFetcher depends on interface, not concrete class
-        $customProvider = $this->createMock(RateProviderInterface::class);
+        $customProvider = $this->createMock(CurrencyRateProviderInterface::class);
         $fetcher = new RateFetcher($customProvider);
 
-        $date = new \DateTimeImmutable('2026-01-01');
+        $date = new DateTimeImmutable('2026-01-01');
         $customProvider
             ->method('getRates')
             ->willReturn([]);

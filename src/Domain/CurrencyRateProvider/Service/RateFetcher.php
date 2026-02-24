@@ -1,9 +1,12 @@
 <?php
 
-namespace App\RateProvider\Domain\Service;
+declare(strict_types=1);
 
-use App\RateProvider\Domain\Contract\RateProviderInterface;
-use App\RateProvider\Domain\Entity\Rate;
+namespace App\Domain\CurrencyRateProvider\Service;
+
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
+use DateTimeInterface;
 
 /**
  * Service for fetching currency rates from external sources
@@ -11,7 +14,7 @@ use App\RateProvider\Domain\Entity\Rate;
 class RateFetcher
 {
     public function __construct(
-        private readonly RateProviderInterface $rateProvider
+        private readonly CurrencyRateProviderInterface $rateProvider
     ) {
     }
 
@@ -20,7 +23,7 @@ class RateFetcher
      * @return Rate[]
      * @throws \RuntimeException when service is unavailable
      */
-    public function fetchRates(\DateTimeInterface $date): array
+    public function fetchRates(DateTimeInterface $date): array
     {
         return $this->rateProvider->getRates($date);
     }
@@ -29,7 +32,7 @@ class RateFetcher
      * Try to fetch rates, return null on error
      * @return Rate[]|null
      */
-    public function tryFetchRates(\DateTimeInterface $date): ?array
+    public function tryFetchRates(DateTimeInterface $date): ?array
     {
         try {
             return $this->fetchRates($date);

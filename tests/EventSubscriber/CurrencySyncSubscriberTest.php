@@ -2,12 +2,13 @@
 
 namespace App\Tests\EventSubscriber;
 
-use App\RateProvider\Domain\Entity\Rate;
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
 use App\Entity\CurrentRate;
 use App\Event\RateSavedEvent;
 use App\EventSubscriber\CurrencySyncSubscriber;
 use App\Repository\CurrentRateRepository;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
 class CurrencySyncSubscriberTest extends TestCase
@@ -26,15 +27,15 @@ class CurrencySyncSubscriberTest extends TestCase
      */
     public function testUpdatesCurrentRateForTodayRate(): void
     {
-        $today = new \DateTimeImmutable('today');
+        $today = new DateTimeImmutable('today');
         $rate = new Rate(
-            Currency::RUB,
-            Currency::USD,
+            CurrencyEnum::RUB,
+            CurrencyEnum::USD,
             75.50,
             $today
         );
 
-        $currentRate = new CurrentRate(Currency::USD, '74.00');
+        $currentRate = new CurrentRate(CurrencyEnum::RUB, CurrencyEnum::USD, '74.00');
 
         $this->repository
             ->expects($this->once())
@@ -62,10 +63,10 @@ class CurrencySyncSubscriberTest extends TestCase
      */
     public function testDoesNotUpdateCurrentRateForOldRate(): void
     {
-        $yesterday = new \DateTimeImmutable('yesterday');
+        $yesterday = new DateTimeImmutable('yesterday');
         $rate = new Rate(
-            Currency::RUB,
-            Currency::USD,
+            CurrencyEnum::RUB,
+            CurrencyEnum::USD,
             75.50,
             $yesterday
         );
@@ -98,10 +99,10 @@ class CurrencySyncSubscriberTest extends TestCase
      */
     public function testHandlesMissingCurrentRate(): void
     {
-        $today = new \DateTimeImmutable('today');
+        $today = new DateTimeImmutable('today');
         $rate = new Rate(
-            Currency::RUB,
-            Currency::USD,
+            CurrencyEnum::RUB,
+            CurrencyEnum::USD,
             75.50,
             $today
         );
@@ -109,7 +110,7 @@ class CurrencySyncSubscriberTest extends TestCase
         $this->repository
             ->expects($this->once())
             ->method('updateOrCreate')
-            ->willReturn(new CurrentRate(Currency::USD, '75.50'));
+            ->willReturn(new CurrentRate(CurrencyEnum::RUB, CurrencyEnum::USD, '75.50'));
 
         $this->repository
             ->expects($this->once())

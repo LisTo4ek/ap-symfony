@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventSubscriber;
 
 use App\Event\RateSavedEvent;
 use App\Repository\CurrentRateRepository;
+use DateTimeImmutable;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CurrencySyncSubscriber implements EventSubscriberInterface
@@ -23,14 +26,14 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
     public function onRateSaved(RateSavedEvent $event): void
     {
         $rate = $event->getRate();
-        $today = (new \DateTimeImmutable())->format('Y-m-d');
+        $today = (new DateTimeImmutable())->format('Y-m-d');
 
         // Only update current course if the rate is for today
         if ($rate->date->format('Y-m-d') === $today) {
             $this->repository->updateOrCreate(
                 $rate->baseCurrency,
                 $rate->targetCurrency,
-                (string) $rate->value,
+                (string) $rate->rate,
             );
 
             $currentRate = $this->repository->findByCurrency($rate->targetCurrency);

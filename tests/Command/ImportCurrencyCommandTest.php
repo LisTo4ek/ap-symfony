@@ -2,12 +2,13 @@
 
 namespace App\Tests\Command;
 
-use App\Command\ImportCurrencyCbrCommand;
-use App\RateProvider\Domain\Contract\RateProviderInterface;
-use App\RateProvider\Domain\Entity\Rate;
-use App\RateProvider\Domain\ValueObject\Currency;
+use App\Command\CurrencyRateImportCbrCommand;
+use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Console\Application;
@@ -15,18 +16,18 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class ImportCurrencyCommandTest extends TestCase
 {
-    private RateProviderInterface $rateProvider;
+    private CurrencyRateProviderInterface $rateProvider;
     private RateHistoryRepository $historyRepository;
     private EventDispatcherInterface $eventDispatcher;
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
-        $this->rateProvider = $this->createMock(RateProviderInterface::class);
+        $this->rateProvider = $this->createMock(CurrencyRateProviderInterface::class);
         $this->historyRepository = $this->createMock(RateHistoryRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $command = new ImportCurrencyCbrCommand(
+        $command = new CurrencyRateImportCbrCommand(
             $this->rateProvider,
             $this->historyRepository,
             $this->eventDispatcher
@@ -44,10 +45,10 @@ class ImportCurrencyCommandTest extends TestCase
     public function testSuccessfullyImportsRates(): void
     {
         $rate = new Rate(
-            Currency::RUB,
-            Currency::USD,
+            CurrencyEnum::RUB,
+            CurrencyEnum::USD,
             75.50,
-            new \DateTimeImmutable('2026-01-01')
+            new DateTimeImmutable('2026-01-01')
         );
 
         $this->rateProvider
@@ -150,7 +151,7 @@ class ImportCurrencyCommandTest extends TestCase
         ]);
 
         $output = $this->commandTester->getDisplay();
-        // Progress bar should be displayed
+
         $this->assertNotEmpty($output);
     }
 }
