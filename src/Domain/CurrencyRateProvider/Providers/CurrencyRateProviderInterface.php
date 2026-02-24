@@ -16,7 +16,7 @@ use RuntimeException;
 interface CurrencyRateProviderInterface
 {
     /**
-     * Get currency rates for a specific date as a generator, chunked by n items
+     * Get currency rates for a specific date as a generator, chunked
      *
      * @param DateTimeInterface $date The date to fetch rates for
      * @param int $chunkSize Number of items per chunk (default: 100)

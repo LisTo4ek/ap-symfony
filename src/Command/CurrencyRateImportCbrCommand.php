@@ -9,6 +9,8 @@ use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
+use DateMalformedPeriodStringException;
+use DateMalformedStringException;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -59,6 +61,10 @@ class CurrencyRateImportCbrCommand extends Command
             );
     }
 
+    /**
+     * @throws DateMalformedStringException
+     * @throws DateMalformedPeriodStringException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
