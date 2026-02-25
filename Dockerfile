@@ -27,6 +27,7 @@ RUN set -eux; \
 	install-php-extensions \
 		@composer \
 		apcu \
+		bcmath \
 		intl \
 		opcache \
 		zip \
@@ -36,6 +37,10 @@ RUN set -eux; \
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
+
+# Enable colored output in console
+ENV FORCE_COLOR=1
+ENV CLICOLOR_FORCE=1
 
 ###> recipes ###
 ###> doctrine/doctrine-bundle ###

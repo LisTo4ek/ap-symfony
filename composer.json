@@ -7,6 +7,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.4.18",
+        "ext-bcmath": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-simplexml": "*",

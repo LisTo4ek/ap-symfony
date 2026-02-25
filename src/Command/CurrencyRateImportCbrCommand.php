@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
-use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
-use App\Entity\RateHistory;
-use App\Event\RateSavedEvent;
-use App\Repository\RateHistoryRepository;
+use App\Domain\Action\SaveCbrCurrencyRateHistoryAction;
 use DateMalformedPeriodStringException;
 use DateMalformedStringException;
 use DateTimeImmutable;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -23,17 +18,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:currency:import:cbr',
+    name: 'app:import:currency-rates:cbr',
     description: 'Import currency rates from CBR for a date range',
 )]
 class CurrencyRateImportCbrCommand extends Command
 {
-    private const int CHUNK_SIZE = 100;
 
     public function __construct(
-        private readonly CurrencyRateProviderInterface $rateProvider,
-        private readonly RateHistoryRepository $historyRepository,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SaveCbrCurrencyRateHistoryAction $saveCurrencyRateHistoryAction,
     ) {
         parent::__construct();
     }
@@ -100,35 +92,14 @@ class CurrencyRateImportCbrCommand extends Command
         $progressBar->start();
 
         $successCount = 0;
-        $errorCount = 0;
         $errors = [];
 
         foreach ($period as $date) {
             $progressBar->setMessage($date->format('Y-m-d'));
 
             try {
-                /** @var array<Rate> $chunk */
-                foreach ($this->rateProvider->getRates($date, self::CHUNK_SIZE) as $chunk) {
-                    $historyEntities = array_map(
-                        static fn(Rate $rate) => new RateHistory(
-                            $rate->baseCurrency,
-                            $rate->targetCurrency,
-                            (string) $rate->rate,
-                            $rate->date
-                        ),
-                        $chunk
-                    );
-
-                    $this->historyRepository->saveBatch($historyEntities);
-
-                    foreach ($chunk as $rate) {
-                        $this->eventDispatcher->dispatch(new RateSavedEvent($rate));
-                    }
-                }
-
-                $successCount++;
+                $successCount += ($this->saveCurrencyRateHistoryAction)($date) ?? 0;
             } catch (\Exception $e) {
-                $errorCount++;
                 $errors[] = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
             }
 
@@ -138,9 +109,9 @@ class CurrencyRateImportCbrCommand extends Command
         $progressBar->finish();
         $io->newLine(2);
 
-        $io->success(sprintf('Import completed: %d successful, %d errors', $successCount, $errorCount));
+        $io->success(sprintf('Import completed: %d successful, %d errors', $successCount, count($errors)));
 
-        if ($errorCount > 0) {
+        if (count($errors) > 0) {
             $io->warning('Errors occurred during import:');
             $io->listing($errors);
             return Command::FAILURE;

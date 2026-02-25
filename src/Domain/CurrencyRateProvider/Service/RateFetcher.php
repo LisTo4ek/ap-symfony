@@ -20,10 +20,10 @@ class RateFetcher
 
     /**
      * Fetch rates for a specific date
-     * @return Rate[]
+     * @return Rate
      * @throws \RuntimeException when service is unavailable
      */
-    public function fetchRates(DateTimeInterface $date): array
+    public function fetchRates(DateTimeInterface $date): Generator
     {
         return $this->rateProvider->getRates($date);
     }

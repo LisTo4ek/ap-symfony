@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Repository\CurrentRateRepository;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CurrentRateRepository::class)]
@@ -12,18 +13,16 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_updated_at', columns: ['updated_at'])]
 class CurrentRate
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: 'string', length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
+    #[ORM\Column(name: 'base_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
     private CurrencyEnum $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: 'string', length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
+    #[ORM\Column(name: 'target_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
     private CurrencyEnum $targetCurrency;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 8)]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
     private string $value;
 
     #[ORM\Column(type: 'datetime_immutable')]

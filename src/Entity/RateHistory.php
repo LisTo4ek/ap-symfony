@@ -4,12 +4,13 @@ namespace App\Entity;
 
 use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
 use App\Repository\RateHistoryRepository;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RateHistoryRepository::class)]
-#[ORM\UniqueConstraint(name: 'idx_currency_pair_date', columns: ['base_currency', 'target_currency', 'date'])]
+//#[ORM\UniqueConstraint(name: 'idx_currency_pair_date', columns: ['base_currency', 'target_currency', 'date'])]
 #[ORM\Index(name: 'idx_base_currency_date', columns: ['base_currency', 'date'])]
 #[ORM\Index(name: 'idx_target_currency_date', columns: ['target_currency', 'date'])]
 #[ORM\Index(name: 'idx_date', columns: ['date'])]
@@ -23,11 +24,14 @@ class RateHistory {
     #[ORM\Column(name: 'target_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
     private CurrencyEnum $targetCurrency;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $value;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private DateTimeInterface $date;
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    private DateTimeImmutable $updatedAt;
 
     public function __construct(
         CurrencyEnum $baseCurrency,
@@ -39,6 +43,7 @@ class RateHistory {
         $this->targetCurrency = $targetCurrency;
         $this->value = $value;
         $this->date = $date;
+        $this->updatedAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int

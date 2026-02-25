@@ -22,25 +22,27 @@ final class CurrentRateAdmin extends AbstractAdmin
     protected function configureDatagridFilters(DatagridMapper $filter): void
     {
         $filter
-            ->add('charCode', null, ['label' => 'Код валюты'])
-            ->add('value', null, ['label' => 'Курс'])
-            ->add('updatedAt', null, ['label' => 'Обновлено']);
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
+            ->add('value', null, ['label' => 'Rate'])
+            ->add('updatedAt', null, ['label' => 'Updated']);
     }
 
     protected function configureListFields(ListMapper $list): void
     {
         $list
-            ->add('charCode', null, ['label' => 'Код валюты'])
-            ->add('value', null, ['label' => 'Курс'])
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
+            ->add('value', null, ['label' => 'Rate'])
             ->add('updatedAt', null, [
-                'label' => 'Обновлено',
+                'label' => 'Updated',
                 'format' => 'd.m.Y H:i:s'
             ])
             ->add(ListMapper::NAME_ACTIONS, null, [
-                'label' => 'Действия',
+                'label' => 'Actions',
                 'actions' => [
                     'show' => [],
-                    'edit' => [],
+//                    'edit' => [],
                 ],
             ]);
     }
@@ -48,17 +50,19 @@ final class CurrentRateAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $form): void
     {
         $form
-            ->add('charCode', null, ['label' => 'Код валюты (3 символа)'])
-            ->add('value', null, ['label' => 'Курс']);
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
+            ->add('value', null, ['label' => 'Rate']);
     }
 
     protected function configureShowFields(ShowMapper $show): void
     {
         $show
-            ->add('charCode', null, ['label' => 'Код валюты'])
-            ->add('value', null, ['label' => 'Курс'])
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
+            ->add('value', null, ['label' => 'Rate'])
             ->add('updatedAt', null, [
-                'label' => 'Обновлено',
+                'label' => 'Updated',
                 'format' => 'd.m.Y H:i:s'
             ]);
     }

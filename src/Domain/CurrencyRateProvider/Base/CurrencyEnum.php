@@ -12,6 +12,7 @@ enum CurrencyEnum: string
     case CNY = 'CNY';
     case EUR = 'EUR';
     case GBP = 'GBP';
+    case IRR = 'IRR';
     case JPY = 'JPY';
     case RUB = 'RUB';
     case USD = 'USD';

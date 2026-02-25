@@ -24,10 +24,11 @@ final class RateHistoryAdmin extends AbstractAdmin
     {
         $filter
             ->add('date', DateFilter::class, [
-                'label' => 'Дата',
+                'label' => 'Date',
                 'field_type' => 'Symfony\Component\Form\Extension\Core\Type\DateType',
             ])
-            ->add('charCode', null, ['label' => 'Currency'])
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
             ->add('value', null, ['label' => 'Rate']);
     }
 
@@ -38,7 +39,8 @@ final class RateHistoryAdmin extends AbstractAdmin
                 'label' => 'Date',
                 'format' => 'd.m.Y'
             ])
-            ->add('charCode', null, ['label' => 'Currency'])
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
             ->add('value', null, ['label' => 'Rate'])
             ->add(ListMapper::NAME_ACTIONS, null, [
                 'label' => 'Actions',
@@ -54,11 +56,12 @@ final class RateHistoryAdmin extends AbstractAdmin
     {
         $form
             ->add('date', null, [
-                'label' => 'Дата',
+                'label' => 'Date',
                 'widget' => 'single_text'
             ])
-            ->add('charCode', null, ['label' => 'Код валюты (3 символа)'])
-            ->add('value', null, ['label' => 'Курс']);
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency'])
+            ->add('value', null, ['label' => 'Rate']);
     }
 
     protected function configureShowFields(ShowMapper $show): void
@@ -66,11 +69,12 @@ final class RateHistoryAdmin extends AbstractAdmin
         $show
             ->add('id')
             ->add('date', null, [
-                'label' => 'Дата',
+                'label' => 'Date',
                 'format' => 'd.m.Y'
             ])
-            ->add('charCode', null, ['label' => 'Валюта'])
-            ->add('value', null, ['label' => 'Курс']);
+            ->add('baseCurrency', null, ['label' => 'Base Currency'])
+            ->add('targetCurrency', null, ['label' => 'Target Currency '])
+            ->add('value', null, ['label' => 'Rate']);
     }
 
     protected function configureDefaultSortValues(array &$sortValues): void

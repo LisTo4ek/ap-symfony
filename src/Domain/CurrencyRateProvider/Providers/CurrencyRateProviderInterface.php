@@ -23,6 +23,6 @@ interface CurrencyRateProviderInterface
      * @return Generator<int, array<Rate>> Generator yielding chunks of Rate domain entities
      * @throws RuntimeException when service is unavailable
      */
-    public function getRates(DateTimeInterface $date, int $chunkSize = 100): Generator;
+    public function getRates(DateTimeInterface $date, int $chunkSize = 1000): Generator;
 }
 

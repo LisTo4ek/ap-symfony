@@ -11,6 +11,7 @@ use Exception;
 use Generator;
 use SimpleXMLElement;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+use App\Domain\Helper\NumberHelper;
 
 #[AsAlias(RateProcessorInterface::class)]
 class XmlProcessor implements RateProcessorInterface
@@ -24,7 +25,6 @@ class XmlProcessor implements RateProcessorInterface
         string $content,
         CurrencyEnum $baseCurrency,
         array $monitoredCurrencies,
-        string $encoding = 'UTF-8'
     ): Generator {
         $xml = new SimpleXMLElement($content);
 
@@ -45,7 +45,7 @@ class XmlProcessor implements RateProcessorInterface
             yield new Rate(
                 $baseCurrency,
                 $targetCurrency,
-                (float) \str_replace(',', '.', (string) $currencyNode->VunitRate),
+                $this->processRate($currencyNode),
                 $rateDate,
             );
         }
@@ -75,5 +75,13 @@ class XmlProcessor implements RateProcessorInterface
         }
 
         return null;
+    }
+
+    private function processRate(SimpleXMLElement $currencyNode): string
+    {
+        $rate = NumberHelper::normalize((string) $currencyNode->VunitRate);
+        $multiplier = NumberHelper::normalize((string) $currencyNode->Nominal);
+
+        return  bcdiv($rate, $multiplier, 32);
     }
 }

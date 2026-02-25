@@ -14,9 +14,8 @@ interface RateProcessorInterface
      * @return \Generator<int, Rate>
      */
     public function process(
-        string       $content,
+        string $content,
         CurrencyEnum $baseCurrency,
-        array        $monitoredCurrencies,
-        string       $encoding = 'UTF-8'
+        array $monitoredCurrencies,
     ): \Generator;
 }

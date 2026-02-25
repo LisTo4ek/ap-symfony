@@ -27,28 +27,24 @@ class CbrProvider implements CurrencyRateProviderInterface
      * @param array<CurrencyEnum> $monitoredCurrencies List of currency codes to monitor from configuration
      * @param int $timeout Request timeout in seconds from configuration
      * @param CurrencyEnum $baseCurrency Base currency code from configuration (default: RUB)
-     * @param string $contentEncoding encoding of the XML response (default: windows-1251)
      */
     public function __construct(
-        private readonly HttpClientInterface    $httpClient,
+        private readonly HttpClientInterface $httpClient,
 
         #[Autowire(service: XmlProcessor::class)]
-        private readonly RateProcessorInterface $rateParser,
+        private readonly RateProcessorInterface $rateProcessor,
 
-        #[Autowire(param: 'rate_providers.cbr_rate_provider.api_url')]
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.api_url')]
         private readonly string $apiUrl,
 
-        #[Autowire(param: 'rate_providers.cbr_rate_provider.monitored_currencies')]
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.monitored_currencies')]
         private readonly array $monitoredCurrencies,
 
-        #[Autowire(param: 'rate_providers.cbr_rate_provider.timeout')]
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.timeout')]
         private readonly int $timeout = 30,
 
-        #[Autowire(param: 'rate_providers.cbr_rate_provider.base_currency')]
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
         private readonly CurrencyEnum $baseCurrency = CurrencyEnum::RUB,
-
-        #[Autowire(param: 'rate_providers.cbr_rate_provider.encoding')]
-        private readonly string $contentEncoding = 'windows-1251'
     ) {
     }
 
@@ -56,7 +52,7 @@ class CbrProvider implements CurrencyRateProviderInterface
      * @return Generator<int, array<Rate>>
      * @throws RuntimeException
      */
-    public function getRates(DateTimeInterface $date, int $chunkSize = 100): Generator
+    public function getRates(DateTimeInterface $date, int $chunkSize = 1000): Generator
     {
         try {
             $response = $this->httpClient->request(
@@ -68,15 +64,20 @@ class CbrProvider implements CurrencyRateProviderInterface
             );
 
             $chunk = [];
-            foreach ($this->rateParser->process(
+            foreach ($this->rateProcessor->process(
                 $response->getContent(),
                 $this->baseCurrency,
                 $this->monitoredCurrencies,
-                $this->contentEncoding,
             ) as $rate) {
                 $chunk[] = $rate;
+                $chunk[] = new Rate(
+                    $rate->targetCurrency,
+                    $rate->baseCurrency,
+                    bcdiv("1", $rate->rate, 32),
+                    $rate->date
+                );
 
-                if (\count($chunk) === $chunkSize) {
+                if (\count($chunk) >= $chunkSize) {
                     yield $chunk;
                     $chunk = [];
                 }

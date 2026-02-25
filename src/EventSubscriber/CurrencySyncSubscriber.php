@@ -30,13 +30,17 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
 
         // Only update current course if the rate is for today
         if ($rate->date->format('Y-m-d') === $today) {
-            $this->repository->updateOrCreate(
+            $this->repository->upsertForCurrencyPair(
                 $rate->baseCurrency,
                 $rate->targetCurrency,
-                (string) $rate->rate,
+                $rate->rate,
             );
 
-            $currentRate = $this->repository->findByCurrency($rate->targetCurrency);
+            $currentRate = $this->repository->findByCurrencyPair(
+                $rate->baseCurrency,
+                $rate->targetCurrency
+            );
+
             if ($currentRate) {
                 $this->repository->save($currentRate, true);
             }

@@ -12,7 +12,7 @@ class Rate
     public function __construct(
         public readonly CurrencyEnum $baseCurrency,
         public readonly CurrencyEnum $targetCurrency,
-        public readonly float $rate,
+        public readonly string $rate,
         public readonly DateTimeInterface $date
     ) {
     }
