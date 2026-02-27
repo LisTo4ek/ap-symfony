@@ -1,35 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\CurrencyRateProvider\Infrastructure\Providers;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Enum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorInterface;
-use ArrayIterator;
+use App\Tests\KernelTestCase;
+use App\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
+use DateTimeInterface;
 use Exception;
-use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class CbrProviderTest extends TestCase
+class CbrProviderTest extends KernelTestCase
 {
+    use CurrencyTrait;
+
     private HttpClientInterface $httpClient;
     private RateProcessorInterface $rateParser;
     private CbrProvider $provider;
 
     protected function setUp(): void
     {
+        parent::setUp();
+        $this->initCurrencies();
+
         $this->httpClient = $this->createMock(HttpClientInterface::class);
         $this->rateParser = $this->createMock(RateProcessorInterface::class);
         $this->provider = new CbrProvider(
             $this->httpClient,
             $this->rateParser,
             'https://cbr.ru/scripts/XML_daily.asp',
-            [CurrencyEnum::USD, CurrencyEnum::EUR],
+            [CurrencyIso4217Enum::USD->value, CurrencyIso4217Enum::EUR->value],
+            CurrencyIso4217Enum::RUB->value,
             30,
-            CurrencyEnum::RUB,
-            'windows-1251'
+            32
         );
     }
 
@@ -47,6 +57,7 @@ class CbrProviderTest extends TestCase
         <Nominal>1</Nominal>
         <Name>Доллар США</Name>
         <Value>65,9436</Value>
+        <VunitRate>65,9436</VunitRate>
     </Valute>
     <Valute ID="R01239">
         <NumCode>978</NumCode>
@@ -54,6 +65,7 @@ class CbrProviderTest extends TestCase
         <Nominal>1</Nominal>
         <Name>Евро</Name>
         <Value>74,0247</Value>
+        <VunitRate>74,0247</VunitRate>
     </Valute>
     <Valute ID="R01010">
         <NumCode>036</NumCode>
@@ -61,6 +73,7 @@ class CbrProviderTest extends TestCase
         <Nominal>1</Nominal>
         <Name>Австралийский доллар</Name>
         <Value>43,2533</Value>
+        <VunitRate>43,2533</VunitRate>
     </Valute>
 </ValCurs>
 XML;
@@ -78,15 +91,20 @@ XML;
             ])
             ->willReturn($response);
 
+        $today = new DateTimeImmutable('today');
         // Mock the rate parser to return test rates
         $mockRates = [
-            $this->createMockRate(CurrencyEnum::RUB, CurrencyEnum::USD, 65.9436),
-            $this->createMockRate(CurrencyEnum::RUB, CurrencyEnum::EUR, 74.0247),
+            $this->createMockRate($this->rubCurrency, $this->usdCurrency, '65.9436', $today),
+            $this->createMockRate($this->rubCurrency, $this->usdCurrency, '74.0247', $today),
         ];
 
         $this->rateParser->expects($this->once())
             ->method('process')
-            ->willReturnCallback(fn() => new ArrayIterator($mockRates));
+            ->willReturnCallback(function () use ($mockRates) {
+                foreach ($mockRates as $rate) {
+                    yield $rate;
+                }
+            });
 
         $date = new DateTimeImmutable('2020-03-02');
         $generator = $this->provider->getRates($date);
@@ -97,19 +115,15 @@ XML;
             $allRates = array_merge($allRates, $chunk);
         }
 
-        $this->assertCount(2, $allRates);
-        $this->assertEquals(CurrencyEnum::USD, $allRates[0]->targetCurrency);
-        $this->assertEquals(65.9436, $allRates[0]->rate);
+        $this->assertCount(4, $allRates);
+        $this->assertEquals($this->usdCurrency, $allRates[0]->targetCurrency);
+        $this->assertEquals('65.9436', $allRates[0]->rate);
     }
 
-    private function createMockRate(CurrencyEnum $baseCurrency, CurrencyEnum $targetCurrency, float $rate)
+    private function createMockRate(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency, string $rate, DateTimeInterface $date): Rate
     {
-        $mockRate = $this->createMock(\tmp\CurrencyRateProvider\Base\Entity\Rate::class);
-        $mockRate->baseCurrency = $baseCurrency;
-        $mockRate->targetCurrency = $targetCurrency;
-        $mockRate->rate = $rate;
-
-        return $mockRate;
+        // Create a real Rate object instead of a mock to avoid property access issues
+        return new Rate($baseCurrency, $targetCurrency, $rate, $date);
     }
 
     /**
@@ -138,12 +152,16 @@ XML;
         $this->httpClient->method('request')->willReturn($response);
 
         $mockRates = [
-            $this->createMockRate(CurrencyEnum::RUB, CurrencyEnum::USD, 65.9436),
+            $this->createMockRate($this->rubCurrency, $this->usdCurrency, '65.9436', new DateTimeImmutable('today')),
         ];
 
         $this->rateParser->expects($this->once())
             ->method('process')
-            ->willReturnCallback(fn() => new ArrayIterator($mockRates));
+            ->willReturnCallback(function () use ($mockRates) {
+                foreach ($mockRates as $rate) {
+                    yield $rate;
+                }
+            });
 
         $date = new DateTimeImmutable('2020-03-02');
         $generator = $this->provider->getRates($date);
@@ -155,8 +173,9 @@ XML;
         }
 
         // AUD is not in default monitored currencies (USD, EUR)
-        $this->assertCount(1, $allRates);
-        $this->assertEquals(CurrencyEnum::USD, $allRates[0]->targetCurrency);
+        // CbrProvider creates direct rate + inverse rate for each monitored currency
+        $this->assertCount(2, $allRates);
+        $this->assertEquals(CurrencyIso4217Enum::USD->value, $allRates[0]->targetCurrency->getCode());
     }
 
     /**
@@ -198,12 +217,16 @@ XML;
         $this->httpClient->method('request')->willReturn($response);
 
         $mockRates = [
-            $this->createMockRate(CurrencyEnum::RUB, CurrencyEnum::EUR, 74.0247),
+            $this->createMockRate($this->rubCurrency, $this->usdCurrency, '74.0247', new DateTimeImmutable('today')),
         ];
 
         $this->rateParser->expects($this->once())
             ->method('process')
-            ->willReturnCallback(fn() => new ArrayIterator($mockRates));
+            ->willReturnCallback(function () use ($mockRates) {
+                foreach ($mockRates as $rate) {
+                    yield $rate;
+                }
+            });
 
         $date = new DateTimeImmutable('2020-03-02');
         $generator = $this->provider->getRates($date);
@@ -214,6 +237,8 @@ XML;
             $allRates = array_merge($allRates, $chunk);
         }
 
-        $this->assertEquals(74.0247, $allRates[0]->rate);
+        // CbrProvider creates direct rate + inverse rate
+        // First rate is the direct rate with the original value
+        $this->assertEquals('74.0247', $allRates[0]->rate);
     }
 }

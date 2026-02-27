@@ -24,9 +24,9 @@ class RateFetcher
      * @return Generator<int, array<Rate>>
      * @throws \RuntimeException when service is unavailable
      */
-    public function fetchRates(DateTimeInterface $date): Generator
+    public function fetchRates(DateTimeInterface $date, int $chunkSize = 1000): Generator
     {
-        return $this->rateProvider->getRates($date);
+        return $this->rateProvider->getRates($date, $chunkSize);
     }
 
     /**

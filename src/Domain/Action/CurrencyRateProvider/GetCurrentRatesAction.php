@@ -9,10 +9,6 @@ use App\Domain\Service\CurrencyRateProvider\RateFetcher;
 use App\Domain\Service\CurrencyRateProvider\RateManager;
 use DateTimeImmutable;
 
-/**
- * Action to get current rates for today
- * Implements business logic from requirement 1.0-1.3
- */
 class GetCurrentRatesAction
 {
     public function __construct(
@@ -78,7 +74,9 @@ class GetCurrentRatesAction
             );
         }
 
-        $this->rateManager->saveRatesToHistory($rates);
+        foreach ($rates as $rateChunk) {
+            $this->rateManager->saveRatesToHistory($rateChunk);
+        }
 
         return new CurrentRatesDTO(
             rates: $this->rateManager->getCurrentRates(),

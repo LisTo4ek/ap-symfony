@@ -2,39 +2,46 @@
 
 namespace App\Tests\Command;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use App\Command\CurrencyRateImportCbrCommand;
+use App\Domain\Action\CurrencyRateProvider\SaveCbrCurrencyRateHistoryAction;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
+use App\Tests\KernelTestCase;
+use App\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ImportCurrencyCommandTest extends TestCase
+class ImportCurrencyCommandTest extends KernelTestCase
 {
+    use CurrencyTrait;
+
     private CurrencyRateProviderInterface $rateProvider;
     private RateHistoryRepository $historyRepository;
     private EventDispatcherInterface $eventDispatcher;
     private CommandTester $commandTester;
 
+
     protected function setUp(): void
     {
+        parent::setUp();
+        $this->initCurrencies();
+
         $this->rateProvider = $this->createMock(CurrencyRateProviderInterface::class);
         $this->historyRepository = $this->createMock(RateHistoryRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $command = new CurrencyRateImportCbrCommand(
+        $saveAction = new SaveCbrCurrencyRateHistoryAction(
             $this->rateProvider,
             $this->historyRepository,
             $this->eventDispatcher
         );
 
-        $application = new Application();
-        $application->add($command);
+        $command = new CurrencyRateImportCbrCommand(
+            $saveAction
+        );
 
         $this->commandTester = new CommandTester($command);
     }
@@ -45,20 +52,22 @@ class ImportCurrencyCommandTest extends TestCase
     public function testSuccessfullyImportsRates(): void
     {
         $rate = new Rate(
-            CurrencyEnum::RUB,
-            CurrencyEnum::USD,
-            75.50,
+            $this->rubCurrency,
+            $this->usdCurrency,
+            '75.50',
             new DateTimeImmutable('2026-01-01')
         );
 
         $this->rateProvider
             ->expects($this->atLeastOnce())
             ->method('getRates')
-            ->willReturn([$rate]);
+            ->willReturnCallback(function () use ($rate) {
+                yield [$rate];
+            });
 
         $this->historyRepository
             ->expects($this->atLeastOnce())
-            ->method('updateOrCreate');
+            ->method('saveBatch');
 
         $this->eventDispatcher
             ->expects($this->atLeastOnce())
@@ -81,7 +90,9 @@ class ImportCurrencyCommandTest extends TestCase
     {
         $this->rateProvider
             ->method('getRates')
-            ->willReturn([]);
+            ->willReturnCallback(function () {
+                yield from [];
+            });
 
         $this->commandTester->execute([]);
 
@@ -143,7 +154,9 @@ class ImportCurrencyCommandTest extends TestCase
     {
         $this->rateProvider
             ->method('getRates')
-            ->willReturn([]);
+            ->willReturnCallback(function () {
+                yield from [];
+            });
 
         $this->commandTester->execute([
             'from' => '2026-01-01',
@@ -155,4 +168,3 @@ class ImportCurrencyCommandTest extends TestCase
         $this->assertNotEmpty($output);
     }
 }
-

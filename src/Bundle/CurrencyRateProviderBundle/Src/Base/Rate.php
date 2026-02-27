@@ -10,10 +10,10 @@ use DateTimeInterface;
 class Rate
 {
     public function __construct(
-        public readonly CurrencyContract $baseCurrency,
-        public readonly CurrencyContract $targetCurrency,
-        public readonly string $rate,
-        public readonly DateTimeInterface $date
+        public CurrencyContract $baseCurrency,
+        public CurrencyContract $targetCurrency,
+        public string $rate,
+        public DateTimeInterface $date
     ) {
     }
 }

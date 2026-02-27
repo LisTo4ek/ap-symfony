@@ -37,7 +37,7 @@ class RateHistory {
         CurrencyContract $baseCurrency,
         CurrencyContract $targetCurrency,
         string $value,
-        DateTimeInterface $date
+        DateTimeInterface $date,
     ) {
         $this->baseCurrency = $baseCurrency;
         $this->targetCurrency = $targetCurrency;

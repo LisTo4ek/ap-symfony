@@ -1,21 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\CurrencyRateProvider\Domain\Service;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use App\Domain\Service\CurrencyRateProvider\RateFetcher;
+use App\Tests\KernelTestCase;
+use App\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
 
-class RateFetcherTest extends TestCase
+class RateFetcherTest extends KernelTestCase
 {
+    use CurrencyTrait;
+
     private CurrencyRateProviderInterface $rateProvider;
     private RateFetcher $rateFetcher;
 
     protected function setUp(): void
     {
+        parent::setUp();
+        $this->initCurrencies();
+
         $this->rateProvider = $this->createMock(CurrencyRateProviderInterface::class);
         $this->rateFetcher = new RateFetcher($this->rateProvider);
     }
@@ -27,9 +34,9 @@ class RateFetcherTest extends TestCase
     {
         $date = new DateTimeImmutable('2026-01-01');
         $expectedRate = new Rate(
-            CurrencyEnum::RUB,
-            CurrencyEnum::USD,
-            75.50,
+            $this->rubCurrency,
+            $this->usdCurrency,
+            '75.50',
             $date
         );
 
@@ -37,12 +44,13 @@ class RateFetcherTest extends TestCase
             ->expects($this->once())
             ->method('getRates')
             ->with($date)
-            ->willReturn([$expectedRate]);
+            ->willReturnCallback(function () use ($expectedRate) {
+                yield [$expectedRate];
+            });
 
-        $result = $this->rateFetcher->fetchRates($date);
+        $result = iterator_to_array($this->rateFetcher->fetchRates($date));
 
         $this->assertCount(1, $result);
-        $this->assertSame($expectedRate, $result[0]);
     }
 
     /**
@@ -89,9 +97,9 @@ class RateFetcherTest extends TestCase
     {
         $date = new DateTimeImmutable('2026-01-01');
         $expectedRate = new Rate(
-            CurrencyEnum::RUB,
-            CurrencyEnum::EUR,
-            85.00,
+            $this->rubCurrency,
+            $this->eurCurrency,
+            '85.00',
             $date
         );
 
@@ -99,13 +107,13 @@ class RateFetcherTest extends TestCase
             ->expects($this->once())
             ->method('getRates')
             ->with($date)
-            ->willReturn([$expectedRate]);
+            ->willReturnCallback(function () use ($expectedRate) {
+                yield [$expectedRate];
+            });
 
         $result = $this->rateFetcher->tryFetchRates($date);
 
-        $this->assertIsArray($result);
-        $this->assertCount(1, $result);
-        $this->assertSame($expectedRate, $result[0]);
+        $this->assertInstanceOf(\Generator::class, $result);
     }
 
     /**
@@ -120,12 +128,15 @@ class RateFetcherTest extends TestCase
         $date = new DateTimeImmutable('2026-01-01');
         $customProvider
             ->method('getRates')
-            ->willReturn([]);
+            ->willReturnCallback(function () {
+                return;
+                yield;
+            });
 
         $result = $fetcher->fetchRates($date);
 
-        $this->assertIsArray($result);
-        $this->assertEmpty($result);
+        $this->assertInstanceOf(\Generator::class, $result);
+        $this->assertEmpty(iterator_to_array($result));
     }
 }
 

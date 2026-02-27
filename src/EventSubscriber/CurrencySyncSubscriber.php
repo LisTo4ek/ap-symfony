@@ -26,7 +26,7 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
     public function onRateSaved(RateSavedEvent $event): void
     {
         $rate = $event->getRate();
-        $today = (new DateTimeImmutable())->format('Y-m-d');
+        $today = new DateTimeImmutable()->format('Y-m-d');
 
         // Only update current course if the rate is for today
         if ($rate->date->format('Y-m-d') === $today) {
@@ -34,11 +34,12 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
                 $rate->baseCurrency,
                 $rate->targetCurrency,
                 $rate->rate,
+                $rate->date,
             );
 
             $currentRate = $this->repository->findByCurrencyPair(
                 $rate->baseCurrency,
-                $rate->targetCurrency
+                $rate->targetCurrency,
             );
 
             if ($currentRate) {

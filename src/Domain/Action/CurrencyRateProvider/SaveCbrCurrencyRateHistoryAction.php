@@ -28,6 +28,7 @@ class SaveCbrCurrencyRateHistoryAction
 
     public function __invoke(DateTimeImmutable $date): int
     {
+        $today = new DateTimeImmutable('today');
         $count = 0;
         /** @var array<Rate> $chunk */
         foreach ($this->provider->getRates($date, self::CHUNK_SIZE) as $chunk) {
@@ -45,7 +46,12 @@ class SaveCbrCurrencyRateHistoryAction
 
             $count += \count($chunk);
 
+            /** @var Rate $rate */
             foreach ($chunk as $rate) {
+                if ($rate->date->diff($today)->days === 0) {
+                    continue;
+                }
+
                 $this->eventDispatcher->dispatch(new RateSavedEvent($rate));
             }
         }

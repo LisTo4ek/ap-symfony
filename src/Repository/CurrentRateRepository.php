@@ -3,8 +3,8 @@
 namespace App\Repository;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
 use App\Entity\CurrentRate;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -44,14 +44,16 @@ class CurrentRateRepository extends ServiceEntityRepository
     public function upsertForCurrencyPair(
         CurrencyContract $baseCurrency,
         CurrencyContract $targetCurrency,
-        string $value
+        string $value,
+        DateTimeInterface $date,
     ): CurrentRate {
         $entity = $this->findByCurrencyPair($baseCurrency, $targetCurrency);
 
         if ($entity) {
             $entity->setValue($value);
+            $entity->setDate($date);
         } else {
-            $entity = new CurrentRate($baseCurrency, $targetCurrency, $value);
+            $entity = new CurrentRate($baseCurrency, $targetCurrency, $value, $date);
             $this->getEntityManager()->persist($entity);
         }
 
@@ -71,7 +73,7 @@ class CurrentRateRepository extends ServiceEntityRepository
      * Get all rates for a specific base currency
      * @return array<CurrentRate>
      */
-    public function findByBaseCurrency(CurrencyEnum $baseCurrency): array
+    public function findByBaseCurrency(CurrencyContract $baseCurrency): array
     {
         return $this->findBy(['baseCurrency' => $baseCurrency], ['targetCurrency' => 'ASC']);
     }
@@ -80,7 +82,7 @@ class CurrentRateRepository extends ServiceEntityRepository
      * Get all rates for a specific target currency
      * @return array<CurrentRate>
      */
-    public function findByTargetCurrency(CurrencyEnum $targetCurrency): array
+    public function findByTargetCurrency(CurrencyContract $targetCurrency): array
     {
         return $this->findBy(['targetCurrency' => $targetCurrency], ['baseCurrency' => 'ASC']);
     }

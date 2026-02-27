@@ -32,18 +32,21 @@ class RateManager
      */
     public function saveRatesToHistory(array $rates): void
     {
+        $today = new \DateTime('today');
         foreach ($rates as $rate) {
             $historyEntity = $this->rateHistoryRepository->updateOrCreate(
                 $rate->baseCurrency,
                 $rate->targetCurrency,
-                (string) $rate->rate,
+                $rate->rate,
                 $rate->date
             );
 
             $this->rateHistoryRepository->save($historyEntity);
 
-            // Dispatch event for current rate update
-            $this->eventDispatcher->dispatch(new RateSavedEvent($rate));
+            if ($rate->date->diff($today)->days === 0) {
+                $this->eventDispatcher->dispatch(new RateSavedEvent($rate));
+            }
+
         }
 
         // Flush all at once for better performance

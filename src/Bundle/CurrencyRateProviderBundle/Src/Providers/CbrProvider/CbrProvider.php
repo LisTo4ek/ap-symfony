@@ -37,13 +37,13 @@ class CbrProvider implements CurrencyRateProviderInterface
         private readonly string $apiUrl,
 
         #[Autowire(param: 'currency_rate_provider.cbr_provider.monitored_currencies')]
-        private readonly array $monitoredCurrencies,
+        private readonly array $monitoredCurrencies = [],
+
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
+        private readonly string $baseCurrencyCode = 'RUB',
 
         #[Autowire(param: 'currency_rate_provider.cbr_provider.timeout')]
         private readonly int $timeout = 30,
-
-        #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
-        private readonly string $baseCurrencyCode,
 
         #[Autowire(param: 'currency_rate_provider.cbr_provider.rate_precision')]
         private readonly int $ratePrecision = 16,

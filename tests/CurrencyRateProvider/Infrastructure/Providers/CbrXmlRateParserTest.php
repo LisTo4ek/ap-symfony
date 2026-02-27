@@ -1,14 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\CurrencyRateProvider\Infrastructure\Providers;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
+use App\Tests\KernelTestCase;
+use App\Tests\Trait\CurrencyTrait;
 use Exception;
-use PHPUnit\Framework\TestCase;
 
-class CbrXmlRateParserTest extends TestCase
+class CbrXmlRateParserTest extends KernelTestCase
 {
+    use CurrencyTrait;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->initCurrencies();
+    }
+
     /**
      * @throws Exception
      */
@@ -21,20 +32,24 @@ class CbrXmlRateParserTest extends TestCase
         <CharCode>USD</CharCode>
         <Nominal>1</Nominal>
         <Value>65,9436</Value>
+        <VunitRate>65,9436</VunitRate>
     </Valute>
     <Valute>
         <CharCode>AUD</CharCode>
         <Nominal>1</Nominal>
         <Value>43,2533</Value>
+        <VunitRate>43,2533</VunitRate>
     </Valute>
 </ValCurs>
 XML;
 
-        $parser = new XmlProcessor();
-        $rates = iterator_to_array($parser->process($xmlContent, CurrencyEnum::RUB, [CurrencyEnum::USD], 'windows-1251'));
+        $parser = $this->fromContainer(XmlProcessor::class);
+        $rates = iterator_to_array(
+            $parser->process($xmlContent, $this->rubCurrency->getCode(), [$this->usdCurrency->getCode()], 32)
+        );
 
         $this->assertCount(1, $rates);
-        $this->assertSame(CurrencyEnum::USD, $rates[0]->targetCurrency);
-        $this->assertSame(CurrencyEnum::RUB, $rates[0]->baseCurrency);
+        $this->assertSame($this->usdCurrency->getCode(), $rates[0]->targetCurrency->getCode());
+        $this->assertSame($this->rubCurrency->getCode(), $rates[0]->baseCurrency->getCode());
     }
 }

@@ -86,8 +86,8 @@ class XmlProcessor implements RateProcessorInterface
     private function processRate(SimpleXMLElement $currencyNode, int $ratePrecision): string
     {
         $rate = NumberHelper::normalize((string) $currencyNode->VunitRate);
-        $multiplier = NumberHelper::normalize((string) $currencyNode->Nominal);
+        $base = NumberHelper::normalize((string) $currencyNode->Nominal);
 
-        return bcdiv($rate, $multiplier, $ratePrecision);
+        return bcdiv($rate, $base, $ratePrecision);
     }
 }
