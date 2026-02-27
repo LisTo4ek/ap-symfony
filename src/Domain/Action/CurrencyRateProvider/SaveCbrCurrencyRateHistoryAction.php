@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Action;
+namespace App\Domain\Action\CurrencyRateProvider;
 
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\CbrProvider;
-use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class SaveCbrCurrencyRateHistoryAction
 {
-    private const int CHUNK_SIZE = 100;
+    private const int CHUNK_SIZE = 1000;
 
     public function __construct(
         #[Autowire(service: CbrProvider::class)]
@@ -53,4 +53,3 @@ class SaveCbrCurrencyRateHistoryAction
         return $count;
     }
 }
-

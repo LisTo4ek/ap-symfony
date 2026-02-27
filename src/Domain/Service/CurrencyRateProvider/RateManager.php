@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Service;
+namespace App\Domain\Service\CurrencyRateProvider;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
 use App\Entity\CurrentRate;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
@@ -75,8 +75,8 @@ class RateManager
      * @return array<RateHistory>
      */
     public function getRateHistoryByTargetCurrency(
-        CurrencyEnum $baseCurrency,
-        ?CurrencyEnum $targetCurrency,
+        CurrencyContract $baseCurrency,
+        ?CurrencyContract $targetCurrency,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null
     ): array {
@@ -97,8 +97,8 @@ class RateManager
      * @return array<RateHistory>
      */
     public function getRateHistoryByCurrency(
-        CurrencyEnum $baseCurrency,
-        ?CurrencyEnum $targetCurrency,
+        CurrencyContract $baseCurrency,
+        ?CurrencyContract $targetCurrency,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null
     ): array {
@@ -111,12 +111,12 @@ class RateManager
 
         if ($targetCurrency) {
             $qb->andWhere('rh.targetCurrency = :targetCurrency')
-               ->setParameter('targetCurrency', $targetCurrency);
+               ->setParameter('targetCurrency', $targetCurrency->getCode());
         }
 
         return $qb
             ->andWhere('rh.baseCurrency = :baseCurrency')
-            ->setParameter('baseCurrency', $baseCurrency)
+            ->setParameter('baseCurrency', $baseCurrency->getCode())
             ->andWhere('rh.date BETWEEN :from AND :to')
             ->setParameter('from', $from)
             ->setParameter('to', $to)

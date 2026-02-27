@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Action;
+namespace App\Domain\Action\CurrencyRateProvider;
 
-use App\Domain\CurrencyRateProvider\Base\DTO\CurrentRatesDTO;
-use App\Domain\CurrencyRateProvider\Service\RateFetcher;
-use App\Domain\CurrencyRateProvider\Service\RateManager;
+use App\Domain\Dto\CurrentRatesDTO;
+use App\Domain\Service\CurrencyRateProvider\RateFetcher;
+use App\Domain\Service\CurrencyRateProvider\RateManager;
 use DateTimeImmutable;
 
 /**
@@ -88,4 +88,3 @@ class GetCurrentRatesAction
         );
     }
 }
-

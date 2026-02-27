@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Domain\Action\SaveCbrCurrencyRateHistoryAction;
+use App\Domain\Action\CurrencyRateProvider\SaveCbrCurrencyRateHistoryAction;
 use DateMalformedPeriodStringException;
 use DateMalformedStringException;
 use DateTimeImmutable;

@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
 use App\Repository\RateHistoryRepository;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -18,11 +18,11 @@ class RateHistory {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
-    private CurrencyEnum $baseCurrency;
+    #[ORM\Column(name: 'base_currency', type: 'currency_iso_4217', options: ['fixed' => true])]
+    private CurrencyContract $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: Types::STRING, length: 3, enumType: CurrencyEnum::class, options: ['fixed' => true])]
-    private CurrencyEnum $targetCurrency;
+    #[ORM\Column(name: 'target_currency', type: 'currency_iso_4217', options: ['fixed' => true])]
+    private CurrencyContract $targetCurrency;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     private string $value;
@@ -34,8 +34,8 @@ class RateHistory {
     private DateTimeImmutable $updatedAt;
 
     public function __construct(
-        CurrencyEnum $baseCurrency,
-        CurrencyEnum $targetCurrency,
+        CurrencyContract $baseCurrency,
+        CurrencyContract $targetCurrency,
         string $value,
         DateTimeInterface $date
     ) {
@@ -51,13 +51,13 @@ class RateHistory {
         return $this->id;
     }
 
-    public function setBaseCurrency(CurrencyEnum $baseCurrency): self
+    public function setBaseCurrency(CurrencyContract $baseCurrency): self
     {
         $this->baseCurrency = $baseCurrency;
         return $this;
     }
 
-    public function setTargetCurrency(CurrencyEnum $targetCurrency): self
+    public function setTargetCurrency(CurrencyContract $targetCurrency): self
     {
         $this->targetCurrency = $targetCurrency;
         return $this;
@@ -85,12 +85,12 @@ class RateHistory {
         return $this;
     }
 
-    public function getBaseCurrency(): CurrencyEnum
+    public function getBaseCurrency(): CurrencyContract
     {
         return $this->baseCurrency;
     }
 
-    public function getTargetCurrency(): CurrencyEnum
+    public function getTargetCurrency(): CurrencyContract
     {
         return $this->targetCurrency;
     }

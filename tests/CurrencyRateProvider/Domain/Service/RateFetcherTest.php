@@ -2,10 +2,10 @@
 
 namespace App\Tests\CurrencyRateProvider\Domain\Service;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
-use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
-use App\Domain\CurrencyRateProvider\Service\RateFetcher;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
+use App\Domain\Service\CurrencyRateProvider\RateFetcher;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 

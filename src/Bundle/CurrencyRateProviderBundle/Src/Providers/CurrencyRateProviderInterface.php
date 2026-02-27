@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Providers;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers;
 
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
 use DateTimeInterface;
 use Generator;
 use RuntimeException;
@@ -25,4 +25,3 @@ interface CurrencyRateProviderInterface
      */
     public function getRates(DateTimeInterface $date, int $chunkSize = 1000): Generator;
 }
-

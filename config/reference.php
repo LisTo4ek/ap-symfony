@@ -1543,6 +1543,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     convert_exception?: bool|Param, // Default: false
  *     remove_first_page_param?: bool|Param, // Default: false
  * }
+ * @psalm-type CurrencyRateProviderConfig = array{
+ *     cbr_provider?: array{
+ *         api_url: scalar|Param|null,
+ *         timeout: int|Param,
+ *         retry_attempts: int|Param,
+ *         base_currency: scalar|Param|null, // Base currency code (e.g., USD, EUR, RUB)
+ *         monitored_currencies: list<scalar|Param|null>,
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1561,6 +1570,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     stimulus?: StimulusConfig,
  *     sonata_doctrine_orm_admin?: SonataDoctrineOrmAdminConfig,
  *     knp_paginator?: KnpPaginatorConfig,
+ *     currency_rate_provider?: CurrencyRateProviderConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1580,6 +1590,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stimulus?: StimulusConfig,
  *         sonata_doctrine_orm_admin?: SonataDoctrineOrmAdminConfig,
  *         knp_paginator?: KnpPaginatorConfig,
+ *         currency_rate_provider?: CurrencyRateProviderConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1599,6 +1610,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stimulus?: StimulusConfig,
  *         sonata_doctrine_orm_admin?: SonataDoctrineOrmAdminConfig,
  *         knp_paginator?: KnpPaginatorConfig,
+ *         currency_rate_provider?: CurrencyRateProviderConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1618,6 +1630,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stimulus?: StimulusConfig,
  *         sonata_doctrine_orm_admin?: SonataDoctrineOrmAdminConfig,
  *         knp_paginator?: KnpPaginatorConfig,
+ *         currency_rate_provider?: CurrencyRateProviderConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

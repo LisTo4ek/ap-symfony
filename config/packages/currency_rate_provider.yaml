@@ -1,0 +1,31 @@
+currency_rate_provider:
+    cbr_provider:
+        api_url: 'https://cbr.ru/scripts/XML_daily.asp'
+        timeout: 30
+        retry_attempts: 3
+        base_currency: RUB
+        rate_precision: 32
+        monitored_currencies:
+            - USD
+            - EUR
+            - GBP
+            - CNY
+
+when@test:
+    currency_rate_provider:
+        cbr_provider:
+            timeout: 5
+            retry_attempts: 1
+            monitored_currencies:
+                - USD
+                - EUR
+
+when@dev:
+    currency_rate_provider:
+        cbr_provider:
+            timeout: 60
+            retry_attempts: 1
+            monitored_currencies:
+                - EUR
+                - IRR
+

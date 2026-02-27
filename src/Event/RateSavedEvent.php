@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Event;
 
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class RateSavedEvent extends Event

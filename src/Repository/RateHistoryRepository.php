@@ -2,9 +2,8 @@
 
 namespace App\Repository;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
 use App\Entity\RateHistory;
-use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -29,16 +28,16 @@ class RateHistoryRepository extends ServiceEntityRepository
     }
 
     public function findByCurrencyPairAndDate(
-        CurrencyEnum $baseCurrency,
-        CurrencyEnum $targetCurrency,
+        CurrencyContract $baseCurrency,
+        CurrencyContract $targetCurrency,
         DateTimeInterface $date
     ): ?RateHistory {
         return $this->createQueryBuilder('rh')
             ->andWhere('rh.base_currency = :baseCurrency')
             ->andWhere('rh.target_currency = :targetCurrency')
             ->andWhere('rh.date = :date')
-            ->setParameter('baseCurrency', $baseCurrency)
-            ->setParameter('targetCurrency', $targetCurrency)
+            ->setParameter('baseCurrency', $baseCurrency->getCode())
+            ->setParameter('targetCurrency', $targetCurrency->getCode())
             ->setParameter('date', $date)
             ->getQuery()
             ->getOneOrNullResult();
@@ -48,22 +47,22 @@ class RateHistoryRepository extends ServiceEntityRepository
      * @return array<RateHistory>
      */
     public function findByCurrencyPairAndDateRange(
-        CurrencyEnum $baseCurrency,
-        ?CurrencyEnum $targetCurrency,
+        CurrencyContract $baseCurrency,
+        ?CurrencyContract $targetCurrency,
         DateTimeInterface $from,
         DateTimeInterface $to,
     ): array {
         $query = $this->createQueryBuilder('rh')
             ->andWhere('rh.base_currency = :baseCurrency')
             ->andWhere('rh.date BETWEEN :from AND :to')
-            ->setParameter('baseCurrency', $baseCurrency)
+            ->setParameter('baseCurrency', $baseCurrency->getCode())
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->orderBy('rh.date', 'ASC');
 
         if ($targetCurrency) {
             $query->andWhere('rh.target_currency = :targetCurrency')
-                ->setParameter('targetCurrency', $targetCurrency);
+                ->setParameter('targetCurrency', $targetCurrency->getCode());
         }
 
         return $query
@@ -72,8 +71,8 @@ class RateHistoryRepository extends ServiceEntityRepository
     }
 
     public function updateOrCreate(
-        CurrencyEnum $baseCurrency,
-        CurrencyEnum $targetCurrency,
+        CurrencyContract $baseCurrency,
+        CurrencyContract $targetCurrency,
         string $value,
         DateTimeInterface $date
     ): RateHistory {
@@ -136,7 +135,7 @@ class RateHistoryRepository extends ServiceEntityRepository
 //    }
 
     /**
-     * @param CurrencyEnum[] $codes
+     * @param array<CurrencyContract> $codes
      * @return array<RateHistory>
      */
     private function findByCurrencyAndDate(array $codes, DateTimeInterface $date): array
@@ -144,7 +143,7 @@ class RateHistoryRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('rh')
             ->andWhere('rh.charCode IN (:codes)')
             ->andWhere('rh.date = :date')
-            ->setParameter('codes', $codes)
+            ->setParameter('codes', \array_map(static fn (CurrencyContract $c) => $c->getCode()))
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult();

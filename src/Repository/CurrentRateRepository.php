@@ -2,7 +2,8 @@
 
 namespace App\Repository;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
 use App\Entity\CurrentRate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -29,7 +30,7 @@ class CurrentRateRepository extends ServiceEntityRepository
     /**
      * Find rate for a specific currency pair
      */
-    public function findByCurrencyPair(CurrencyEnum $baseCurrency, CurrencyEnum $targetCurrency): ?CurrentRate
+    public function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): ?CurrentRate
     {
         return $this->findOneBy([
             'baseCurrency' => $baseCurrency,
@@ -41,9 +42,9 @@ class CurrentRateRepository extends ServiceEntityRepository
      * Upsert (insert or update) rate for currency pair
      */
     public function upsertForCurrencyPair(
-        CurrencyEnum $baseCurrency,
-        CurrencyEnum $targetCurrency,
-        string       $value
+        CurrencyContract $baseCurrency,
+        CurrencyContract $targetCurrency,
+        string $value
     ): CurrentRate {
         $entity = $this->findByCurrencyPair($baseCurrency, $targetCurrency);
 
@@ -84,4 +85,3 @@ class CurrentRateRepository extends ServiceEntityRepository
         return $this->findBy(['targetCurrency' => $targetCurrency], ['baseCurrency' => 'ASC']);
     }
 }
-

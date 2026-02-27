@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Base\DTO;
+namespace App\Domain\Dto;
 
 use App\Entity\CurrentRate;
 use DateTimeInterface;
@@ -38,4 +38,3 @@ class CurrentRatesDTO
         return $this->message !== null;
     }
 }
-

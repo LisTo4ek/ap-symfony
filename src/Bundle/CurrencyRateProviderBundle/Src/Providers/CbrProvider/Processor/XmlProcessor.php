@@ -2,29 +2,35 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyManagerContract;
+use App\Domain\Helper\NumberHelper;
 use DateTimeImmutable;
 use Exception;
 use Generator;
 use SimpleXMLElement;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
-use App\Domain\Helper\NumberHelper;
 
 #[AsAlias(RateProcessorInterface::class)]
 class XmlProcessor implements RateProcessorInterface
 {
+    public function __construct(
+        private CurrencyManagerContract $currencyManager,
+    ) {
+    }
+
     /**
-     * @param array<CurrencyEnum> $monitoredCurrencies
+     * @param array<string> $monitoredCurrencies
      * @return Generator<int, Rate>
      * @throws Exception
      */
     public function process(
         string $content,
-        CurrencyEnum $baseCurrency,
+        string $baseCurrencyCode,
         array $monitoredCurrencies,
+        int $ratePrecision,
     ): Generator {
         $xml = new SimpleXMLElement($content);
 
@@ -36,16 +42,16 @@ class XmlProcessor implements RateProcessorInterface
         $rateDate = $this->parseRateDate($containerNode);
 
         foreach ($containerNode->Valute as $currencyNode) {
-            $targetCurrency = CurrencyEnum::tryFrom((string) $currencyNode->CharCode);
+            $targetCurrency = $this->currencyManager::create((string) $currencyNode->CharCode);
 
-            if (!in_array($targetCurrency, $monitoredCurrencies, true)) {
+            if (!in_array($targetCurrency->getCode(), $monitoredCurrencies, true)) {
                 continue;
             }
 
             yield new Rate(
-                $baseCurrency,
+                $this->currencyManager::create($baseCurrencyCode),
                 $targetCurrency,
-                $this->processRate($currencyNode),
+                $this->processRate($currencyNode, $ratePrecision),
                 $rateDate,
             );
         }
@@ -77,11 +83,11 @@ class XmlProcessor implements RateProcessorInterface
         return null;
     }
 
-    private function processRate(SimpleXMLElement $currencyNode): string
+    private function processRate(SimpleXMLElement $currencyNode, int $ratePrecision): string
     {
         $rate = NumberHelper::normalize((string) $currencyNode->VunitRate);
         $multiplier = NumberHelper::normalize((string) $currencyNode->Nominal);
 
-        return  bcdiv($rate, $multiplier, 32);
+        return bcdiv($rate, $multiplier, $ratePrecision);
     }
 }

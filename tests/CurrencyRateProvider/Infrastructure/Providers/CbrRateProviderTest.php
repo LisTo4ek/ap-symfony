@@ -2,9 +2,9 @@
 
 namespace App\Tests\CurrencyRateProvider\Infrastructure\Providers;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\CbrProvider;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\RateProcessorInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorInterface;
 use ArrayIterator;
 use DateTimeImmutable;
 use Exception;
@@ -104,7 +104,7 @@ XML;
 
     private function createMockRate(CurrencyEnum $baseCurrency, CurrencyEnum $targetCurrency, float $rate)
     {
-        $mockRate = $this->createMock(\App\Domain\CurrencyRateProvider\Base\Entity\Rate::class);
+        $mockRate = $this->createMock(\tmp\CurrencyRateProvider\Base\Entity\Rate::class);
         $mockRate->baseCurrency = $baseCurrency;
         $mockRate->targetCurrency = $targetCurrency;
         $mockRate->rate = $rate;

@@ -3,9 +3,9 @@
 namespace App\Tests\Command;
 
 use App\Command\CurrencyRateImportCbrCommand;
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
-use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
 use DateTimeImmutable;

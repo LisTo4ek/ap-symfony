@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRateProvider\Providers\CbrProvider;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
-use App\Domain\CurrencyRateProvider\Base\Entity\Rate;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\RateProcessorInterface;
-use App\Domain\CurrencyRateProvider\Providers\CbrProvider\Processor\XmlProcessor;
-use App\Domain\CurrencyRateProvider\Providers\CurrencyRateProviderInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use DateTimeInterface;
 use Generator;
 use RuntimeException;
@@ -24,9 +23,9 @@ class CbrProvider implements CurrencyRateProviderInterface
     /**
      * @param HttpClientInterface $httpClient HTTP client for API requests
      * @param string $apiUrl CBR API URL from configuration
-     * @param array<CurrencyEnum> $monitoredCurrencies List of currency codes to monitor from configuration
+     * @param array<string> $monitoredCurrencies List of currencies to monitor from configuration
      * @param int $timeout Request timeout in seconds from configuration
-     * @param CurrencyEnum $baseCurrency Base currency code from configuration (default: RUB)
+     * @param string $baseCurrencyCode Base currency code from configuration
      */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -44,7 +43,10 @@ class CbrProvider implements CurrencyRateProviderInterface
         private readonly int $timeout = 30,
 
         #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
-        private readonly CurrencyEnum $baseCurrency = CurrencyEnum::RUB,
+        private readonly string $baseCurrencyCode,
+
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.rate_precision')]
+        private readonly int $ratePrecision = 16,
     ) {
     }
 
@@ -66,14 +68,15 @@ class CbrProvider implements CurrencyRateProviderInterface
             $chunk = [];
             foreach ($this->rateProcessor->process(
                 $response->getContent(),
-                $this->baseCurrency,
+                $this->baseCurrencyCode,
                 $this->monitoredCurrencies,
+                $this->ratePrecision,
             ) as $rate) {
                 $chunk[] = $rate;
                 $chunk[] = new Rate(
                     $rate->targetCurrency,
                     $rate->baseCurrency,
-                    bcdiv("1", $rate->rate, 32),
+                    bcdiv("1", $rate->rate, $this->ratePrecision),
                     $rate->date
                 );
 
@@ -95,3 +98,4 @@ class CbrProvider implements CurrencyRateProviderInterface
         }
     }
 }
+

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Domain\CurrencyRateProvider\Action\GetCurrentRatesAction;
+use App\Domain\Action\CurrencyRateProvider\GetCurrentRatesAction;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

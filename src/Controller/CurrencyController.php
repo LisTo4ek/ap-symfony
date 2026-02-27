@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Domain\CurrencyRateProvider\Base\CurrencyEnum;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
 use App\Repository\RateHistoryRepository;
 use DateTimeImmutable;
 use Knp\Component\Pager\PaginatorInterface;
