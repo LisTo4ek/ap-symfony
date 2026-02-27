@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorInterface;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;

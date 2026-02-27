@@ -3,7 +3,7 @@
 namespace App\Tests\CurrencyRateProvider\Domain\Action;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Domain\Action\CurrencyRateProvider\GetCurrentRatesAction;
 use App\Domain\Service\CurrencyRateProvider\RateFetcher;
 use App\Domain\Service\CurrencyRateProvider\RateManager;

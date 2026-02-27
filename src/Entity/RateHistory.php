@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Repository\RateHistoryRepository;
 use DateTimeImmutable;
 use DateTimeInterface;

@@ -3,7 +3,7 @@
 namespace App\Tests\CurrencyRateProvider\Domain\Service;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use App\Domain\Service\CurrencyRateProvider\RateFetcher;
 use DateTimeImmutable;

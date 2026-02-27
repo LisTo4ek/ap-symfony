@@ -3,7 +3,7 @@
 namespace App\Tests\EventSubscriber;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Entity\CurrentRate;
 use App\Event\RateSavedEvent;
 use App\EventSubscriber\CurrencySyncSubscriber;

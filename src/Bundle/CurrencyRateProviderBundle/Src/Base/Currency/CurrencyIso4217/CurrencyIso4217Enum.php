@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyIso4217;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217;
 
 enum CurrencyIso4217Enum: string
 {

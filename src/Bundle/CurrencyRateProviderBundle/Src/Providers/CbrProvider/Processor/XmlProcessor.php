@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
-use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyManagerContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Domain\Helper\NumberHelper;
 use DateTimeImmutable;
 use Exception;

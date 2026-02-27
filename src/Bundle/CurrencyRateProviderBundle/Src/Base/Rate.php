@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Base;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use DateTimeInterface;
 
 class Rate

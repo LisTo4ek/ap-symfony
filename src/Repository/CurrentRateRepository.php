@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\CurrencyEnum;
-use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
 use App\Entity\CurrentRate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

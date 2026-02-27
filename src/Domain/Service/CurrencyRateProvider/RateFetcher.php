@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Service\CurrencyRateProvider;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Entity\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use DateTimeInterface;
 use Generator;

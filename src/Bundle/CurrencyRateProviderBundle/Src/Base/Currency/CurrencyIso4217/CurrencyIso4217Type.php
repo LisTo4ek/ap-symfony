@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyIso4217;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyContract;
-use App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyManagerContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
 use Psr\Container\ContainerInterface;

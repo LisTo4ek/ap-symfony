@@ -23,7 +23,7 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyManagerContract:
-        alias: App\Bundle\CurrencyRateProviderBundle\Src\Currency\CurrencyIso4217\CurrencyIso4217Manager
+    App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract:
+        alias: App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Manager
         public: true
 
