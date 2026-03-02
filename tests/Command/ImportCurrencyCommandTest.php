@@ -5,7 +5,7 @@ namespace App\Tests\Command;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
 use App\Command\CurrencyRateImportCbrCommand;
-use App\Domain\Action\CurrencyRateProvider\SaveCbrCurrencyRateHistoryAction;
+use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
 use App\Event\RateSavedEvent;
 use App\Repository\RateHistoryRepository;
 use App\Tests\KernelTestCase;
@@ -33,7 +33,7 @@ class ImportCurrencyCommandTest extends KernelTestCase
         $this->historyRepository = $this->createMock(RateHistoryRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $saveAction = new SaveCbrCurrencyRateHistoryAction(
+        $saveAction = new ProcessCbrCurrencyRateHistoryAction(
             $this->rateProvider,
             $this->historyRepository,
             $this->eventDispatcher

@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider;
 
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\FailedToGetRatesException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorInterface;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
@@ -54,23 +59,22 @@ class CbrProvider implements CurrencyRateProviderInterface
      * @return Generator<int, array<Rate>>
      * @throws RuntimeException
      */
-    public function getRates(DateTimeInterface $date, int $chunkSize = 1000): Generator
+    public function getRates(DateTimeImmutable $date, int $chunkSize = 1000): Generator
     {
         try {
-            $response = $this->httpClient->request(
-                'GET',
-                $this->apiUrl, [
-                    'query' => ['date_req' => $date->format('d/m/Y')],
-                    'timeout' => $this->timeout,
-                ]
-            );
-
             $chunk = [];
+            $content = $this->requestRates($date);
+
+            if ($content === null) {
+                throw new FailedToGetRatesException('Failed to retrieve rates from CBR API');
+            }
+
             foreach ($this->rateProcessor->process(
-                $response->getContent(),
+                $this->requestRates($date),
                 $this->baseCurrencyCode,
                 $this->monitoredCurrencies,
                 $this->ratePrecision,
+                $date
             ) as $rate) {
                 $chunk[] = $rate;
                 $chunk[] = new Rate(
@@ -89,13 +93,38 @@ class CbrProvider implements CurrencyRateProviderInterface
             if (!empty($chunk)) {
                 yield $chunk;
             }
-        } catch (HttpExceptionInterface $e) {
+        } catch (FailedToGetRatesException $e) {
             // TODO: Log
-            throw new RuntimeException('CBR HTTP error', 0, $e);
         } catch (Throwable $e) {
             // TODO: Log
             throw new RuntimeException('CBR service unavailable', 0, $e);
         }
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    private function requestRates(DateTimeInterface $date): ?string
+    {
+        try {
+            $response = $this->httpClient->request(
+                'GET',
+                $this->apiUrl, [
+                    'query' => ['date_req' => $date->format('d/m/Y')],
+                    'timeout' => $this->timeout,
+                ]
+            );
+
+            return $response->getContent();
+        } catch (HttpExceptionInterface $e) {
+            // TODO: Log
+        } catch (Throwable $e) {
+            // TODO: Log
+        }
+
+        return null;
     }
 }
 

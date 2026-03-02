@@ -15,4 +15,9 @@ class Currency implements CurrencyContract
     {
         return $this->code;
     }
+
+    public function __toString(): string
+    {
+        return $this->code;
+    }
 }

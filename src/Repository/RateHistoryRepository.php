@@ -3,15 +3,18 @@
 namespace App\Repository;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
+use App\Domain\Contracts\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
  * @extends ServiceEntityRepository<RateHistory>
  */
-class RateHistoryRepository extends ServiceEntityRepository
+#[AsAlias(RateHistoryStorageContract::class)]
+class RateHistoryRepository extends ServiceEntityRepository implements RateHistoryStorageContract
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -143,7 +146,7 @@ class RateHistoryRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('rh')
             ->andWhere('rh.charCode IN (:codes)')
             ->andWhere('rh.date = :date')
-            ->setParameter('codes', \array_map(static fn (CurrencyContract $c) => $c->getCode()))
+            ->setParameter('codes', \array_map(static fn (CurrencyContract $c) => $c->getCode(), $codes))
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult();
@@ -160,11 +163,15 @@ class RateHistoryRepository extends ServiceEntityRepository
 
         $em = $this->getEntityManager();
 
-        $em->wrapInTransaction(function () use ($entities, $em): void {
-            foreach ($entities as $entity) {
-                $em->persist($entity);
-            }
-            $em->flush();
-        });
+        foreach ($entities as $entity) {
+            $em->persist($entity);
+        }
+
+//        $em->wrapInTransaction(function () use ($entities, $em): void {
+//            foreach ($entities as $entity) {
+//                $em->persist($entity);
+//            }
+//            $em->flush();
+//        });
     }
 }

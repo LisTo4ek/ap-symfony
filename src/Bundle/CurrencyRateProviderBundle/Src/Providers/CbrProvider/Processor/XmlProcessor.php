@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\FailedToGetRatesException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Domain\Helper\NumberHelper;
 use DateTimeImmutable;
+use DateTimeInterface;
 use Exception;
 use Generator;
 use SimpleXMLElement;
@@ -25,21 +27,30 @@ class XmlProcessor implements RateProcessorInterface
      * @param array<string> $monitoredCurrencies
      * @return Generator<int, Rate>
      * @throws Exception
+     * @throws FailedToGetRatesException
      */
     public function process(
         string $content,
         string $baseCurrencyCode,
         array $monitoredCurrencies,
         int $ratePrecision,
+        DateTimeImmutable $date,
     ): Generator {
         $xml = new SimpleXMLElement($content);
 
         $containerNode = $this->resolveContainerNode($xml);
         if ($containerNode === null) {
-            return;
+            throw new FailedToGetRatesException('Invalid XML structure: missing ValCurs node');
         }
 
         $rateDate = $this->parseRateDate($containerNode);
+
+        if ($rateDate === null || $rateDate->diff(new DateTimeImmutable('today'))->days !== 0) {
+            throw new FailedToGetRatesException(\sprintf(
+                'Rates date is missing or not current: %s',
+                $rateDate?->format(DateTimeInterface::ATOM) ?? 'null'
+            ));
+        }
 
         foreach ($containerNode->Valute as $currencyNode) {
             $targetCurrency = $this->currencyManager::create((string) $currencyNode->CharCode);
@@ -57,7 +68,7 @@ class XmlProcessor implements RateProcessorInterface
         }
     }
 
-    private function parseRateDate(SimpleXMLElement $valCurs): DateTimeImmutable
+    private function parseRateDate(SimpleXMLElement $valCurs): ?DateTimeImmutable
     {
         $dateValue = (string) ($valCurs['Date'] ?? '');
         if ($dateValue !== '') {
@@ -67,7 +78,7 @@ class XmlProcessor implements RateProcessorInterface
             }
         }
 
-        return new DateTimeImmutable();
+        return null;
     }
 
     private function resolveContainerNode(SimpleXMLElement $xml): ?SimpleXMLElement

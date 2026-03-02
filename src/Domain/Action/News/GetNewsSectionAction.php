@@ -1,10 +1,14 @@
 <?php
-namespace App\Domain\News\Action;
+namespace App\Domain\Action\News;
 
-use App\Domain\News\Entity\NewsSection;
+use App\Domain\Entity\NewsSection;
+use Random\RandomException;
 
 class GetNewsSectionAction
 {
+    /**
+     * @throws RandomException
+     */
     public function __invoke(string $name): NewsSection
     {
         return new NewsSection(

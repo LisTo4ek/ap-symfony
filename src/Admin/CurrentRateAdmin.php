@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Admin;
 
+use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
+use App\Domain\Contracts\CurrentRateStorageContract;
 use App\Entity\CurrentRate;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
+use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -19,12 +22,19 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 ])]
 final class CurrentRateAdmin extends AbstractAdmin
 {
+    public function __construct(
+        private readonly CurrentRateStorageContract $currentRateStorageContract,
+        private readonly ProcessCbrCurrencyRateHistoryAction $processCbrCurrencyRateHistoryAction,
+    ) {
+        parent::__construct();
+    }
     protected function configureDatagridFilters(DatagridMapper $filter): void
     {
         $filter
             ->add('baseCurrency', null, ['label' => 'Base Currency'])
             ->add('targetCurrency', null, ['label' => 'Target Currency'])
             ->add('value', null, ['label' => 'Rate'])
+            ->add('date', null, ['label' => 'date'])
             ->add('updatedAt', null, ['label' => 'Updated']);
     }
 
@@ -65,6 +75,17 @@ final class CurrentRateAdmin extends AbstractAdmin
                 'label' => 'Updated',
                 'format' => 'd.m.Y H:i:s'
             ]);
+    }
+
+    protected function configureQuery(ProxyQueryInterface $query, ): ProxyQueryInterface
+    {
+        $today = new \DateTimeImmutable('today');
+
+        if (!$this->currentRateStorageContract->hasRecordsByDay($today)) {
+            ($this->processCbrCurrencyRateHistoryAction)($today);
+        }
+
+        return $query;
     }
 }
 

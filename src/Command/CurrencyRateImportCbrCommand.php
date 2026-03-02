@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Domain\Action\CurrencyRateProvider\SaveCbrCurrencyRateHistoryAction;
+use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
 use DateMalformedPeriodStringException;
 use DateMalformedStringException;
 use DateTimeImmutable;
@@ -25,7 +25,7 @@ class CurrencyRateImportCbrCommand extends Command
 {
 
     public function __construct(
-        private readonly SaveCbrCurrencyRateHistoryAction $saveCurrencyRateHistoryAction,
+        private readonly ProcessCbrCurrencyRateHistoryAction $processCbrCurrencyRateHistoryAction,
     ) {
         parent::__construct();
     }
@@ -98,7 +98,7 @@ class CurrencyRateImportCbrCommand extends Command
             $progressBar->setMessage($date->format('Y-m-d'));
 
             try {
-                $successCount += ($this->saveCurrencyRateHistoryAction)($date) ?? 0;
+                $successCount += ($this->processCbrCurrencyRateHistoryAction)($date) ?? 0;
             } catch (\Exception $e) {
                 $errors[] = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
             }
@@ -109,7 +109,7 @@ class CurrencyRateImportCbrCommand extends Command
         $progressBar->finish();
         $io->newLine(2);
 
-        $io->success(sprintf('Import completed: %d successful, %d errors', $successCount, count($errors)));
+        $io->success(sprintf('Import completed: %d rates imported, %d errors', $successCount, count($errors)));
 
         if (count($errors) > 0) {
             $io->warning('Errors occurred during import:');

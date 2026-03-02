@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Action\CurrencyRateProvider;
+namespace App\Domain\Action\CurrencyRate;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
+use App\Domain\Contracts\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
-use App\Repository\RateHistoryRepository;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class SaveCbrCurrencyRateHistoryAction
+class ProcessCbrCurrencyRateHistoryAction
 {
     private const int CHUNK_SIZE = 1000;
 
     public function __construct(
         #[Autowire(service: CbrProvider::class)]
         private readonly CurrencyRateProviderInterface $provider,
-        private readonly RateHistoryRepository $historyRepository,
+        private readonly RateHistoryStorageContract $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
@@ -42,13 +42,13 @@ class SaveCbrCurrencyRateHistoryAction
                 $chunk
             );
 
-            $this->historyRepository->saveBatch($historyEntities);
+            $this->rateHistoryStorage->saveBatch($historyEntities);
 
             $count += \count($chunk);
 
             /** @var Rate $rate */
             foreach ($chunk as $rate) {
-                if ($rate->date->diff($today)->days === 0) {
+                if ($rate->date->diff($today)->days !== 0) {
                     continue;
                 }
 
