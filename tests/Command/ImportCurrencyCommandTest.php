@@ -3,7 +3,7 @@
 namespace App\Tests\Command;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
-use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
 use App\Command\CurrencyRateImportCbrCommand;
 use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
 use App\Event\RateSavedEvent;
@@ -18,7 +18,7 @@ class ImportCurrencyCommandTest extends KernelTestCase
 {
     use CurrencyTrait;
 
-    private CurrencyRateProviderInterface $rateProvider;
+    private CurrencyRateProviderContract $rateProvider;
     private RateHistoryRepository $historyRepository;
     private EventDispatcherInterface $eventDispatcher;
     private CommandTester $commandTester;
@@ -29,7 +29,7 @@ class ImportCurrencyCommandTest extends KernelTestCase
         parent::setUp();
         $this->initCurrencies();
 
-        $this->rateProvider = $this->createMock(CurrencyRateProviderInterface::class);
+        $this->rateProvider = $this->createMock(CurrencyRateProviderContract::class);
         $this->historyRepository = $this->createMock(RateHistoryRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 

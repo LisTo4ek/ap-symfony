@@ -13,7 +13,7 @@ use RuntimeException;
  * Interface for currency rate providers
  * Allows different implementations (CBR, ECB, etc.)
  */
-interface CurrencyRateProviderInterface
+interface CurrencyRateProviderContract
 {
     /**
      * Get currency rates for a specific date as a generator, chunked

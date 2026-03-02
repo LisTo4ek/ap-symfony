@@ -9,7 +9,7 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use DateTimeImmutable;
 use Generator;
 
-interface RateProcessorInterface
+interface RateProcessorContract
 {
     /**
      * @param array<string> $monitoredCurrencies

@@ -5,29 +5,29 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\FailedToGetRatesException;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\InvalidRateDataException;
+use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLoggerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Domain\Helper\NumberHelper;
 use DateTimeImmutable;
-use DateTimeInterface;
-use Exception;
 use Generator;
 use SimpleXMLElement;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+use Throwable;
 
-#[AsAlias(RateProcessorInterface::class)]
-class XmlProcessor implements RateProcessorInterface
+#[AsAlias(RateProcessorContract::class)]
+class XmlProcessor implements RateProcessorContract
 {
     public function __construct(
         private CurrencyManagerContract $currencyManager,
+        private CurrencyRateProviderLoggerContract $logger,
     ) {
     }
 
     /**
      * @param array<string> $monitoredCurrencies
      * @return Generator<int, Rate>
-     * @throws Exception
-     * @throws FailedToGetRatesException
+     * @throws InvalidRateDataException when XML processing fails
      */
     public function process(
         string $content,
@@ -36,36 +36,69 @@ class XmlProcessor implements RateProcessorInterface
         int $ratePrecision,
         DateTimeImmutable $date,
     ): Generator {
-        $xml = new SimpleXMLElement($content);
+        $this->logger->debug('Processing XML response', [
+            'content_size' => strlen($content),
+            'date' => $date->format('Y-m-d'),
+        ]);
 
+        try {
+            $xml = new SimpleXMLElement($content);
+        } catch (Throwable $e) {
+            throw new InvalidRateDataException(
+                "Invalid XML: {$e->getMessage()}",
+                0,
+                $e
+            );
+        }
+
+        // Validate structure
         $containerNode = $this->resolveContainerNode($xml);
         if ($containerNode === null) {
-            throw new FailedToGetRatesException('Invalid XML structure: missing ValCurs node');
+            throw new InvalidRateDataException('Invalid XML structure: missing ValCurs node');
         }
 
         $rateDate = $this->parseRateDate($containerNode);
-
-        if ($rateDate === null || $rateDate->diff(new DateTimeImmutable('today'))->days !== 0) {
-            throw new FailedToGetRatesException(\sprintf(
-                'Rates date is missing or not current: %s',
-                $rateDate?->format(DateTimeInterface::ATOM) ?? 'null'
-            ));
+        if ($rateDate === null) {
+            throw new InvalidRateDataException('Invalid XML: missing or invalid date attribute');
         }
 
-        foreach ($containerNode->Valute as $currencyNode) {
-            $targetCurrency = $this->currencyManager::create((string) $currencyNode->CharCode);
+        if ($rateDate->diff($date)->days !== 0) {
+            throw new InvalidRateDataException(
+                "Rates date is not current: {$rateDate->format('Y-m-d')}"
+            );
+        }
 
-            if (!in_array($targetCurrency->getCode(), $monitoredCurrencies, true)) {
+        // Process and yield rates
+        $processedCount = 0;
+        foreach ($containerNode->Valute as $currencyNode) {
+            $currencyCode = (string) ($currencyNode->CharCode ?? '');
+
+            if (empty($currencyCode)) {
+                throw new InvalidRateDataException('Invalid currency: missing CharCode');
+            }
+
+            if (!in_array($currencyCode, $monitoredCurrencies, true)) {
                 continue;
             }
+
+            $targetCurrency = $this->currencyManager::create($currencyCode);
+            $rateValue = $this->processRate($currencyCode, $currencyNode, $ratePrecision);
 
             yield new Rate(
                 $this->currencyManager::create($baseCurrencyCode),
                 $targetCurrency,
-                $this->processRate($currencyNode, $ratePrecision),
+                $rateValue,
                 $rateDate,
             );
+
+            $processedCount++;
         }
+
+        // Log success
+        $this->logger->info('XML processing completed', [
+            'date' => $date->format('Y-m-d'),
+            'rates_processed' => $processedCount,
+        ]);
     }
 
     private function parseRateDate(SimpleXMLElement $valCurs): ?DateTimeImmutable
@@ -94,8 +127,19 @@ class XmlProcessor implements RateProcessorInterface
         return null;
     }
 
-    private function processRate(SimpleXMLElement $currencyNode, int $ratePrecision): string
+    /**
+     * @throws InvalidRateDataException
+     */
+    private function processRate(string $currencyCode, SimpleXMLElement $currencyNode, int $ratePrecision): string
     {
+        foreach (['VunitRate', 'Nominal'] as $nodeName) {
+            if (!isset($currencyNode->{$nodeName})) {
+                throw new InvalidRateDataException(
+                    "Invalid rate data for {$currencyCode}: missing {$nodeName}"
+                );
+            }
+        }
+
         $rate = NumberHelper::normalize((string) $currencyNode->VunitRate);
         $base = NumberHelper::normalize((string) $currencyNode->Nominal);
 

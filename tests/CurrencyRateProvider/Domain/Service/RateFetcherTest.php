@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\CurrencyRateProvider\Domain\Service;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
-use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
 use App\Domain\Service\CurrencyRateProvider\RateFetcher;
 use App\Tests\KernelTestCase;
 use App\Tests\Trait\CurrencyTrait;
@@ -15,7 +15,7 @@ class RateFetcherTest extends KernelTestCase
 {
     use CurrencyTrait;
 
-    private CurrencyRateProviderInterface $rateProvider;
+    private CurrencyRateProviderContract $rateProvider;
     private RateFetcher $rateFetcher;
 
     protected function setUp(): void
@@ -23,7 +23,7 @@ class RateFetcherTest extends KernelTestCase
         parent::setUp();
         $this->initCurrencies();
 
-        $this->rateProvider = $this->createMock(CurrencyRateProviderInterface::class);
+        $this->rateProvider = $this->createMock(CurrencyRateProviderContract::class);
         $this->rateFetcher = new RateFetcher($this->rateProvider);
     }
 
@@ -122,7 +122,7 @@ class RateFetcherTest extends KernelTestCase
     public function testWorksWithAnyRateProvider(): void
     {
         // This test demonstrates that RateFetcher depends on interface, not concrete class
-        $customProvider = $this->createMock(CurrencyRateProviderInterface::class);
+        $customProvider = $this->createMock(CurrencyRateProviderContract::class);
         $fetcher = new RateFetcher($customProvider);
 
         $date = new DateTimeImmutable('2026-01-01');

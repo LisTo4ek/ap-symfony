@@ -8,7 +8,7 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Enum;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
-use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorContract;
 use App\Tests\KernelTestCase;
 use App\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
@@ -22,7 +22,7 @@ class CbrProviderTest extends KernelTestCase
     use CurrencyTrait;
 
     private HttpClientInterface $httpClient;
-    private RateProcessorInterface $rateParser;
+    private RateProcessorContract $rateParser;
     private CbrProvider $provider;
 
     protected function setUp(): void
@@ -31,7 +31,7 @@ class CbrProviderTest extends KernelTestCase
         $this->initCurrencies();
 
         $this->httpClient = $this->createMock(HttpClientInterface::class);
-        $this->rateParser = $this->createMock(RateProcessorInterface::class);
+        $this->rateParser = $this->createMock(RateProcessorContract::class);
         $this->provider = new CbrProvider(
             $this->httpClient,
             $this->rateParser,

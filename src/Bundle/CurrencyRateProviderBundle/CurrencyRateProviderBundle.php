@@ -12,8 +12,4 @@ class CurrencyRateProviderBundle extends Bundle
     {
         return \dirname(__DIR__);
     }
-
-    public function boot(): void
-    {
-    }
 }

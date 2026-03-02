@@ -1,0 +1,41 @@
+monolog:
+    channels:
+        - currency_rate_provider
+    handlers:
+        currency_rate_provider:
+            type: stream
+            path: "%kernel.logs_dir%/currency_rate_provider.log"
+            level: debug
+            channels: [currency_rate_provider]
+            formatter: monolog.formatter.json
+
+when@dev:
+    monolog:
+        handlers:
+            currency_rate_provider:
+                type: stream
+                path: "%kernel.logs_dir%/currency_rate_provider.log"
+                level: debug
+                channels: [currency_rate_provider]
+                formatter: monolog.formatter.json
+
+when@prod:
+    monolog:
+        handlers:
+            currency_rate_provider:
+                type: stream
+                path: "%kernel.logs_dir%/currency_rate_provider.log"
+                level: info
+                channels: [currency_rate_provider]
+                formatter: monolog.formatter.json
+
+when@test:
+    monolog:
+        handlers:
+            currency_rate_provider:
+                type: stream
+                path: "%kernel.logs_dir%/currency_rate_provider.log"
+                level: debug
+                channels: [currency_rate_provider]
+                formatter: monolog.formatter.json
+

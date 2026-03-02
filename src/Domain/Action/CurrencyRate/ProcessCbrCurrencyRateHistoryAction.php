@@ -6,7 +6,7 @@ namespace App\Domain\Action\CurrencyRate;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
-use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderInterface;
+use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
 use App\Domain\Contracts\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
@@ -20,7 +20,7 @@ class ProcessCbrCurrencyRateHistoryAction
 
     public function __construct(
         #[Autowire(service: CbrProvider::class)]
-        private readonly CurrencyRateProviderInterface $provider,
+        private readonly CurrencyRateProviderContract $provider,
         private readonly RateHistoryStorageContract $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
