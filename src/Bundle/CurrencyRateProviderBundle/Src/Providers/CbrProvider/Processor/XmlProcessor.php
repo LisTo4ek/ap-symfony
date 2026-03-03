@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContr
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\InvalidRateDataException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLoggerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
 use App\Domain\Helper\NumberHelper;
 use DateTimeImmutable;
 use Generator;
@@ -42,13 +43,14 @@ class XmlProcessor implements RateProcessorContract
         ]);
 
         try {
+            libxml_use_internal_errors(true);
             $xml = new SimpleXMLElement($content);
+            libxml_use_internal_errors(false);
+            libxml_clear_errors();
         } catch (Throwable $e) {
-            throw new InvalidRateDataException(
-                "Invalid XML: {$e->getMessage()}",
-                0,
-                $e
-            );
+            libxml_use_internal_errors(false);
+            libxml_clear_errors();
+            throw new InvalidRateDataException("Invalid XML: {$e->getMessage()}", 0, $e);
         }
 
         // Validate structure
@@ -62,7 +64,7 @@ class XmlProcessor implements RateProcessorContract
             throw new InvalidRateDataException('Invalid XML: missing or invalid date attribute');
         }
 
-        if ($rateDate->diff($date)->days !== 0) {
+        if (!DateCompare::eq($rateDate, $date)) {
             throw new InvalidRateDataException(
                 "Rates date is not current: {$rateDate->format('Y-m-d')}"
             );

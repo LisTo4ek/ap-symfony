@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger;
 
+use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Target;
+use Throwable;
 
 /**
  * CurrencyRateProviderLogger provides logging functionality for the CurrencyRateProviderBundle
@@ -21,7 +23,7 @@ class CurrencyRateProviderLogger implements CurrencyRateProviderLoggerContract
     ) {
     }
 
-    public function logRateRetrieval(string $from, string $to, float $rate, int $durationMs = 0): void
+    public function logRateRetrieval(string $from, string $to, string $rate, int $durationMs = 0): void
     {
         $this->logger->info('Exchange rate retrieved', [
             'from' => $from,
@@ -40,7 +42,7 @@ class CurrencyRateProviderLogger implements CurrencyRateProviderLoggerContract
         ]);
     }
 
-    public function logRateUpdate(string $currency, float $rate, \DateTime $timestamp): void
+    public function logRateUpdate(string $currency, string $rate, DateTime $timestamp): void
     {
         $this->logger->info('Currency rate updated', [
             'currency' => $currency,
@@ -49,7 +51,7 @@ class CurrencyRateProviderLogger implements CurrencyRateProviderLoggerContract
         ]);
     }
 
-    public function logProviderError(string $providerName, string $message, ?\Throwable $exception = null): void
+    public function logProviderError(string $providerName, string $message, ?Throwable $exception = null): void
     {
         $context = [
             'provider' => $providerName,

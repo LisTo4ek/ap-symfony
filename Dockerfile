@@ -29,6 +29,7 @@ RUN set -eux; \
 		apcu \
 		bcmath \
 		intl \
+		libxml \
 		opcache \
 		zip \
 	;

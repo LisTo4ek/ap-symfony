@@ -7,7 +7,6 @@ monolog:
             path: "%kernel.logs_dir%/currency_rate_provider.log"
             level: debug
             channels: [currency_rate_provider]
-            formatter: monolog.formatter.json
 
 when@dev:
     monolog:
@@ -17,7 +16,6 @@ when@dev:
                 path: "%kernel.logs_dir%/currency_rate_provider.log"
                 level: debug
                 channels: [currency_rate_provider]
-                formatter: monolog.formatter.json
 
 when@prod:
     monolog:
@@ -27,7 +25,6 @@ when@prod:
                 path: "%kernel.logs_dir%/currency_rate_provider.log"
                 level: info
                 channels: [currency_rate_provider]
-                formatter: monolog.formatter.json
 
 when@test:
     monolog:
@@ -37,5 +34,4 @@ when@test:
                 path: "%kernel.logs_dir%/currency_rate_provider.log"
                 level: debug
                 channels: [currency_rate_provider]
-                formatter: monolog.formatter.json
 

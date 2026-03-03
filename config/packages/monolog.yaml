@@ -1,156 +1,41 @@
 monolog:
-    # Minimum log level across all channels
     channels:
-        - deprecation # Logs of deprecated features
-        - default
-        - database
-        - api
-        - security
-        - currency
-        - performance
-        - mail
+        - currency_rates
     handlers:
-        # Default handler - logs all messages except specific channels
-        default:
+        main:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
-            channels: ["!event", "!http_client", "!currency_rate_provider"]
-            formatter: monolog.formatter.json
+            channels: ["!currency_rates", "!currency_rate_provider"]
 
-        # Database channel - logs database queries and errors
-        database:
+        currency_rates:
             type: stream
-            path: "%kernel.logs_dir%/database.log"
+            path: "%kernel.logs_dir%/currency_rates.log"
             level: debug
-            channels: [database]
-            formatter: monolog.formatter.json
-
-        # API channel - logs API requests and responses
-        api:
-            type: stream
-            path: "%kernel.logs_dir%/api.log"
-            level: info
-            channels: [api]
-            formatter: monolog.formatter.json
-
-        # Security channel - logs authentication and authorization events
-        security:
-            type: stream
-            path: "%kernel.logs_dir%/security.log"
-            level: info
-            channels: [security]
-            formatter: monolog.formatter.json
-
-        # Currency channel - logs currency-related operations
-        currency:
-            type: stream
-            path: "%kernel.logs_dir%/currency.log"
-            level: info
-            channels: [currency]
-            formatter: monolog.formatter.json
-
-        # Performance channel - logs performance metrics and slow operations
-        performance:
-            type: stream
-            path: "%kernel.logs_dir%/performance.log"
-            level: warning
-            channels: [performance]
-            formatter: monolog.formatter.json
-
-        # Mail channel - logs email sending operations
-        mail:
-            type: stream
-            path: "%kernel.logs_dir%/mail.log"
-            level: info
-            channels: [mail]
-            formatter: monolog.formatter.json
-        # Deprecation channel - logs deprecated feature usage
-        deprecation:
-            type: stream
-            path: "%kernel.logs_dir%/deprecation.log"
-            level: info
-            channels: [deprecation]
-            formatter: monolog.formatter.json
+            channels: [currency_rates]
 
         # Console handler - for development environment
         console:
             type: console
             verbosity_levels:
-                VERBOSITY_NORMAL: info
+                VERBOSITY_NORMAL: error
                 VERBOSITY_VERY_VERBOSE: debug
-            channels: ["!event", "!http_client"]
+            channels: ["!currency_rate_provider", "!currency_rates"]
 
 when@dev:
     monolog:
         handlers:
             main:
-                type: fingers_crossed
-                action_level: error
-                handler: grouped
-                excluded_http_codes: [404, 405]
-                buffer_size: 50
-
-            grouped:
-                type: group
-                members: [streamed, console]
-
-            streamed:
                 type: stream
-                path: "%kernel.logs_dir%/dev.log"
-                level: debug
-                channels: ["!currency_rate_provider"]
-                formatter: monolog.formatter.json
-
-            console:
-                type: console
-                verbosity_levels:
-                    VERBOSITY_NORMAL: info
-                    VERBOSITY_VERY_VERBOSE: debug
-                formatter: monolog.formatter.json
-
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: info
+                channels: ["!currency_rates", "!currency_rate_provider"]
 when@prod:
     monolog:
         handlers:
             main:
-                type: fingers_crossed
-                action_level: error
-                handler: grouped
-                excluded_http_codes: [404]
-                buffer_size: 100
-
-            grouped:
-                type: group
-                members: [streamedMain, streamedError]
-
-            streamedMain:
-                type: stream
-                path: "%kernel.logs_dir%/prod.log"
-                level: notice
-                formatter: monolog.formatter.json
-
-            streamedError:
-                type: stream
-                path: "%kernel.logs_dir%/prod_error.log"
-                level: error
-                formatter: monolog.formatter.json
-
-when@test:
-    monolog:
-        handlers:
-            main:
-                type: fingers_crossed
-                action_level: error
-                handler: grouped
-                excluded_http_codes: [404]
-                buffer_size: 50
-
-            grouped:
-                type: group
-                members: [streamed]
-
-            streamed:
-                type: stream
-                path: "%kernel.logs_dir%/test.log"
+                type: rotating_file
+                path: '%kernel.logs_dir%/%kernel.environment%.log'
                 level: debug
-
+                max_files: 10
+                formatter: monolog.formatter.json

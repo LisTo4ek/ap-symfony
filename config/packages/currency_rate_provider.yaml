@@ -1,6 +1,6 @@
 currency_rate_provider:
     cbr_provider:
-        api_url: 'https://cbr.ru1/scripts/XML_daily.asp1'
+        api_url: 'https://cbr.ru/scripts/XML_daily.asp'
         timeout: 30
         base_currency: RUB
         rate_precision: 32

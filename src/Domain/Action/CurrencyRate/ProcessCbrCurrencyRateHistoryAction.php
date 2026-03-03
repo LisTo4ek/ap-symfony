@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Action\CurrencyRate;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
+use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
 use App\Domain\Contracts\RateHistoryStorageContract;
@@ -48,7 +49,7 @@ class ProcessCbrCurrencyRateHistoryAction
 
             /** @var Rate $rate */
             foreach ($chunk as $rate) {
-                if ($rate->date->diff($today)->days !== 0) {
+                if (!DateCompare::eq($rate->date, $today)) {
                     continue;
                 }
 

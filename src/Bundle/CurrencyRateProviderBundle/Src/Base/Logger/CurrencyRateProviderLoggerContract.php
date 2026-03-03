@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger;
 
+use DateTime;
+use Throwable;
+
 /**
  * CurrencyRateProviderLoggerInterface defines the contract for logging in the CurrencyRateProviderBundle
  */
@@ -12,7 +15,7 @@ interface CurrencyRateProviderLoggerContract
     /**
      * Log a rate retrieval operation
      */
-    public function logRateRetrieval(string $from, string $to, float $rate, int $durationMs = 0): void;
+    public function logRateRetrieval(string $from, string $to, string $rate, int $durationMs = 0): void;
 
     /**
      * Log a provider initialization
@@ -22,12 +25,12 @@ interface CurrencyRateProviderLoggerContract
     /**
      * Log a rate update operation
      */
-    public function logRateUpdate(string $currency, float $rate, \DateTime $timestamp): void;
+    public function logRateUpdate(string $currency, string $rate, DateTime $timestamp): void;
 
     /**
      * Log a provider error
      */
-    public function logProviderError(string $providerName, string $message, ?\Throwable $exception = null): void;
+    public function logProviderError(string $providerName, string $message, ?Throwable $exception = null): void;
 
     /**
      * Log a rate retrieval failure

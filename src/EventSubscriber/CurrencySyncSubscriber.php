@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
 use App\Domain\Contracts\CurrentRateStorageContract;
 use App\Event\RateSavedEvent;
 use DateTimeImmutable;
@@ -28,7 +29,7 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
         $rate = $event->getRate();
         $today = new DateTimeImmutable();
 
-        if ($rate->date->diff($today)->days === 0) {
+        if (DateCompare::eq($rate->date, $today)) {
             $this->storage->upsertForCurrencyPair(
                 $rate->baseCurrency,
                 $rate->targetCurrency,

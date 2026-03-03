@@ -1690,7 +1690,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     cbr_provider?: array{
  *         api_url: scalar|Param|null,
  *         timeout: int|Param,
- *         retry_attempts: int|Param,
  *         rate_precision: int|Param, // Number of decimal places for currency rates
  *         base_currency: scalar|Param|null, // Base currency code (e.g., USD, EUR, RUB)
  *         monitored_currencies: list<scalar|Param|null>,

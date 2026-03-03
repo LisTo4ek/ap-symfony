@@ -51,36 +51,39 @@ class ImportCurrencyCommandTest extends KernelTestCase
      */
     public function testSuccessfullyImportsRates(): void
     {
+        $today = new DateTimeImmutable('today');
         $rate = new Rate(
             $this->rubCurrency,
             $this->usdCurrency,
             '75.50',
-            new DateTimeImmutable('2026-01-01')
+            $today
         );
 
+        // Mock getRates to return a generator yielding chunks of rates
         $this->rateProvider
             ->expects($this->atLeastOnce())
             ->method('getRates')
             ->willReturnCallback(function () use ($rate) {
-                yield [$rate];
+                yield [$rate];  // Yield as a chunk (array of rates)
             });
 
         $this->historyRepository
             ->expects($this->atLeastOnce())
             ->method('saveBatch');
 
+        // EventDispatcher should be called for today's rate
         $this->eventDispatcher
             ->expects($this->atLeastOnce())
             ->method('dispatch')
             ->with($this->isInstanceOf(RateSavedEvent::class));
 
         $this->commandTester->execute([
-            'from' => '2026-01-01',
-            'to' => '2026-01-03',
+            'from' => $today->format('Y-m-d'),
+            'to' => $today->format('Y-m-d'),
         ]);
 
         $this->assertEquals(0, $this->commandTester->getStatusCode());
-        $this->assertStringContainsString('successful', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('imported', $this->commandTester->getDisplay());
     }
 
     /**
@@ -88,10 +91,11 @@ class ImportCurrencyCommandTest extends KernelTestCase
      */
     public function testUsesDefaultDateRange(): void
     {
+        // Mock getRates to return empty generator (no rates)
         $this->rateProvider
             ->method('getRates')
             ->willReturnCallback(function () {
-                yield from [];
+                yield from [];  // Return empty generator
             });
 
         $this->commandTester->execute([]);
@@ -155,7 +159,7 @@ class ImportCurrencyCommandTest extends KernelTestCase
         $this->rateProvider
             ->method('getRates')
             ->willReturnCallback(function () {
-                yield from [];
+                yield from [];  // Return empty generator
             });
 
         $this->commandTester->execute([
