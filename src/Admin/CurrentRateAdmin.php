@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('sonata.admin', [
     'model_class' => CurrentRate::class,
     'manager_type' => 'orm',
-    'label' => 'Текущие курсы'
+    'label' => 'Current rates'
 ])]
 final class CurrentRateAdmin extends AbstractAdmin
 {

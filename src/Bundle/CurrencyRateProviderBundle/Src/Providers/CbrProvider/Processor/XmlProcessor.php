@@ -9,7 +9,7 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\InvalidRateDataExce
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLoggerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
-use App\Domain\Helper\NumberHelper;
+use App\Bundle\CurrencyRateProviderBundle\Src\Helper\NumberHelper;
 use DateTimeImmutable;
 use Generator;
 use SimpleXMLElement;

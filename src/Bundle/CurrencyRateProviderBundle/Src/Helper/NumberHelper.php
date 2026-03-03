@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Helper;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Helper;
 
 class NumberHelper
 {
