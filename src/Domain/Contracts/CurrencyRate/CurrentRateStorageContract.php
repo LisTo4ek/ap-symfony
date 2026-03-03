@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Contracts;
+namespace App\Domain\Contracts\CurrencyRate;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Entity\CurrentRate;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Doctrine\ORM\QueryBuilder;
 
 interface CurrentRateStorageContract
 {
@@ -42,5 +43,9 @@ interface CurrentRateStorageContract
     public function getTodayRecords(): array;
 
     public function hasRecordsByDay(DateTimeImmutable $date): bool;
+
+    public function getLatestDate(): ?DateTimeImmutable;
+
+    public function findByDateAndBaseCurrencyQuery(DateTimeImmutable $date, CurrencyContract $baseCurrency): QueryBuilder;
 }
 

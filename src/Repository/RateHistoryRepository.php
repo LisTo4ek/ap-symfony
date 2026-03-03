@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
-use App\Domain\Contracts\RateHistoryStorageContract;
+use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

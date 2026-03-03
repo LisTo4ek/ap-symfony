@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Index page{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <hr class="my-5">
+
+        <section class="sections">
+            <h2>Разделы новостей</h2>
+            <nav>
+                <ul>
+                    <li><a href="{{ path('app_news_section', {name: 'accidents'}) }}">Происшествия</a></li>
+                    <li><a href="{{ path('app_news_section', {name: 'sport'}) }}">Спорт</a></li>
+                </ul>
+            </nav>
+        </section>
+
+        <section class="sections">
+            <h2>Авторы/Книги</h2>
+            <nav>
+                <ul>
+                    <li><a href="{{ path('app_author_index') }}">Авторы</a></li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+{% endblock %}

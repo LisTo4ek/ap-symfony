@@ -3,11 +3,12 @@
 namespace App\Repository;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
-use App\Domain\Contracts\CurrentRateStorageContract;
+use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Entity\CurrentRate;
-use DateTimeInterface;
 use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
@@ -113,5 +114,26 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult() !== null;
+    }
+
+    public function getLatestDate(): ?DateTimeImmutable
+    {
+        $res = $this
+            ->createQueryBuilder('cr')
+            ->select('MAX(cr.date)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $res ? new DateTimeImmutable($res) : null;
+    }
+
+    public function findByDateAndBaseCurrencyQuery(DateTimeImmutable $date, CurrencyContract $baseCurrency): QueryBuilder
+    {
+        return $this->createQueryBuilder('cr')
+            ->where('cr.date = :date')
+            ->setParameter('date', $date)
+            ->andWhere('cr.baseCurrency = :baseCurrency')
+            ->setParameter('baseCurrency', $baseCurrency)
+            ->orderBy('cr.targetCurrency', 'ASC');
     }
 }

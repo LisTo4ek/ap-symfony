@@ -31,6 +31,7 @@ RUN set -eux; \
 		intl \
 		libxml \
 		opcache \
+		redis \
 		zip \
 	;
 

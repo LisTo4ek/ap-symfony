@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Contracts;
+namespace App\Domain\Contracts\CurrencyRate;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Entity\RateHistory;

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Current Rates{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Current Rates</h1>
+
+        {% if pagination.items|length > 0 %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Currency</th>
+                        <th class="text-end">Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rate in pagination %}
+                        <tr>
+                            <td>{{ rate.date|date('d.m.Y') }}</td>
+                            <td>{{ rate.targetCurrency }}</td>
+                            <td class="text-end">{{ (rate.value|number_format(10, '.', '')) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No rates found
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+

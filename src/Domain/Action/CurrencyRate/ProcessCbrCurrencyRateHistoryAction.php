@@ -8,7 +8,8 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
-use App\Domain\Contracts\RateHistoryStorageContract;
+use App\Domain\Contracts\CurrencyRate\CurrentRateDateCacheContract;
+use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
 use DateTimeImmutable;
@@ -24,6 +25,7 @@ class ProcessCbrCurrencyRateHistoryAction
         private readonly CurrencyRateProviderContract $provider,
         private readonly RateHistoryStorageContract $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CurrentRateDateCacheContract $cache,
     ) {
     }
 

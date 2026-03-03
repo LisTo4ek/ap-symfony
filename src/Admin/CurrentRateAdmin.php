@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Admin;
 
 use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
-use App\Domain\Contracts\CurrentRateStorageContract;
+use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Entity\CurrentRate;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;

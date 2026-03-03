@@ -61,6 +61,24 @@ services:
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
+###> redis ###
+  redis:
+    image: redis:${REDIS_VERSION:-7}-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - redis_data:/data:rw
+    ports:
+      - name: redis
+        target: 6379
+        published: ${REDIS_PORT:-6379}
+        protocol: tcp
+###< redis ###
+
 volumes:
   caddy_data:
   caddy_config:
@@ -70,3 +88,8 @@ volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
+
+###> redis ###
+  redis_data:
+###< redis ###
+

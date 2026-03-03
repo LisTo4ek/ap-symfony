@@ -23,7 +23,7 @@
 
         <div class="mt-4">
             <a href="{{ path('author_edit', {'id': author.id}) }}" class="btn btn-primary">Edit</a>
-            <a href="{{ path('author_index') }}" class="btn btn-secondary">Back to List</a>
+            <a href="{{ path('app_author_index') }}" class="btn btn-secondary">Back to List</a>
             <form method="post" action="{{ path('author_delete', {'id': author.id}) }}" style="display:inline-block;" onsubmit="return confirm('Are you sure?');">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ author.id) }}">
                 <button type="submit" class="btn btn-danger">Delete</button>

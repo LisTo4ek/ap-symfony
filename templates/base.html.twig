@@ -4,39 +4,113 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}LearnSymfony{% endblock %}</title>
+
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
         {% block stylesheets %}
             <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-                header { background: #333; color: #fff; padding: 1rem 0; margin-bottom: 2rem; }
-                header h1 { text-align: center; }
-                nav ul { list-style: none; }
-                nav li { margin: 0.5rem 0; }
-                nav a { color: #007bff; text-decoration: none; }
-                nav a:hover { text-decoration: underline; }
-                .comment { background: #f4f4f4; padding: 1rem; margin: 1rem 0; border-radius: 4px; }
-                article { margin: 2rem 0; }
-                section { margin: 2rem 0; }
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                }
+                header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: #fff;
+                    padding: 1.5rem 0;
+                    margin-bottom: 2rem;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                header h1 {
+                    margin: 0;
+                    font-weight: 700;
+                }
+                header a {
+                    color: #fff;
+                    text-decoration: none;
+                }
+                header a:hover {
+                    color: #f0f0f0;
+                }
+                nav ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                nav li {
+                    margin-bottom: 0.5rem;
+                }
+                nav a {
+                    color: #667eea;
+                    text-decoration: none;
+                    font-weight: 500;
+                }
+                nav a:hover {
+                    color: #764ba2;
+                    text-decoration: underline;
+                }
+                main {
+                    min-height: calc(100vh - 200px);
+                }
+                footer {
+                    background: #f8f9fa;
+                    border-top: 1px solid #dee2e6;
+                    margin-top: 3rem;
+                    padding: 2rem 0;
+                }
+                article {
+                    margin: 2rem 0;
+                }
+                section {
+                    margin: 2rem 0;
+                }
             </style>
         {% endblock %}
     </head>
     <body>
         <header>
             <div class="container">
-                <h1><a href="{{ path('app_home_index') }}" style="color: #fff; text-decoration: none;">LearnSymfony</a></h1>
+                <h1><a href="{{ path('app_home_index') }}">LearnSymfony</a></h1>
             </div>
         </header>
 
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_news_index') }}">News</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_author_index') }}">Authors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_current_rates') }}">Current Rates</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
         <main>
-            {% block body %}{% endblock %}
+            <div class="container">
+                {% block body %}{% endblock %}
+            </div>
         </main>
 
         <footer>
             <div class="container">
-                <p style="text-align: center; margin-top: 2rem; color: #666;">&copy; {{ 'now'|date('Y') }} LearnSymfony</p>
+                <p class="text-center text-muted mb-0">&copy; {{ 'now'|date('Y') }} LearnSymfony</p>
             </div>
         </footer>
+
+        <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         {% block javascripts %}{% endblock %}
     </body>

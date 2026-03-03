@@ -1,67 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Главная страница - Курсы валют{% endblock %}
+{% block title %}Index page{% endblock %}
 
 {% block body %}
     <div class="container">
-{#        <h1>Курсы валют ЦБР</h1>#}
-
-{#        <section class="currency-rates">#}
-{#            <h2>Текущие курсы на {{ ratesDTO.date|date('d.m.Y') }}</h2>#}
-
-{#            {% if ratesDTO.hasWarning %}#}
-{#                <div class="alert alert-warning">#}
-{#                    {{ ratesDTO.message }}#}
-{#                </div>#}
-{#            {% endif %}#}
-
-{#            {% if ratesDTO.hasRates %}#}
-{#                <table class="table table-striped">#}
-{#                    <thead>#}
-{#                        <tr>#}
-{#                            <th>Валюта</th>#}
-{#                            <th>Номинал</th>#}
-{#                            <th>Курс (RUB)</th>#}
-{#                            <th>История</th>#}
-{#                        </tr>#}
-{#                    </thead>#}
-{#                    <tbody>#}
-{#                        {% for rate in ratesDTO.rates %}#}
-{#                            <tr>#}
-{#                                <td>{{ rate.charCode }}</td>#}
-{#                                <td>{{ rate.nominal }}</td>#}
-{#                                <td>{{ rate.value }}</td>#}
-{#                                <td>#}
-{#                                    <a href="{{ path('app_currency_history', {code: rate.charCode}) }}">#}
-{#                                        Посмотреть историю#}
-{#                                    </a>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                    </tbody>#}
-{#                </table>#}
-{#            {% else %}#}
-{#                <p class="text-muted">Курсы валют пока недоступны</p>#}
-{#            {% endif %}#}
-{#        </section>#}
 
         <hr class="my-5">
 
         <section class="sections">
-            <h2>Разделы новостей</h2>
+            <h2>Home</h2>
             <nav>
                 <ul>
-                    <li><a href="{{ path('app_news_section', {name: 'accidents'}) }}">Происшествия</a></li>
-                    <li><a href="{{ path('app_news_section', {name: 'sport'}) }}">Спорт</a></li>
-                </ul>
-            </nav>
-        </section>
-
-        <section class="sections">
-            <h2>Авторы/Книги</h2>
-            <nav>
-                <ul>
-                    <li><a href="{{ path('author_index') }}">Авторы</a></li>
+                    <li><a href="{{ path('app_news_index') }}">News</a></li>
+                    <li><a href="{{ path('app_author_index') }}">Authors</a></li>
+                    <li><a href="{{ path('app_current_rates') }}">Current Rates</a></li>
                 </ul>
             </nav>
         </section>

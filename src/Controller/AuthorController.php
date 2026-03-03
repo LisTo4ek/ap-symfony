@@ -19,7 +19,7 @@ class AuthorController extends AbstractController
     {
     }
 
-    #[Route('', name: 'author_index', methods: ['GET'])]
+    #[Route('', name: 'app_author_index', methods: ['GET'])]
     public function index(): Response
     {
         $authors = $this->authorRepository->findAllOrderedByName();
@@ -39,7 +39,7 @@ class AuthorController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->authorRepository->save($author, true);
 
-            return $this->redirectToRoute('author_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_author_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('author/new.html.twig', [
@@ -64,7 +64,7 @@ class AuthorController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->authorRepository->save($author, true);
 
-            return $this->redirectToRoute('author_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_author_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('author/edit.html.twig', [
@@ -80,6 +80,6 @@ class AuthorController extends AbstractController
             $this->authorRepository->remove($author, true);
         }
 
-        return $this->redirectToRoute('author_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_author_index', [], Response::HTTP_SEE_OTHER);
     }
 }
