@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Application\Service\Pagination\DoctrinePageable;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
+use App\Domain\Contracts\Pagination\PageableContract;
 use App\Entity\CurrentRate;
 use DateTime;
 use DateTimeImmutable;
@@ -19,8 +21,9 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 #[AsAlias(CurrentRateStorageContract::class)]
 class CurrentRateRepository extends ServiceEntityRepository implements CurrentRateStorageContract
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
         parent::__construct($registry, CurrentRate::class);
     }
 
@@ -82,13 +85,15 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         return $res ? new DateTimeImmutable($res) : null;
     }
 
-    public function findByDateAndBaseCurrencyQuery(DateTimeImmutable $date, CurrencyContract $baseCurrency): QueryBuilder
+    public function findByDateAndBaseCurrency(DateTimeImmutable $date, CurrencyContract $baseCurrency): PageableContract
     {
-        return $this->createQueryBuilder('cr')
+        $queryBuilder = $this->createQueryBuilder('cr')
             ->where('cr.date = :date')
             ->setParameter('date', $date)
             ->andWhere('cr.baseCurrency = :baseCurrency')
             ->setParameter('baseCurrency', $baseCurrency)
             ->orderBy('cr.targetCurrency', 'ASC');
+
+        return new DoctrinePageable($queryBuilder);
     }
 }

@@ -1,38 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{# @var pagination \Knp\Component\Pager\Pagination\PaginationInterface<RateHistory> #}
+{# @var pagination \App\Domain\Contracts\Pagination\PaginationResultContract<RateHistory> #}
 {# @var targetCurrency string #}
 {# @var rate \App\Entity\RateHistory #}
 
-{% block title %}Current Rates{% endblock %}
+{% block title %}Rate History{% endblock %}
 
 {% block body %}
     <div class="container">
         <h1>Rates history for {{ targetCurrency }}</h1>
 
-        {% if pagination?.items|length > 0 %}
+        {% if pagination and pagination.getItems()|length > 0 %}
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Date</th>
-{#                        <th>Currency</th>#}
                         <th class="text-end">Rate</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rate in pagination %}
+                    {% for rate in pagination.getItems() %}
                         <tr>
                             <td>{{ rate.date|date('d.m.Y') }}</td>
-{#                            <td>{{ rate.targetCurrency }}</td>#}
                             <td class="text-end">{{ (rate.value|number_format(10, '.', '')) }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <div class="navigation">
-                {{ knp_pagination_render(pagination) }}
-            </div>
+            {% include 'components/pagination.html.twig' with {
+                pagination: pagination,
+                route: 'app_rates_history',
+                parameters: {'targetCurrency': targetCurrency}
+            } %}
         {% else %}
             <div class="alert alert-info">
                 No rates found
@@ -40,4 +40,3 @@
         {% endif %}
     </div>
 {% endblock %}
-

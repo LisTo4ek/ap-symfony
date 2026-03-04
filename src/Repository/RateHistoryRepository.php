@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Application\Service\Pagination\DoctrinePageable;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
+use App\Domain\Contracts\Pagination\PageableContract;
 use App\Entity\RateHistory;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -56,15 +58,18 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         $em->flush();
     }
 
-
-    public function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): QueryBuilder
+    public function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): PageableContract
     {
-        return $this->createQueryBuilder('rh')
+        $queryBuilder = $this->createQueryBuilder('rh')
             ->where('rh.baseCurrency = :baseCurrency')
             ->setParameter('baseCurrency', $baseCurrency)
             ->andWhere('rh.targetCurrency = :targetCurrency')
             ->setParameter('targetCurrency', $targetCurrency)
             ->orderBy('rh.date', 'DESC')
-            ;
+            ->orderBy('rh.id', 'DESC');
+
+        return new DoctrinePageable($queryBuilder);
     }
 }
+
+

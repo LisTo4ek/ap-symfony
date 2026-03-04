@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{# @var pagination \Knp\Component\Pager\Pagination\PaginationInterface #}
+{# @var pagination \App\Domain\Contracts\Pagination\PaginationResultContract<CurrentRate> #}
 {# @var latestDate string #}
 {# @var today string #}
 {# @var rate \App\Entity\CurrentRate #}
@@ -11,7 +11,7 @@
     <div class="container">
         <h1>Current Rates</h1>
 
-        {% if pagination?.items|length > 0 %}
+        {% if pagination and pagination.getItems()|length > 0 %}
             {% if latestDate !== today %}
                 <div class="alert alert-warning">
                     Latest rates are from {{ latestDate|date('d.m.Y') }}. Today's rates are not available yet.
@@ -26,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rate in pagination %}
+                    {% for rate in pagination.getItems() %}
                         <tr>
                             <td>{{ rate.date|date('d.m.Y') }}</td>
                             <td><a href="{{ path('app_rates_history', {'targetCurrency': rate.targetCurrency}) }}">{{ rate.targetCurrency }}</a></td>
@@ -36,9 +36,11 @@
                 </tbody>
             </table>
 
-            <div class="navigation">
-                {{ knp_pagination_render(pagination) }}
-            </div>
+            {% include 'components/pagination.html.twig' with {
+                pagination: pagination,
+                route: 'app_current_rates',
+                parameters: {}
+            } %}
         {% else %}
             <div class="alert alert-info">
                 No rates found
@@ -46,4 +48,3 @@
         {% endif %}
     </div>
 {% endblock %}
-

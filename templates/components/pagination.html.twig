@@ -1,0 +1,77 @@
+{# @var pagination \App\Domain\Contracts\Pagination\PaginationResultContract #}
+
+{% if pagination and pagination.getTotalPages() > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if pagination.hasPreviousPage() %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getCurrentPage() - 1})) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span> Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo; Previous</span>
+                </li>
+            {% endif %}
+
+            {% set startPage = max(pagination.getCurrentPage() - 2, 1) %}
+            {% set endPage = min(pagination.getCurrentPage() + 2, pagination.getTotalPages()) %}
+
+            {% if startPage > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': 1})) }}">1</a>
+                </li>
+                {% if startPage > 2 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endif %}
+
+            {% for page in startPage..endPage %}
+                {% if page == pagination.getCurrentPage() %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">
+                            {{ page }}
+                            <span class="visually-hidden">(current)</span>
+                        </span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ path(route, parameters|merge({'page': page})) }}">{{ page }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if endPage < pagination.getTotalPages() %}
+                {% if endPage < pagination.getTotalPages() - 1 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getTotalPages()})) }}">{{ pagination.getTotalPages() }}</a>
+                </li>
+            {% endif %}
+
+            {% if pagination.hasNextPage() %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getCurrentPage() + 1})) }}" aria-label="Next">
+                        Next <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next &raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="text-center mb-3">
+        <small class="text-muted">
+            Page {{ pagination.getCurrentPage() }} of {{ pagination.getTotalPages() }}
+            ({{ pagination.getTotalCount() }} total items)
+        </small>
+    </div>
+{% endif %}
+
+
+

@@ -37,3 +37,8 @@ services:
         alias: App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Manager
         public: true
 
+#    # Paginator Contract
+#    App\Domain\Contracts\Pagination\PaginatorContract:
+#        alias: App\Application\Service\Pagination\DoctrineQueryBuilderPaginator
+#        public: true
+

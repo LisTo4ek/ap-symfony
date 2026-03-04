@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Contracts\CurrencyRate;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
+use App\Domain\Contracts\Pagination\PageableContract;
 use App\Entity\CurrentRate;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Doctrine\ORM\QueryBuilder;
 
 interface CurrentRateStorageContract
 {
@@ -23,6 +23,6 @@ interface CurrentRateStorageContract
 
     public function getLatestDate(): ?DateTimeImmutable;
 
-    public function findByDateAndBaseCurrencyQuery(DateTimeImmutable $date, CurrencyContract $baseCurrency): QueryBuilder;
+    public function findByDateAndBaseCurrency(DateTimeImmutable $date, CurrencyContract $baseCurrency): PageableContract;
 }
 

@@ -8,8 +8,8 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\Curr
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
+use App\Domain\Contracts\Pagination\PaginatorContract;
 use DateTimeImmutable;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +20,7 @@ class CurrencyRateController extends AbstractController
     private const string BASE_CURRENCY = CurrencyIso4217Enum::RUB->value;
 
     public function __construct(
-        private readonly PaginatorInterface $paginator,
+        private readonly PaginatorContract $paginator,
         private readonly CurrentRateStorageContract $currentRateStorage,
         private readonly RateHistoryStorageContract $rateHistoryStorage,
         private readonly CurrencyManagerContract $currencyManager,
@@ -32,21 +32,22 @@ class CurrencyRateController extends AbstractController
     {
         $latestDate = $this->currentRateStorage->getLatestDate();
 
+        $pagination = null;
         if ($latestDate) {
-            $queryBuilder = $this->currentRateStorage->findByDateAndBaseCurrencyQuery(
+            $pageable = $this->currentRateStorage->findByDateAndBaseCurrency(
                 $latestDate,
                 $this->currencyManager::create(self::BASE_CURRENCY)
             );
 
             $pagination = $this->paginator->paginate(
-                $queryBuilder,
+                $pageable,
                 $request->query->getInt('page', 1),
-                20
+                1
             );
         }
 
         return $this->render('currency-rate/current-rates.html.twig', [
-            'pagination' => $pagination ?? null,
+            'pagination' => $pagination,
             'latestDate' => $latestDate?->format('Y-m-d'),
             'today' => new DateTimeImmutable('today')->format('Y-m-d'),
         ]);
@@ -55,15 +56,15 @@ class CurrencyRateController extends AbstractController
     #[Route('/rate-history/{targetCurrency}', name: 'app_rates_history')]
     public function rateHistory(string $targetCurrency, Request $request): Response
     {
-        $queryBuilder = $this->rateHistoryStorage->findByCurrencyPair(
+        $pageable = $this->rateHistoryStorage->findByCurrencyPair(
             $this->currencyManager::create(self::BASE_CURRENCY),
             $this->currencyManager::create($targetCurrency),
         );
 
         $pagination = $this->paginator->paginate(
-            $queryBuilder,
+            $pageable,
             $request->query->getInt('page', 1),
-            20
+            1
         );
 
         return $this->render('currency-rate/rate-history.html.twig', [
