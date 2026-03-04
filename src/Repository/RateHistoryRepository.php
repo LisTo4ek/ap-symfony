@@ -7,6 +7,7 @@ use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use function array_map;
@@ -53,5 +54,17 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         }
 
         $em->flush();
+    }
+
+
+    public function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): QueryBuilder
+    {
+        return $this->createQueryBuilder('rh')
+            ->where('rh.baseCurrency = :baseCurrency')
+            ->setParameter('baseCurrency', $baseCurrency)
+            ->andWhere('rh.targetCurrency = :targetCurrency')
+            ->setParameter('targetCurrency', $targetCurrency)
+            ->orderBy('rh.date', 'DESC')
+            ;
     }
 }

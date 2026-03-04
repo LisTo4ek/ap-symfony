@@ -1,28 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{# @var pagination \Knp\Component\Pager\Pagination\PaginationInterface #}
-{# @var latestDate string #}
-{# @var today string #}
-{# @var rate \App\Entity\CurrentRate #}
+{# @var pagination \Knp\Component\Pager\Pagination\PaginationInterface<RateHistory> #}
+{# @var targetCurrency string #}
+{# @var rate \App\Entity\RateHistory #}
 
 {% block title %}Current Rates{% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>Current Rates</h1>
+        <h1>Rates history for {{ targetCurrency }}</h1>
 
-        {% if latestDate !== today %}
-            <div class="alert alert-warning">
-                Latest rates are from {{ latestDate|date('d.m.Y') }}. Today's rates are not available yet.
-            </div>
-        {% endif %}
-
-        {% if pagination.items|length > 0 %}
+        {% if pagination?.items|length > 0 %}
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Currency</th>
+{#                        <th>Currency</th>#}
                         <th class="text-end">Rate</th>
                     </tr>
                 </thead>
@@ -30,7 +23,7 @@
                     {% for rate in pagination %}
                         <tr>
                             <td>{{ rate.date|date('d.m.Y') }}</td>
-                            <td>{{ rate.targetCurrency }}</td>
+{#                            <td>{{ rate.targetCurrency }}</td>#}
                             <td class="text-end">{{ (rate.value|number_format(10, '.', '')) }}</td>
                         </tr>
                     {% endfor %}
