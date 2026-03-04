@@ -27,15 +27,7 @@ class AuthorType extends AbstractType
                         maxMessage: 'Author name cannot exceed 255 characters',
                     ),
                 ],
-            ])
-//            ->add('books', EntityType::class, [
-//                'class' => Book::class,
-//                'choice_label' => 'name',
-//                'multiple' => true,
-//                'expanded' => false,
-//                'required' => false,
-//            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

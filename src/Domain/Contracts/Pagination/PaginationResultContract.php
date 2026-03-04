@@ -26,7 +26,7 @@ interface PaginationResultContract
     /**
      * Get items per page
      */
-    public function getItemsPerPage(): int;
+    public function getItemsPerPage(): ItemsPerPageContract;
 
     /**
      * Get total number of pages

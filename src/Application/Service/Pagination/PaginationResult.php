@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Service\Pagination;
 
+use App\Domain\Contracts\Pagination\ItemsPerPageContract;
 use App\Domain\Contracts\Pagination\PaginationResultContract;
 
 /**
@@ -15,16 +16,12 @@ use App\Domain\Contracts\Pagination\PaginationResultContract;
 class PaginationResult implements PaginationResultContract
 {
     /**
-     * @param int $currentPage
-     * @param int $totalCount
-     * @param int $itemsPerPage
-     * @param int $totalPages
      * @param array<T> $items
      */
     public function __construct(
         private readonly int $currentPage,
         private readonly int $totalCount,
-        private readonly int $itemsPerPage,
+        private readonly ItemsPerPageContract $itemsPerPage,
         private readonly int $totalPages,
         private readonly array $items,
     ) {
@@ -40,7 +37,7 @@ class PaginationResult implements PaginationResultContract
         return $this->totalCount;
     }
 
-    public function getItemsPerPage(): int
+    public function getItemsPerPage(): ItemsPerPageContract
     {
         return $this->itemsPerPage;
     }

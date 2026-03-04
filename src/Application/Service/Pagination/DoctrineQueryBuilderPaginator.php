@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Service\Pagination;
 
+use App\Domain\Contracts\Pagination\ItemsPerPageContract;
 use App\Domain\Contracts\Pagination\PageableContract;
 use App\Domain\Contracts\Pagination\PaginationResultContract;
 use App\Domain\Contracts\Pagination\PaginatorContract;
@@ -21,22 +22,18 @@ use App\Domain\Contracts\Pagination\PaginatorContract;
 class DoctrineQueryBuilderPaginator implements PaginatorContract
 {
     /**
-     * @param PageableContract<TItem> $query
+     * @param PageableContract<TItem> $pageable
      * @return PaginationResultContract<TItem>
      */
-    public function paginate(PageableContract $query, int $page = 1, int $itemsPerPage = 10): PaginationResultContract
+    public function paginate(PageableContract $pageable, ItemsPerPageContract $itemsPerPage, int $page = 1): PaginationResultContract
     {
         if ($page < 1) {
             $page = 1;
         }
 
-        if ($itemsPerPage < 1) {
-            $itemsPerPage = 10;
-        }
-
         // Get total count and pages from the query
-        $totalCount = $query->getTotalCount();
-        $totalPages = $query->getTotalPages($itemsPerPage);
+        $totalCount = $pageable->getTotalCount();
+        $totalPages = $pageable->getTotalPages($itemsPerPage->getPerPage());
 
         // Ensure page is within bounds
         if ($page > $totalPages && $totalPages > 0) {
@@ -44,7 +41,7 @@ class DoctrineQueryBuilderPaginator implements PaginatorContract
         }
 
         // Fetch items for current page
-        $items = $query->getPage($page, $itemsPerPage);
+        $items = $pageable->getPage($page, $itemsPerPage->getPerPage());
 
         return new PaginationResult(
             currentPage: $page,

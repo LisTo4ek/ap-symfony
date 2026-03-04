@@ -18,12 +18,12 @@ interface PaginatorContract
      * Paginate a query
      *
      * @template TItem of object
-     * @param PageableContract<TItem> $query Query abstraction that provides pagination support
+     * @param PageableContract<TItem> $pageable Query abstraction that provides pagination support
      * @param int $page Current page (1-indexed)
-     * @param int $itemsPerPage Number of items per page
+     * @param ItemsPerPageContract $itemsPerPage Number of items per page configuration
      * @return PaginationResultContract<TItem>
      */
-    public function paginate(PageableContract $query, int $page = 1, int $itemsPerPage = 10): PaginationResultContract;
+    public function paginate(PageableContract $pageable, ItemsPerPageContract $itemsPerPage, int $page = 1): PaginationResultContract;
 }
 
 
