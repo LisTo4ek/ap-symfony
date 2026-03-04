@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -35,7 +36,7 @@ class SecurityLoggerSubscriber implements EventSubscriberInterface
         $this->securityLogger->info('User login successful', [
             'username' => $user->getUserIdentifier(),
             'ip_address' => $request->getClientIp(),
-            'timestamp' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'timestamp' => new DateTime()->format('Y-m-d H:i:s'),
         ]);
     }
 
@@ -50,7 +51,7 @@ class SecurityLoggerSubscriber implements EventSubscriberInterface
             $this->securityLogger->info('User logout', [
                 'username' => $user->getUserIdentifier(),
                 'ip_address' => $request->getClientIp(),
-                'timestamp' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'timestamp' => new DateTime()->format('Y-m-d H:i:s'),
             ]);
         }
     }

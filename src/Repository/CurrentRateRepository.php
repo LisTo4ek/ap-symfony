@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Entity\CurrentRate;
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -100,7 +101,7 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
      */
     public function getTodayRecords(): array
     {
-        $today = new \DateTime('today');
+        $today = new DateTime('today');
 
         return $this->findBy(['date' => $today], ['baseCurrency' => 'ASC']);
     }

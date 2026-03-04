@@ -25,6 +25,11 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
+use function bcdiv;
+use function count;
+use function get_class;
+use function mb_strlen;
+use function str_contains;
 
 #[AsAlias(CurrencyRateProviderContract::class)]
 class CbrProvider implements CurrencyRateProviderContract
@@ -97,7 +102,7 @@ class CbrProvider implements CurrencyRateProviderContract
                     $rate->date
                 );
 
-                if (\count($chunk) >= $chunkSize) {
+                if (count($chunk) >= $chunkSize) {
                     yield $chunk;
                     $chunk = [];
                 }
@@ -158,7 +163,7 @@ class CbrProvider implements CurrencyRateProviderContract
             $this->logger->debug('HTTP request successful', [
                 'status_code' => $response->getStatusCode(),
                 'duration_ms' => DurationCalculator::elapsed($startTime),
-                'content_size' => strlen($content),
+                'content_size' => mb_strlen($content),
                 'date' => $date->format('d/m/Y'),
             ]);
 
@@ -201,9 +206,9 @@ class CbrProvider implements CurrencyRateProviderContract
         } catch (TransportExceptionInterface $e) {
             $errorContext = $this->getErrorContext($startTime, $date, $e);
             $exceptionClass = get_class($e);
-            if (\str_contains($exceptionClass, 'Timeout')) {
+            if (str_contains($exceptionClass, 'Timeout')) {
                 $this->logger->warning('Network timeout error - slow or unresponsive server', $errorContext);
-            } elseif (\str_contains($exceptionClass, 'Connect')) {
+            } elseif (str_contains($exceptionClass, 'Connect')) {
                 $this->logger->warning('Network connection error - unable to reach server', $errorContext);
             } else {
                 $this->logger->warning('Network transport error', $errorContext);
@@ -247,8 +252,12 @@ class CbrProvider implements CurrencyRateProviderContract
      * @param Throwable $e The exception that occurred
      * @return array<string, mixed> Error context for logging
      */
-    private function getErrorContext(float $startTime, DateTimeInterface $date, Throwable $e, ?int $statusCode = null): array
-    {
+    private function getErrorContext(
+        float $startTime,
+        DateTimeInterface $date,
+        Throwable $e,
+        ?int $statusCode = null,
+    ): array {
         return [
             'duration_ms' => DurationCalculator::elapsed($startTime),
             'error_class' => get_class($e),

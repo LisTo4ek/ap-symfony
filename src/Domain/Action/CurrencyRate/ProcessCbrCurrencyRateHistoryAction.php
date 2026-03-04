@@ -8,13 +8,14 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
-use App\Domain\Contracts\CurrencyRate\CurrentRateDateCacheContract;
 use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
 use App\Entity\RateHistory;
 use App\Event\RateSavedEvent;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use function array_map;
+use function count;
 
 class ProcessCbrCurrencyRateHistoryAction
 {
@@ -25,7 +26,6 @@ class ProcessCbrCurrencyRateHistoryAction
         private readonly CurrencyRateProviderContract $provider,
         private readonly RateHistoryStorageContract $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CurrentRateDateCacheContract $cache,
     ) {
     }
 
@@ -35,7 +35,7 @@ class ProcessCbrCurrencyRateHistoryAction
         $count = 0;
         /** @var array<Rate> $chunk */
         foreach ($this->provider->getRates($date, self::CHUNK_SIZE) as $chunk) {
-            $historyEntities = \array_map(
+            $historyEntities = array_map(
                 static fn(Rate $rate) => new RateHistory(
                     $rate->baseCurrency,
                     $rate->targetCurrency,
@@ -47,7 +47,7 @@ class ProcessCbrCurrencyRateHistoryAction
 
             $this->rateHistoryStorage->saveBatch($historyEntities);
 
-            $count += \count($chunk);
+            $count += count($chunk);
 
             /** @var Rate $rate */
             foreach ($chunk as $rate) {

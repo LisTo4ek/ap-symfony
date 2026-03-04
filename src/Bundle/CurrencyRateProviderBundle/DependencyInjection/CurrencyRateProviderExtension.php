@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\Yaml\Yaml;
+use function dirname;
+use function sprintf;
 
 class CurrencyRateProviderExtension extends Extension implements PrependExtensionInterface
 {

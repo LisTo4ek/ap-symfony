@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Throwable;
+use function count;
 
 /**
  * CurrencyRateProviderLogger provides logging functionality for the CurrencyRateProviderBundle

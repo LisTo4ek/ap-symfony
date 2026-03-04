@@ -22,6 +22,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Throwable;
+use function count;
+use function iterator_count;
+use function sprintf;
 
 #[AsCommand(
     name: 'app:import:currency-rates:cbr',
@@ -45,13 +48,13 @@ class CurrencyRateImportCbrCommand extends Command
                 'from',
                 InputArgument::OPTIONAL,
                 'Start date (Y-m-d)',
-                (new DateTime())->format('Y-m-d')
+                new DateTime()->format('Y-m-d')
             )
             ->addArgument(
                 'to',
                 InputArgument::OPTIONAL,
                 'End date (Y-m-d)',
-                (new DateTime())->format('Y-m-d')
+                new DateTime()->format('Y-m-d')
             )
             ->addOption(
                 'force',

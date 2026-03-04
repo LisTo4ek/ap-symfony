@@ -9,6 +9,7 @@ use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+use function array_map;
 
 /**
  * @extends ServiceEntityRepository<RateHistory>
@@ -90,52 +91,6 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
 
         return $entity;
     }
-//
-//    /**
-//     * @param Rate[] $rates
-//     */
-//    public function upsertForDate(array $rates, DateTimeInterface $date): void
-//    {
-//        if ($rates === []) {
-//            return;
-//        }
-//
-//        $em = $this->getEntityManager();
-//
-//        $em->wrapInTransaction(function () use ($rates, $date, $em): void {
-//            $codes = array_values(array_unique(array_map(
-//                static fn(Rate $rate): CurrencyEnum => $rate->targetCurrency,
-//                $rates
-//            )));
-//
-//            $existing = $this->findByCurrencyAndDate($codes, $date);
-//            $existingByCode = [];
-//
-//            foreach ($existing as $entity) {
-//                $existingByCode[$entity->getBaseCurrency()->value] = $entity;
-//            }
-//
-//            foreach ($rates as $rate) {
-//                $code = $rate->targetCurrency->value;
-//
-//                if (isset($existingByCode[$code])) {
-//                    $entity = $existingByCode[$code];
-//                    $entity->setValue((string)$rate->rate);
-//                    continue;
-//                }
-//
-//                $entity = new RateHistory(
-//                    $rate->targetCurrency,
-//                    (string)$rate->rate,
-//                    DateTimeImmutable::createFromInterface($date)
-//                );
-//                $em->persist($entity);
-//                $existingByCode[$code] = $entity;
-//            }
-//
-//            $em->flush();
-//        });
-//    }
 
     /**
      * @param array<CurrencyContract> $codes
@@ -146,7 +101,7 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         return $this->createQueryBuilder('rh')
             ->andWhere('rh.charCode IN (:codes)')
             ->andWhere('rh.date = :date')
-            ->setParameter('codes', \array_map(static fn (CurrencyContract $c) => $c->getCode(), $codes))
+            ->setParameter('codes', array_map(static fn (CurrencyContract $c) => $c->getCode(), $codes))
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult();

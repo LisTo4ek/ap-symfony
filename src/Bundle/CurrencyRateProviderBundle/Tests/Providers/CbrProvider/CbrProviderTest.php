@@ -13,6 +13,8 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorContract;
 use DateTimeImmutable;
+use Exception;
+use Generator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -90,7 +92,7 @@ class CbrProviderTest extends TestCase
         $date = new DateTimeImmutable('2026-03-02');
 
         // Create inline exception implementation
-        $exception = new class extends \Exception implements ClientExceptionInterface {
+        $exception = new class extends Exception implements ClientExceptionInterface {
             public function getResponse(): ResponseInterface {
                 $resp = new class implements ResponseInterface {
                     public function getStatusCode(): int { return 404; }
@@ -126,7 +128,7 @@ class CbrProviderTest extends TestCase
         $date = new DateTimeImmutable('2026-03-02');
 
         // Create inline exception implementation
-        $exception = new class extends \Exception implements RedirectionExceptionInterface {
+        $exception = new class extends Exception implements RedirectionExceptionInterface {
             public function getResponse(): ResponseInterface {
                 $resp = new class implements ResponseInterface {
                     public function getStatusCode(): int { return 301; }
@@ -161,7 +163,7 @@ class CbrProviderTest extends TestCase
         $date = new DateTimeImmutable('2026-03-02');
 
         // Create inline exception implementation
-        $exception = new class extends \Exception implements ServerExceptionInterface {
+        $exception = new class extends Exception implements ServerExceptionInterface {
             public function getResponse(): ResponseInterface {
                 $resp = new class implements ResponseInterface {
                     public function getStatusCode(): int { return 503; }
@@ -197,7 +199,7 @@ class CbrProviderTest extends TestCase
         $date = new DateTimeImmutable('2026-03-02');
 
         // Use actual exception class
-        $exception = new \Exception('Connection timeout');
+        $exception = new Exception('Connection timeout');
 
         $this->httpClient
             ->expects($this->once())
@@ -205,7 +207,7 @@ class CbrProviderTest extends TestCase
             ->willThrowException($exception);
 
         // Plain exceptions are unexpected, so wrapped as CurrencyRateProviderBundleException
-        $this->expectException(\App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\CurrencyRateProviderBundleException::class);
+        $this->expectException(CurrencyRateProviderBundleException::class);
         $this->expectExceptionMessageMatches('/Unexpected error/');
 
         // Execute
@@ -243,7 +245,7 @@ class CbrProviderTest extends TestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
 
-        $exception = new class extends \Exception implements ClientExceptionInterface {
+        $exception = new class extends Exception implements ClientExceptionInterface {
             public function getResponse(): ResponseInterface {
                 $resp = new class implements ResponseInterface {
                     public function getStatusCode(): int { return 404; }
@@ -317,7 +319,7 @@ class CbrProviderTest extends TestCase
     /**
      * Helper method to create a generator from rates
      */
-    private function createGeneratorFromRates(array $rates): \Generator
+    private function createGeneratorFromRates(array $rates): Generator
     {
         foreach ($rates as $rate) {
             yield $rate;

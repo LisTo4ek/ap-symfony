@@ -12,6 +12,7 @@ use App\Tests\KernelTestCase;
 use App\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ImportCurrencyCommandTest extends KernelTestCase
@@ -139,7 +140,7 @@ class ImportCurrencyCommandTest extends KernelTestCase
     {
         $this->rateProvider
             ->method('getRates')
-            ->willThrowException(new \RuntimeException('CBR service unavailable'));
+            ->willThrowException(new RuntimeException('CBR service unavailable'));
 
         $this->commandTester->execute([
             'from' => '2026-01-01',

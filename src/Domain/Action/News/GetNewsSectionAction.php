@@ -3,6 +3,7 @@ namespace App\Domain\Action\News;
 
 use App\Domain\Entity\NewsSection;
 use Random\RandomException;
+use function random_int;
 
 class GetNewsSectionAction
 {
@@ -13,7 +14,7 @@ class GetNewsSectionAction
     {
         return new NewsSection(
             name: $name,
-            commentsCount: \random_int(3, 10)
+            commentsCount: random_int(3, 10)
         );
     }
 }

@@ -6,6 +6,8 @@ namespace App\Bundle\CurrencyRateProviderBundle\Tests\Helper;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DurationCalculator;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use function usleep;
 
 class DurationCalculatorTest extends TestCase
 {
@@ -85,10 +87,10 @@ class DurationCalculatorTest extends TestCase
     public function testMeasureWithExceptionThrowingCallable(): void
     {
         $callable = function () {
-            throw new \RuntimeException('Test error');
+            throw new RuntimeException('Test error');
         };
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Test error');
 
         DurationCalculator::measure($callable);

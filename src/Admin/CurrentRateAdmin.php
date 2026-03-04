@@ -7,6 +7,7 @@ namespace App\Admin;
 use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Entity\CurrentRate;
+use DateTimeImmutable;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -52,7 +53,6 @@ final class CurrentRateAdmin extends AbstractAdmin
                 'label' => 'Actions',
                 'actions' => [
                     'show' => [],
-//                    'edit' => [],
                 ],
             ]);
     }
@@ -79,7 +79,7 @@ final class CurrentRateAdmin extends AbstractAdmin
 
     protected function configureQuery(ProxyQueryInterface $query, ): ProxyQueryInterface
     {
-        $today = new \DateTimeImmutable('today');
+        $today = new DateTimeImmutable('today');
 
         if (!$this->currentRateStorageContract->hasRecordsByDay($today)) {
             ($this->processCbrCurrencyRateHistoryAction)($today);

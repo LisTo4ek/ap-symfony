@@ -11,8 +11,9 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
-
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use function count;
+use function iterator_to_array;
 
 class XmlProcessorTest extends KernelTestCase
 {
@@ -188,7 +189,7 @@ class XmlProcessorTest extends KernelTestCase
         <CharCode>USD</CharCode>
         <Nominal>1</Nominal>
         <Name>US Dollar</Name>
-        <Value>90,50</Value>
+        <Value>90.50</Value>
         <VunitRate>90.50</VunitRate>
     </Valute>
     <Valute ID="R01239">
@@ -196,7 +197,7 @@ class XmlProcessorTest extends KernelTestCase
         <CharCode>EUR</CharCode>
         <Nominal>1</Nominal>
         <Name>Euro</Name>
-        <Value>97,20</Value>
+        <Value>97.20</Value>
         <VunitRate>97.20</VunitRate>
     </Valute>
 </ValCurs>
