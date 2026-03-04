@@ -7,12 +7,9 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
 use App\Domain\Contracts\Pagination\PageableContract;
 use App\Entity\RateHistory;
-use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
-use function array_map;
 
 /**
  * @extends ServiceEntityRepository<RateHistory>
@@ -23,21 +20,6 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, RateHistory::class);
-    }
-
-    /**
-     * @param array<CurrencyContract> $codes
-     * @return array<RateHistory>
-     */
-    private function findByCurrencyAndDate(array $codes, DateTimeInterface $date): array
-    {
-        return $this->createQueryBuilder('rh')
-            ->andWhere('rh.charCode IN (:codes)')
-            ->andWhere('rh.date = :date')
-            ->setParameter('codes', array_map(static fn (CurrencyContract $c) => $c->getCode(), $codes))
-            ->setParameter('date', $date)
-            ->getQuery()
-            ->getResult();
     }
 
     /**
@@ -58,8 +40,10 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         $em->flush();
     }
 
-    public function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): PageableContract
-    {
+    public function findByCurrencyPair(
+        CurrencyContract $baseCurrency,
+        CurrencyContract $targetCurrency
+    ): PageableContract {
         $queryBuilder = $this->createQueryBuilder('rh')
             ->where('rh.baseCurrency = :baseCurrency')
             ->setParameter('baseCurrency', $baseCurrency)

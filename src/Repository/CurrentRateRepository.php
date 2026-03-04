@@ -7,11 +7,9 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Domain\Contracts\Pagination\PageableContract;
 use App\Entity\CurrentRate;
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 

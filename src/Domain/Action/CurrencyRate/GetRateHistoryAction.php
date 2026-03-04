@@ -10,7 +10,6 @@ use App\Domain\Contracts\Pagination\ItemsPerPageContract;
 use App\Domain\Contracts\Pagination\PaginationResultContract;
 use App\Domain\Contracts\Pagination\PaginatorContract;
 use App\Domain\Pagination\ItemsPerPageDefault;
-use DateTimeImmutable;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class GetRateHistoryAction

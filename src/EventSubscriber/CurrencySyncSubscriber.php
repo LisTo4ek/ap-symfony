@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\EventSubscriber;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
-use App\Domain\Contracts\CurrencyRate\CurrentRateDateCacheContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Event\RateSavedEvent;
 use DateTimeImmutable;
@@ -15,7 +14,6 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly CurrentRateStorageContract $storage,
-        private readonly CurrentRateDateCacheContract $cache,
     ) {
     }
 
@@ -42,10 +40,6 @@ class CurrencySyncSubscriber implements EventSubscriberInterface
             $rate->date,
         );
 
-        $cachedDate = $this->cache->get(true);
-
-        if ($cachedDate === null || !DateCompare::eq($cachedDate, $rate->date)) {
-            $this->cache->set($rate->date);
-        }
+        // todo: set cache for current rates by date
     }
 }

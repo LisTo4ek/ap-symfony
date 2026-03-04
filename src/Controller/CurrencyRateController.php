@@ -26,14 +26,17 @@ class CurrencyRateController extends AbstractController
     #[Route('/current-rates', name: 'app_current_rates')]
     public function currentRates(Request $request): Response
     {
-        [$latestDate, $paginator] = ($this->getCurrentRatesAction)(
+        // todo: move pagination params to query object
+        // todo: validate pagination params
+
+        [$latestDate, $pagination] = ($this->getCurrentRatesAction)(
             $request->query->getInt('page'),
             $request->query->getInt('itemsPerPage'),
             self::BASE_CURRENCY
         );
 
         return $this->render('currency-rate/current-rates.html.twig', [
-            'pagination' => $paginator,
+            'pagination' => $pagination,
             'latestDate' => $latestDate?->format('Y-m-d'),
             'today' => new DateTimeImmutable('today')->format('Y-m-d'),
         ]);
@@ -42,6 +45,9 @@ class CurrencyRateController extends AbstractController
     #[Route('/rate-history/{targetCurrency}', name: 'app_rates_history')]
     public function rateHistory(string $targetCurrency, Request $request): Response
     {
+        // todo: move pagination params to query object
+        // todo: validate params
+
         return $this->render('currency-rate/rate-history.html.twig', [
             'pagination' => ($this->getRateHistoryAction)(
                 $request->query->getInt('page'),
