@@ -1,10 +1,21 @@
 {% extends 'base.html.twig' %}
 
+{# @var pagination \Knp\Component\Pager\Pagination\PaginationInterface #}
+{# @var latestDate string #}
+{# @var today string #}
+{# @var rate \App\Entity\CurrentRate #}
+
 {% block title %}Current Rates{% endblock %}
 
 {% block body %}
     <div class="container">
         <h1>Current Rates</h1>
+
+        {% if latestDate !== today %}
+            <div class="alert alert-warning">
+                Latest rates are from {{ latestDate|date('d.m.Y') }}. Today's rates are not available yet.
+            </div>
+        {% endif %}
 
         {% if pagination.items|length > 0 %}
             <table class="table table-striped">

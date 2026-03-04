@@ -4,15 +4,13 @@
 
 {% block body %}
     <div class="container">
-
-        <hr class="my-5">
-
+        <h1>News</h1>
         <section class="sections">
-            <h2>Разделы новостей</h2>
+            <h2>News sections</h2>
             <nav>
                 <ul>
-                    <li><a href="{{ path('app_news_section', {name: 'accidents'}) }}">Происшествия</a></li>
-                    <li><a href="{{ path('app_news_section', {name: 'sport'}) }}">Спорт</a></li>
+                    <li><a href="{{ path('app_news_section', {name: 'accidents'}) }}">Accidents</a></li>
+                    <li><a href="{{ path('app_news_section', {name: 'sport'}) }}">Sport</a></li>
                 </ul>
             </nav>
         </section>
@@ -21,7 +19,7 @@
             <h2>Авторы/Книги</h2>
             <nav>
                 <ul>
-                    <li><a href="{{ path('app_author_index') }}">Авторы</a></li>
+                    <li><a href="{{ path('app_author_index') }}">Authors</a></li>
                 </ul>
             </nav>
         </section>

@@ -19,7 +19,7 @@
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: #fff;
                     padding: 1.5rem 0;
-                    margin-bottom: 2rem;
+                    /*margin-bottom: 2rem;*/
                     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 header h1 {
@@ -83,15 +83,12 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
+                        {% set navItems = {'app_news_index': 'News', 'app_author_index': 'Authors', 'app_current_rates': 'Current Rates'} %}
+                        {% for item, name in navItems %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_news_index') }}">News</a>
+                            <a class="nav-link{% if app.request.attributes.get('_route') == item %} active{% endif %}" href="{{ path(item) }}">{{ name }}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_author_index') }}">Authors</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_current_rates') }}">Current Rates</a>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

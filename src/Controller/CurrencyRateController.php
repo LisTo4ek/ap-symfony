@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Enum;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
+use DateTimeImmutable;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,10 +28,6 @@ class CurrencyRateController extends AbstractController
     {
         $latestDate = $this->storage->getLatestDate();
 
-        if (null === $latestDate) {
-
-        }
-
         $queryBuilder = $this->storage->findByDateAndBaseCurrencyQuery(
             $latestDate,
             $this->currencyManager::create(CurrencyIso4217Enum::RUB->value)
@@ -44,6 +41,8 @@ class CurrencyRateController extends AbstractController
 
         return $this->render('currency-rate/current.html.twig', [
             'pagination' => $pagination,
+            'latestDate' => $latestDate->format('Y-m-d'),
+            'today' => new DateTimeImmutable('today')->format('Y-m-d'),
         ]);
     }
 }

@@ -146,10 +146,6 @@ class CurrencyRateImportCbrCommand extends Command
         $progressBar->finish();
         $io->newLine(2);
 
-
-        // Log completion
-
-
         $errorCount = count($errors);
         if ($errorCount > 0) {
             $io->warning(sprintf('Import completed with errors: %d rates imported, %d errors', $successCount, $errorCount));

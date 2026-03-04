@@ -1,18 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ section.name }} - Новостной портал{% endblock %}
+{% block title %}{{ section.name }} - News portal{% endblock %}
 
 {% block body %}
-    <h1>Раздел: {{ section.name }}</h1>
+    <h1>Sections: {{ section.name }}</h1>
 
     {% block staticText %}{% endblock %}
 
     <section class="comments">
-        <h3>Комментарии ({{ section.commentsCount }})</h3>
+        <h3>Comments ({{ section.commentsCount }})</h3>
         {% for i in 1..section.commentsCount %}
             <div class="comment">
-                <strong>Пользователь {{ i }}</strong>
-                <p>Это комментарий номер {{ i }}</p>
+                <strong>User {{ i }}</strong>
+                <p>Comment #{{ i }}</p>
             </div>
         {% endfor %}
     </section>
