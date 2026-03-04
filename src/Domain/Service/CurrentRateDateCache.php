@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CurrencyRate\Service;
+namespace App\Domain\Service;
 
-use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateDateCacheContract;
+use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;

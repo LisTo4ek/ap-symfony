@@ -25,7 +25,7 @@ class CurrencyIso4217Manager implements CurrencyManagerContract
      */
     public static function isValidArray(array $codes): bool
     {
-        return array_all($codes, fn($code) => self::isValid($code));
+        return array_all($codes, static fn($code) => self::isValid($code));
     }
 
     public static function create(string $code): CurrencyContract

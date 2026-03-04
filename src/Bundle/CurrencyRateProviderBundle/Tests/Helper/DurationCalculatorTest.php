@@ -73,7 +73,7 @@ class DurationCalculatorTest extends TestCase
      */
     public function testMeasureWithCallableValue(): void
     {
-        $callable = fn() => 42;
+        $callable =static fn() => 42;
 
         $result = DurationCalculator::measure($callable);
 

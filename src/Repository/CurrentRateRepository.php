@@ -24,19 +24,10 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         parent::__construct($registry, CurrentRate::class);
     }
 
-    public function save(CurrentRate $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
     /**
      * Find rate for a specific currency pair
      */
-    public function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): ?CurrentRate
+    private function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): ?CurrentRate
     {
         return $this->findOneBy([
             'baseCurrency' => $baseCurrency,
@@ -67,43 +58,6 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         $this->getEntityManager()->flush();
 
         return $entity;
-    }
-
-    /**
-     * Get all current rates sorted by base currency
-     * @return array<CurrentRate>
-     */
-    public function findAll(): array
-    {
-        return $this->findBy([], ['baseCurrency' => 'ASC', 'targetCurrency' => 'ASC']);
-    }
-
-    /**
-     * Get all rates for a specific base currency
-     * @return array<CurrentRate>
-     */
-    public function findByBaseCurrency(CurrencyContract $baseCurrency): array
-    {
-        return $this->findBy(['baseCurrency' => $baseCurrency], ['targetCurrency' => 'ASC']);
-    }
-
-    /**
-     * Get all rates for a specific target currency
-     * @return array<CurrentRate>
-     */
-    public function findByTargetCurrency(CurrencyContract $targetCurrency): array
-    {
-        return $this->findBy(['targetCurrency' => $targetCurrency], ['baseCurrency' => 'ASC']);
-    }
-
-    /**
-     * @return array<CurrentRate>
-     */
-    public function getTodayRecords(): array
-    {
-        $today = new DateTime('today');
-
-        return $this->findBy(['date' => $today], ['baseCurrency' => 'ASC']);
     }
 
     public function hasRecordsByDay(DateTimeImmutable $date): bool
