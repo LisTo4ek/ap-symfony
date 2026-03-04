@@ -68,7 +68,6 @@ class CbrProvider implements CurrencyRateProviderContract
             $startTime = DurationCalculator::start();
             $chunk = [];
 
-            // Request rates (RetryableHttpClient handles retries automatically)
             $content = $this->requestRates($date);
 
             if ($content === null) {
@@ -108,7 +107,7 @@ class CbrProvider implements CurrencyRateProviderContract
                 yield $chunk;
             }
 
-        } catch (CurrencyRateProviderBundleException $e) {
+        } catch (ProviderException $e) {
             throw $e;
         } catch (Throwable $e) {
             // Unexpected error - log and wrap
@@ -117,7 +116,7 @@ class CbrProvider implements CurrencyRateProviderContract
                 'error' => $e->getMessage(),
                 'exception_class' => get_class($e),
             ]);
-            throw new CurrencyRateProviderBundleException(
+            throw new ProviderException(
                 "Unexpected error: {$e->getMessage()}",
                 0,
                 $e
@@ -133,7 +132,6 @@ class CbrProvider implements CurrencyRateProviderContract
      *
      * @throws ProviderConfigurationException For non-retryable errors (4xx, 3xx)
      * @throws ProviderException For retriable errors (5xx, network)
-     * @throws CurrencyRateProviderBundleException For unexpected errors
      */
     private function requestRates(DateTimeInterface $date): ?string
     {
@@ -233,7 +231,7 @@ class CbrProvider implements CurrencyRateProviderContract
                 'Unexpected error in requestRates',
                 $this->getErrorContext($startTime, $date, $e)
             );
-            throw new CurrencyRateProviderBundleException(
+            throw new ProviderException(
                 "Unexpected error: {$e->getMessage()}",
                 0,
                 $e

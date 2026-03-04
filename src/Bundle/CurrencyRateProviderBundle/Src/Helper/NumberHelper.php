@@ -2,14 +2,19 @@
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Helper;
 
+use function mb_stripos;
+use function rtrim;
+use function sprintf;
+use function str_replace;
+
 class NumberHelper
 {
     public static function normalize(string $number): string
     {
-        $res = \str_replace(',', '.', $number);
+        $res = str_replace(',', '.', $number);
 
-        if (\mb_stripos($res, 'e') !== false) {
-            $res = \sprintf('%.50f', $res);
+        if (mb_stripos($res, 'e') !== false) {
+            $res = sprintf('%.50f', $res);
         }
 
         $res = rtrim($res, '0');

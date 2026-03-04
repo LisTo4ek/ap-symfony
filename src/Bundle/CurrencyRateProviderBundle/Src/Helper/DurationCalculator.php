@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Helper;
 
+use function microtime;
+
 /**
  * DurationCalculator provides utilities for measuring elapsed time in milliseconds
  */

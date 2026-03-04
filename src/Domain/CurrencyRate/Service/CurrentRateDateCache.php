@@ -10,7 +10,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Target;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**

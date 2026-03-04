@@ -15,6 +15,10 @@ use Generator;
 use SimpleXMLElement;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Throwable;
+use function in_array;
+use function libxml_clear_errors;
+use function libxml_use_internal_errors;
+use function mb_strlen;
 
 #[AsAlias(RateProcessorContract::class)]
 class XmlProcessor implements RateProcessorContract
@@ -38,7 +42,7 @@ class XmlProcessor implements RateProcessorContract
         DateTimeImmutable $date,
     ): Generator {
         $this->logger->debug('Processing XML response', [
-            'content_size' => strlen($content),
+            'content_size' => mb_strlen($content),
             'date' => $date->format('Y-m-d'),
         ]);
 
@@ -132,19 +136,14 @@ class XmlProcessor implements RateProcessorContract
     /**
      * @throws InvalidRateDataException
      */
-    private function processRate(string $currencyCode, SimpleXMLElement $currencyNode, int $ratePrecision): string
+    private function processRate(string $currencyCode, SimpleXMLElement $currencyNode): string
     {
-        foreach (['VunitRate', 'Nominal'] as $nodeName) {
-            if (!isset($currencyNode->{$nodeName})) {
-                throw new InvalidRateDataException(
-                    "Invalid rate data for {$currencyCode}: missing {$nodeName}"
-                );
-            }
+        if (!$currencyNode->VunitRate) {
+            throw new InvalidRateDataException(
+                "Invalid rate data for {$currencyCode}: missing VunitRate"
+            );
         }
 
-        $rate = NumberHelper::normalize((string) $currencyNode->VunitRate);
-        $base = NumberHelper::normalize((string) $currencyNode->Nominal);
-
-        return bcdiv($rate, $base, $ratePrecision);
+        return NumberHelper::normalize((string) $currencyNode->VunitRate);
     }
 }
