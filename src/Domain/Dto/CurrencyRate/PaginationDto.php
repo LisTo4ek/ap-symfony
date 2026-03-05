@@ -10,6 +10,7 @@ class PaginationDto
 {
     public function __construct(
         #[Assert\NotBlank]
+        #[Assert\Type('integer', 'Page must be an integer')]
         #[Assert\GreaterThanOrEqual(1, message: 'Page must be at least 1')]
         public int $page = 1,
 

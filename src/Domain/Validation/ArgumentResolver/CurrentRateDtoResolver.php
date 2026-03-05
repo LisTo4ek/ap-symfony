@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class CurrentRateAbstractDtoValueResolver extends AbstractDtoResolver
+class CurrentRateDtoResolver extends AbstractDtoResolver
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
