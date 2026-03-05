@@ -16,6 +16,7 @@
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
         "knplabs/knp-paginator-bundle": "^6.10",
+        "moneyphp/money": "^4.8",
         "sonata-project/admin-bundle": "*",
         "sonata-project/doctrine-orm-admin-bundle": "*",
         "symfony/console": "8.0.*",

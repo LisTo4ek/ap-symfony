@@ -2,10 +2,10 @@
 
 <div class="mb-3 d-flex justify-content-between align-items-center">
     <div>
-        <label for="itemsPerPage" class="form-label me-2">Items per page:</label>
-        <select class="form-select form-select-sm" style="width: auto; display: inline-block;" id="itemsPerPage" onchange="changeItemsPerPage(this.value)">
-            {% for option in pagination.getItemsPerPage().getOptions() %}
-                <option value="{{ option }}" {% if option == pagination.getItemsPerPage().getPerPage() %}selected{% endif %}>{{ option }}</option>
+        <label for="perPage" class="form-label me-2">Items per page:</label>
+        <select class="form-select form-select-sm" style="width: auto; display: inline-block;" id="perPage" onchange="changePerPage(this.value)">
+            {% for option in pagination.getConfig().getPerPageOptions() %}
+                <option value="{{ option }}" {% if option == pagination.getPerPage() %}selected{% endif %}>{{ option }}</option>
             {% endfor %}
         </select>
     </div>
@@ -18,7 +18,7 @@
         <ul class="pagination justify-content-center">
             {% if pagination.hasPreviousPage() %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getCurrentPage() - 1, 'itemsPerPage': pagination.getItemsPerPage().getPerPage()})) }}" aria-label="Previous">
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getCurrentPage() - 1, 'perPage': pagination.getPerPage()})) }}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span> Previous
                     </a>
                 </li>
@@ -33,7 +33,7 @@
 
             {% if startPage > 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ path(route, parameters|merge({'page': 1, 'itemsPerPage': pagination.getItemsPerPage().getPerPage()})) }}">1</a>
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': 1, 'perPage': pagination.getPerPage()})) }}">1</a>
                 </li>
                 {% if startPage > 2 %}
                     <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -50,7 +50,7 @@
                     </li>
                 {% else %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ path(route, parameters|merge({'page': page, 'itemsPerPage': pagination.getItemsPerPage().getPerPage()})) }}">{{ page }}</a>
+                        <a class="page-link" href="{{ path(route, parameters|merge({'page': page, 'perPage': pagination.getPerPage()})) }}">{{ page }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -60,13 +60,13 @@
                     <li class="page-item disabled"><span class="page-link">...</span></li>
                 {% endif %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getTotalPages(), 'itemsPerPage': pagination.getItemsPerPage().getPerPage()})) }}">{{ pagination.getTotalPages() }}</a>
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getTotalPages(), 'perPage': pagination.getPerPage()})) }}">{{ pagination.getTotalPages() }}</a>
                 </li>
             {% endif %}
 
             {% if pagination.hasNextPage() %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getCurrentPage() + 1, 'itemsPerPage': pagination.getItemsPerPage().getPerPage()})) }}" aria-label="Next">
+                    <a class="page-link" href="{{ path(route, parameters|merge({'page': pagination.getCurrentPage() + 1, 'perPage': pagination.getPerPage()})) }}" aria-label="Next">
                         Next <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -86,9 +86,9 @@
 {% endif %}
 
 <script>
-    function changeItemsPerPage(itemsPerPage) {
+    function changePerPage(perPage) {
         const url = new URL(window.location);
-        url.searchParams.set('itemsPerPage', itemsPerPage);
+        url.searchParams.set('perPage', perPage);
         url.searchParams.set('page', '1');
         window.location = url.toString();
     }

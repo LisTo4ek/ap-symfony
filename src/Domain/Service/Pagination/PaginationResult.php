@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Service\Pagination;
+namespace App\Domain\Service\Pagination;
 
-use App\Domain\Contracts\Pagination\ItemsPerPageContract;
 use App\Domain\Contracts\Pagination\PaginationResultContract;
+use App\Domain\Contracts\Pagination\PaginatorConfigContract;
 
 /**
  * Simple implementation of PaginationResult
@@ -20,8 +20,9 @@ class PaginationResult implements PaginationResultContract
      */
     public function __construct(
         private readonly int $currentPage,
+        private readonly int $perPage,
         private readonly int $totalCount,
-        private readonly ItemsPerPageContract $itemsPerPage,
+        private readonly PaginatorConfigContract $config,
         private readonly int $totalPages,
         private readonly array $items,
     ) {
@@ -32,14 +33,19 @@ class PaginationResult implements PaginationResultContract
         return $this->currentPage;
     }
 
+    public function getPerPage(): int
+    {
+        return $this->perPage;
+    }
+
     public function getTotalCount(): int
     {
         return $this->totalCount;
     }
 
-    public function getItemsPerPage(): ItemsPerPageContract
+    public function getConfig(): PaginatorConfigContract
     {
-        return $this->itemsPerPage;
+        return $this->config;
     }
 
     public function getTotalPages(): int
@@ -65,5 +71,3 @@ class PaginationResult implements PaginationResultContract
         return $this->currentPage > 1;
     }
 }
-
-

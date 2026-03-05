@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateProviderBundle\Tests\Base\Logger;
 
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLogger;
+use App\Domain\Enum\CurrencyEnum;
 use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -28,8 +29,8 @@ class CurrencyRateProviderLoggerTest extends TestCase
     public function testLogRateRetrieval(): void
     {
         $context = [
-            'from' => 'RUB',
-            'to' => 'USD',
+            'from' => CurrencyEnum::RUB->value,
+            'to' => CurrencyEnum::USD->value,
             'rate' => '90.5',
             'duration_ms' => 100,
         ];
@@ -114,13 +115,13 @@ class CurrencyRateProviderLoggerTest extends TestCase
             ->expects($this->once())
             ->method('warning')
             ->with('Rate retrieval failed', [
-                'from' => 'RUB',
-                'to' => 'USD',
+                'from' => CurrencyEnum::RUB->value,
+                'to' => CurrencyEnum::USD->value,
                 'reason' => 'Connection timeout',
                 'attempt' => 2,
             ]);
 
-        $this->logger->logRetrievalFailure('RUB', 'USD', 'Connection timeout', 2);
+        $this->logger->logRetrievalFailure(CurrencyEnum::RUB->value, CurrencyEnum::USD->value, 'Connection timeout', 2);
     }
 
     /**
@@ -128,7 +129,7 @@ class CurrencyRateProviderLoggerTest extends TestCase
      */
     public function testLogValidationError(): void
     {
-        $errors = ['USD' => 'Invalid currency code', 'EUR' => 'Not in monitored list'];
+        $errors = [CurrencyEnum::USD->value => 'Invalid currency code', 'EUR' => 'Not in monitored list'];
 
         $this->psr3Logger
             ->expects($this->once())
@@ -208,4 +209,3 @@ class CurrencyRateProviderLoggerTest extends TestCase
         $this->logger->debug('Test message', $context);
     }
 }
-

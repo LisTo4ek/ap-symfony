@@ -13,6 +13,7 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DurationCalculator;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
+use App\Domain\Enum\CurrencyEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
@@ -48,7 +49,7 @@ class CbrProvider implements CurrencyRateProviderContract
         private readonly array $monitoredCurrencies = [],
 
         #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
-        private readonly string $baseCurrencyCode = 'RUB',
+        private readonly string $baseCurrencyCode = CurrencyEnum::RUB->value,
 
         #[Autowire(param: 'currency_rate_provider.cbr_provider.timeout')]
         private readonly int $timeout = 30,
@@ -269,4 +270,3 @@ class CbrProvider implements CurrencyRateProviderContract
         ];
     }
 }
-

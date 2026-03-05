@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Trait;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Enum;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
+use App\Domain\Enum\CurrencyEnum;
+use Money\Currency;
 
 trait CurrencyTrait
 {
-    protected CurrencyManagerContract $currencyManager;
-    protected CurrencyContract $rubCurrency;
-    protected CurrencyContract $usdCurrency;
-    protected CurrencyContract $eurCurrency;
+    protected Currency $rubCurrency;
+    protected Currency $usdCurrency;
+    protected Currency $eurCurrency;
 
     protected function initCurrencies(): void
     {
-        $this->currencyManager = $this->fromContainer(CurrencyManagerContract::class);
-        $this->rubCurrency = $this->currencyManager->create(CurrencyIso4217Enum::RUB->value);
-        $this->usdCurrency = $this->currencyManager->create(CurrencyIso4217Enum::USD->value);
-        $this->eurCurrency = $this->currencyManager->create(CurrencyIso4217Enum::EUR->value);
+        $this->rubCurrency = new Currency(CurrencyEnum::RUB->value);
+        $this->usdCurrency = new Currency(CurrencyEnum::USD->value);
+        $this->eurCurrency = new Currency(CurrencyEnum::EUR->value);
     }
 }

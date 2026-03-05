@@ -2,13 +2,13 @@
 
 namespace App\Repository;
 
-use App\Application\Service\Pagination\DoctrinePageable;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
 use App\Domain\Contracts\Pagination\PageableContract;
+use App\Domain\Service\Pagination\DoctrinePageable;
 use App\Entity\RateHistory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Money\Currency;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
@@ -41,8 +41,8 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
     }
 
     public function findByCurrencyPair(
-        CurrencyContract $baseCurrency,
-        CurrencyContract $targetCurrency
+        Currency $baseCurrency,
+        Currency $targetCurrency
     ): PageableContract {
         $queryBuilder = $this->createQueryBuilder('rh')
             ->where('rh.baseCurrency = :baseCurrency')
@@ -55,5 +55,3 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         return new DoctrinePageable($queryBuilder);
     }
 }
-
-

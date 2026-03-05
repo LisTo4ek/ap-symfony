@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Service\Pagination;
+namespace App\Domain\Service\Pagination;
 
 use App\Domain\Contracts\Pagination\PageableContract;
 use Doctrine\ORM\QueryBuilder;
@@ -68,5 +68,3 @@ class DoctrinePageable implements PageableContract
         return (int) ceil($this->getTotalCount() / $itemsPerPage);
     }
 }
-
-

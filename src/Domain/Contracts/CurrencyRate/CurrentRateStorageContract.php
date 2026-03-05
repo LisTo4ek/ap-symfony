@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Contracts\CurrencyRate;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\Pagination\PageableContract;
 use App\Entity\CurrentRate;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Money\Currency;
 
 interface CurrentRateStorageContract
 {
     public function upsertForCurrencyPair(
-        CurrencyContract $baseCurrency,
-        CurrencyContract $targetCurrency,
+        Currency $baseCurrency,
+        Currency $targetCurrency,
         string $value,
         DateTimeInterface $date,
     ): CurrentRate;
@@ -23,6 +23,5 @@ interface CurrentRateStorageContract
 
     public function getLatestDate(): ?DateTimeImmutable;
 
-    public function findByDateAndBaseCurrency(DateTimeImmutable $date, CurrencyContract $baseCurrency): PageableContract;
+    public function findByDateAndBaseCurrency(DateTimeImmutable $date, Currency $baseCurrency): PageableContract;
 }
-

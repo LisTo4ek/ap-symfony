@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Repository\CurrentRateRepository;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Money\Currency;
 
 #[ORM\Entity(repositoryClass: CurrentRateRepository::class)]
 #[ORM\UniqueConstraint(name: 'idx_base_target_currency', columns: ['base_currency', 'target_currency'])]
@@ -17,11 +17,11 @@ class CurrentRate
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: 'currency_iso_4217', options: ['fixed' => true])]
-    private CurrencyContract $baseCurrency;
+    #[ORM\Column(name: 'base_currency', type: 'money_currency', options: ['fixed' => true])]
+    private Currency $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: 'currency_iso_4217', options: ['fixed' => true])]
-    private CurrencyContract $targetCurrency;
+    #[ORM\Column(name: 'target_currency', type: 'money_currency', options: ['fixed' => true])]
+    private Currency $targetCurrency;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
     private string $value;
@@ -33,8 +33,8 @@ class CurrentRate
     private DateTimeImmutable $updatedAt;
 
     public function __construct(
-        CurrencyContract $baseCurrency,
-        CurrencyContract $targetCurrency,
+        Currency $baseCurrency,
+        Currency $targetCurrency,
         string $value,
         DateTimeInterface $date,
     ) {
@@ -68,12 +68,12 @@ class CurrentRate
         return $this->updatedAt;
     }
 
-    public function getBaseCurrency(): CurrencyContract
+    public function getBaseCurrency(): Currency
     {
         return $this->baseCurrency;
     }
 
-    public function getTargetCurrency(): CurrencyContract
+    public function getTargetCurrency(): Currency
     {
         return $this->targetCurrency;
     }

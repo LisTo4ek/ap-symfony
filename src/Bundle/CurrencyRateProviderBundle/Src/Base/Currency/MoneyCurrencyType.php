@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217;
+namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
+use Money\Currency;
 
-class CurrencyIso4217Type extends StringType
+class MoneyCurrencyType extends StringType
 {
-    public const string NAME = 'currency_iso_4217';
+    public const string NAME = 'money_currency';
 
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?CurrencyContract
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?Currency
     {
         if ($value === null) {
             return null;
         }
 
-        return CurrencyIso4217Manager::create($value);
+        return new Currency($value);
     }
 
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
@@ -27,7 +27,7 @@ class CurrencyIso4217Type extends StringType
             return null;
         }
 
-        if ($value instanceof CurrencyContract) {
+        if ($value instanceof Currency) {
             return $value->getCode();
         }
 

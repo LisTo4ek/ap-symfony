@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
-use App\Application\Service\Pagination\DoctrinePageable;
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyContract;
 use App\Domain\Contracts\CurrencyRate\CurrentRateStorageContract;
 use App\Domain\Contracts\Pagination\PageableContract;
+use App\Domain\Service\Pagination\DoctrinePageable;
 use App\Entity\CurrentRate;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Money\Currency;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
@@ -28,7 +30,7 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     /**
      * Find rate for a specific currency pair
      */
-    private function findByCurrencyPair(CurrencyContract $baseCurrency, CurrencyContract $targetCurrency): ?CurrentRate
+    private function findByCurrencyPair(Currency $baseCurrency, Currency $targetCurrency): ?CurrentRate
     {
         return $this->findOneBy([
             'baseCurrency' => $baseCurrency,
@@ -40,8 +42,8 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
      * Upsert (insert or update) rate for currency pair
      */
     public function upsertForCurrencyPair(
-        CurrencyContract $baseCurrency,
-        CurrencyContract $targetCurrency,
+        Currency $baseCurrency,
+        Currency $targetCurrency,
         string $value,
         DateTimeInterface $date,
     ): CurrentRate {
@@ -83,7 +85,7 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         return $res ? new DateTimeImmutable($res) : null;
     }
 
-    public function findByDateAndBaseCurrency(DateTimeImmutable $date, CurrencyContract $baseCurrency): PageableContract
+    public function findByDateAndBaseCurrency(DateTimeImmutable $date, Currency $baseCurrency): PageableContract
     {
         $queryBuilder = $this->createQueryBuilder('cr')
             ->where('cr.date = :date')

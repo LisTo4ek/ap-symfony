@@ -4,6 +4,7 @@
 {# @var latestDate string #}
 {# @var today string #}
 {# @var rate \App\Entity\CurrentRate #}
+{# @var baseCurrencyCode string #}
 
 {% block title %}Current Rates{% endblock %}
 
@@ -29,7 +30,7 @@
                     {% for rate in pagination.getItems() %}
                         <tr>
                             <td>{{ rate.date|date('d.m.Y') }}</td>
-                            <td><a href="{{ path('app_rates_history', {'targetCurrency': rate.targetCurrency}) }}">{{ rate.targetCurrency }}</a></td>
+                            <td><a href="{{ path('app_rates_history', {'baseCurrencyCode': baseCurrencyCode, 'targetCurrencyCode': rate.targetCurrency}) }}">{{ rate.targetCurrency }}</a></td>
                             <td class="text-end">{{ (rate.value|number_format(10, '.', '')) }}</td>
                         </tr>
                     {% endfor %}

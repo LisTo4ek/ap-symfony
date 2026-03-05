@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Tests\Providers\CbrProvider;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\Currency;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\CurrencyRateProviderBundleException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\ProviderConfigurationException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\ProviderException;
@@ -12,9 +11,11 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLo
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\RateProcessorContract;
+use App\Domain\Enum\CurrencyEnum;
 use DateTimeImmutable;
 use Exception;
 use Generator;
+use Money\Currency;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -288,10 +289,10 @@ class CbrProviderTest extends TestCase
 
         $this->httpClient->method('request')->willReturn($response);
 
-        // Create rates with proper CurrencyContract objects
-        $rub = new Currency('RUB');
-        $usd = new Currency('USD');
-        $eur = new Currency('EUR');
+        // Create rates with proper currency objects
+        $rub = new Currency(CurrencyEnum::RUB->value);
+        $usd = new Currency(CurrencyEnum::USD->value);
+        $eur = new Currency(CurrencyEnum::EUR->value);
 
         $rates = [
             new Rate($rub, $usd, '90.5', $date),
@@ -352,4 +353,3 @@ class CbrProviderTest extends TestCase
 XML;
     }
 }
-

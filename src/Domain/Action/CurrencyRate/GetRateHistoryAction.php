@@ -4,38 +4,33 @@ declare(strict_types=1);
 
 namespace App\Domain\Action\CurrencyRate;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
 use App\Domain\Contracts\CurrencyRate\RateHistoryStorageContract;
-use App\Domain\Contracts\Pagination\ItemsPerPageContract;
 use App\Domain\Contracts\Pagination\PaginationResultContract;
+use App\Domain\Contracts\Pagination\PaginatorConfigContract;
 use App\Domain\Contracts\Pagination\PaginatorContract;
-use App\Domain\Pagination\ItemsPerPageDefault;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use App\Domain\Dto\CurrencyRate\RateHistoryDto;
+use Money\Currency;
 
 class GetRateHistoryAction
 {
     public function __construct(
         private readonly PaginatorContract $paginator,
-        private readonly RateHistoryStorageContract $rateHistoryStorage,
-        private readonly CurrencyManagerContract $currencyManager,
-        #[Autowire(service: ItemsPerPageDefault::class)]
-        private readonly ItemsPerPageContract $itemsPerPage,
+        private readonly RateHistoryStorageContract $storage,
     ) {
     }
 
     public function __invoke(
-        int $page,
-        int $perPage,
-        string $baseCurrencyCode,
-        string $targetCurrency
+        PaginatorConfigContract $paginatorConfig,
+        RateHistoryDto $dto,
     ): ?PaginationResultContract {
         return $this->paginator->paginate(
-            $this->rateHistoryStorage->findByCurrencyPair(
-                $this->currencyManager::create($baseCurrencyCode),
-                $this->currencyManager::create($targetCurrency),
+            $this->storage->findByCurrencyPair(
+                new Currency($dto->baseCurrencyCode),
+                new Currency($dto->targetCurrencyCode),
             ),
-            $this->itemsPerPage->init($perPage),
-            $page,
+            $paginatorConfig,
+            $dto->pagination->perPage,
+            $dto->pagination->page,
         );
     }
 }

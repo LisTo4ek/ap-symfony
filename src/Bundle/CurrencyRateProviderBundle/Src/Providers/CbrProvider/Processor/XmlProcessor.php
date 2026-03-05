@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\InvalidRateDataException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLoggerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
@@ -12,6 +11,7 @@ use App\Bundle\CurrencyRateProviderBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateProviderBundle\Src\Helper\NumberHelper;
 use DateTimeImmutable;
 use Generator;
+use Money\Currency;
 use SimpleXMLElement;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Throwable;
@@ -24,7 +24,6 @@ use function mb_strlen;
 class XmlProcessor implements RateProcessorContract
 {
     public function __construct(
-        private CurrencyManagerContract $currencyManager,
         private CurrencyRateProviderLoggerContract $logger,
     ) {
     }
@@ -87,12 +86,12 @@ class XmlProcessor implements RateProcessorContract
                 continue;
             }
 
-            $targetCurrency = $this->currencyManager::create($currencyCode);
+            // todo: rate precision should be handled by provider config, not hardcoded
             $rateValue = $this->processRate($currencyCode, $currencyNode, $ratePrecision);
 
             yield new Rate(
-                $this->currencyManager::create($baseCurrencyCode),
-                $targetCurrency,
+                new Currency($baseCurrencyCode),
+                new Currency($currencyCode),
                 $rateValue,
                 $rateDate,
             );
@@ -100,7 +99,6 @@ class XmlProcessor implements RateProcessorContract
             $processedCount++;
         }
 
-        // Log success
         $this->logger->info('XML processing completed', [
             'date' => $date->format('Y-m-d'),
             'rates_processed' => $processedCount,

@@ -18,6 +18,8 @@ interface PaginationResultContract
      */
     public function getCurrentPage(): int;
 
+    public function getPerPage(): int;
+
     /**
      * Get total number of items
      */
@@ -26,7 +28,7 @@ interface PaginationResultContract
     /**
      * Get items per page
      */
-    public function getItemsPerPage(): ItemsPerPageContract;
+    public function getConfig(): PaginatorConfigContract;
 
     /**
      * Get total number of pages
@@ -50,4 +52,3 @@ interface PaginationResultContract
      */
     public function hasPreviousPage(): bool;
 }
-

@@ -9,45 +9,40 @@ namespace App\Domain\Contracts\Pagination;
  *
  * Allows different implementations for pagination size options
  */
-interface ItemsPerPageContract
+interface PaginatorConfigContract
 {
     /**
      * Get all available options as array
      *
      * @return array<int>
      */
-    public function getOptions(): array;
+    public function getPerPageOptions(): array;
 
     /**
      * Get the default option value
      */
-    public function getDefault(): int;
+    public function getPerPageDefault(): int;
 
     /**
      * Get the minimum allowed value
      */
-    public function getMin(): int;
+    public function getPerPageMin(): int;
 
     /**
      * Get the maximum allowed value
      */
-    public function getMax(): int;
+    public function getPerPageMax(): int;
 
     /**
      * Validate and return a valid items per page value
      *
-     * @param mixed $value The value to validate
+     * @param mixed $perPage The value to validate
      * @return int A valid items per page value
      */
-    public function validate(mixed $value): int;
+    public function validatePerPage(mixed $perPage): int;
 
     /**
      * Check if a value is a valid option
      */
-    public function isValid(int $value): bool;
-
-    public function init(mixed $perPage): static;
-
-    public function getPerPage(): int;
+    public function isValidPerPage(int $perPage): bool;
 }
-

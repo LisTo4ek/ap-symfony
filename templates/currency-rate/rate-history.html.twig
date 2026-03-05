@@ -1,14 +1,16 @@
 {% extends 'base.html.twig' %}
 
 {# @var pagination \App\Domain\Contracts\Pagination\PaginationResultContract #}
-{# @var targetCurrency string #}
 {# @var rate \App\Entity\RateHistory #}
+{# @var rate \App\Entity\RateHistory #}
+{# @var baseCurrencyCode string #}
+{# @var targetCurrencyCode string #}
 
 {% block title %}Rate History{% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>Rates history for {{ targetCurrency }}</h1>
+        <h1>Rates history for {{ targetCurrencyCode }}</h1>
 
         {% if pagination and pagination.getTotalCount() > 0 %}
             <table class="table table-striped">
@@ -31,7 +33,7 @@
             {% include 'components/pagination.html.twig' with {
                 pagination: pagination,
                 route: 'app_rates_history',
-                parameters: {'targetCurrency': targetCurrency}
+                parameters: {'baseCurrencyCode': baseCurrencyCode, 'targetCurrencyCode': targetCurrencyCode}
             } %}
         {% else %}
             <div class="alert alert-info">

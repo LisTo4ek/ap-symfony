@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Tests\Providers\CbrProvider\Processor;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
+
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Exception\InvalidRateDataException;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLoggerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
+use App\Domain\Enum\CurrencyEnum;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,16 +21,14 @@ class XmlProcessorTest extends KernelTestCase
     private CurrencyRateProviderLoggerContract&MockObject $logger;
     private XmlProcessor $processor;
 
-    protected CurrencyManagerContract $currencyManager;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->currencyManager = static::getContainer()->get(CurrencyManagerContract::class);
+
         $this->logger = $this->createMock(CurrencyRateProviderLoggerContract::class);
 
         $this->processor = new XmlProcessor(
-            $this->currencyManager,
             $this->logger
         );
     }
@@ -45,8 +44,8 @@ class XmlProcessorTest extends KernelTestCase
         // Execute
         $result = iterator_to_array($this->processor->process(
             $xml,
-            'RUB',
-            ['USD', 'EUR'],
+            CurrencyEnum::RUB->value,
+            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
             4,
             $date
         ));
@@ -68,7 +67,7 @@ class XmlProcessorTest extends KernelTestCase
         // Execute with empty currencies list
         $result = iterator_to_array($this->processor->process(
             $xml,
-            'RUB',
+            CurrencyEnum::RUB->value,
             [], // No monitored currencies
             4,
             $date
@@ -91,8 +90,8 @@ class XmlProcessorTest extends KernelTestCase
         // Execute
         iterator_to_array($this->processor->process(
             $invalidXml,
-            'RUB',
-            ['USD'],
+            CurrencyEnum::RUB->value,
+            [CurrencyEnum::USD->value],
             4,
             $date
         ));
@@ -112,8 +111,8 @@ class XmlProcessorTest extends KernelTestCase
         // Execute
         iterator_to_array($this->processor->process(
             $malformedXml,
-            'RUB',
-            ['USD'],
+            CurrencyEnum::RUB->value,
+            [CurrencyEnum::USD->value],
             4,
             $date
         ));
@@ -136,8 +135,8 @@ class XmlProcessorTest extends KernelTestCase
         // Execute
         iterator_to_array($this->processor->process(
             $xml,
-            'RUB',
-            ['USD', 'EUR'],
+            CurrencyEnum::RUB->value,
+            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
             4,
             $date
         ));
@@ -155,16 +154,16 @@ class XmlProcessorTest extends KernelTestCase
         // Execute with different precision values
         $result2Precision = iterator_to_array($this->processor->process(
             $xml,
-            'RUB',
-            ['USD'],
+            CurrencyEnum::RUB->value,
+            [CurrencyEnum::USD->value],
             2,
             $date
         ));
 
         $result4Precision = iterator_to_array($this->processor->process(
             $xml,
-            'RUB',
-            ['USD'],
+            CurrencyEnum::RUB->value,
+            [CurrencyEnum::USD->value],
             4,
             $date
         ));
@@ -204,4 +203,3 @@ class XmlProcessorTest extends KernelTestCase
 XML;
     }
 }
-

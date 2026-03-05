@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217;
+namespace App\Domain\Enum;
 
-enum CurrencyIso4217Enum: string
+enum CurrencyEnum: string
 {
     // ISO 4217 Currency Codes (Alphabetically ordered)
     case AED = 'AED'; // United Arab Emirates Dirham

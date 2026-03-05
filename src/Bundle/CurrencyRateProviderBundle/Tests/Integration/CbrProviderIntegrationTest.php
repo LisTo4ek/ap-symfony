@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateProviderBundle\Tests\Integration;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyManagerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLogger;
 use App\Bundle\CurrencyRateProviderBundle\Src\Base\Logger\CurrencyRateProviderLoggerContract;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\CbrProvider;
 use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CbrProvider\Processor\XmlProcessor;
+use App\Domain\Enum\CurrencyEnum;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -22,12 +22,7 @@ class CbrProviderIntegrationTest extends TestCase
     {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $logger = $this->createMock(CurrencyRateProviderLoggerContract::class);
-        $currencyManager = $this->createMock(CurrencyManagerContract::class);
-
-        $processor = new XmlProcessor(
-            $currencyManager,
-            $logger
-        );
+        $processor = new XmlProcessor($logger);
 
         $provider = new CbrProvider(
             $httpClient,
@@ -35,7 +30,7 @@ class CbrProviderIntegrationTest extends TestCase
             $processor,
             'https://cbr.ru/scripts/XML_daily.asp',
             ['USD', 'EUR'],
-            'RUB',
+            CurrencyEnum::RUB->value,
             30,
             4
         );
@@ -48,11 +43,9 @@ class CbrProviderIntegrationTest extends TestCase
      */
     public function testProcessorCanBeInstantiated(): void
     {
-        $currencyManager = $this->createMock(CurrencyManagerContract::class);
         $logger = $this->createMock(CurrencyRateProviderLoggerContract::class);
 
         $processor = new XmlProcessor(
-            $currencyManager,
             $logger
         );
 
@@ -78,10 +71,8 @@ class CbrProviderIntegrationTest extends TestCase
         $httpClient = $this->createMock(HttpClientInterface::class);
         $psr3Logger = $this->createMock(LoggerInterface::class);
         $logger = new CurrencyRateProviderLogger($psr3Logger);
-        $currencyManager = $this->createMock(CurrencyManagerContract::class);
 
         $processor = new XmlProcessor(
-            $currencyManager,
             $logger
         );
 
@@ -90,8 +81,8 @@ class CbrProviderIntegrationTest extends TestCase
             $logger,
             $processor,
             'https://cbr.ru/scripts/XML_daily.asp',
-            ['USD', 'EUR'],
-            'RUB',
+            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
+            CurrencyEnum::RUB->value,
             30,
             4
         );

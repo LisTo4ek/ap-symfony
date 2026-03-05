@@ -83,10 +83,10 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
-                        {% set navItems = {'app_news_index': 'News', 'app_author_index': 'Authors', 'app_current_rates': 'Current Rates'} %}
-                        {% for item, name in navItems %}
+                        {% set navItems = {'app_news_index': {'name': 'News', 'params': {}}, 'app_author_index': {'name': 'Authors', 'params': {}}, 'app_current_rates': {'name': 'Current Rates', 'params': {'baseCurrencyCode': 'RUB'}}} %}
+                        {% for key, item in navItems %}
                         <li class="nav-item">
-                            <a class="nav-link{% if app.request.attributes.get('_route') == item %} active{% endif %}" href="{{ path(item) }}">{{ name }}</a>
+                            <a class="nav-link{% if app.request.attributes.get('_route') == key %} active{% endif %}" href="{{ path(key, item.params) }}">{{ item.name }}</a>
                         </li>
                         {% endfor %}
                     </ul>

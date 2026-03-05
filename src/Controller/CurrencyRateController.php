@@ -4,59 +4,57 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Currency\CurrencyIso4217\CurrencyIso4217Enum;
 use App\Domain\Action\CurrencyRate\GetCurrentRatesAction;
 use App\Domain\Action\CurrencyRate\GetRateHistoryAction;
+use App\Domain\Config\Pagination\PaginatorConfigDefault;
+use App\Domain\Contracts\Pagination\PaginatorConfigContract;
+use App\Domain\Dto\CurrencyRate\CurrentRateDto;
+use App\Domain\Dto\CurrencyRate\RateHistoryDto;
+use App\Domain\Validation\ArgumentResolver\CurrentRateAbstractDtoValueResolver;
+use App\Domain\Validation\ArgumentResolver\RateHistoryAbstractDtoValueResolver;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 
 class CurrencyRateController extends AbstractController
 {
-    private const string BASE_CURRENCY = CurrencyIso4217Enum::RUB->value;
-
     public function __construct(
         private GetCurrentRatesAction $getCurrentRatesAction,
         private GetRateHistoryAction $getRateHistoryAction,
+        #[Autowire(service: PaginatorConfigDefault::class)]
+        private readonly PaginatorConfigContract $paginatorConfig,
     ) {
     }
 
-    #[Route('/current-rates', name: 'app_current_rates')]
-    public function currentRates(Request $request): Response
+    #[Route('/current-rates/{baseCurrencyCode}', name: 'app_current_rates')]
+    public function currentRates(#[ValueResolver(CurrentRateAbstractDtoValueResolver::class)] CurrentRateDto $dto): Response
     {
-        // todo: move pagination params to query object
-        // todo: validate pagination params
-
         [$latestDate, $pagination] = ($this->getCurrentRatesAction)(
-            $request->query->getInt('page'),
-            $request->query->getInt('itemsPerPage'),
-            self::BASE_CURRENCY
+            $this->paginatorConfig,
+            $dto,
         );
 
         return $this->render('currency-rate/current-rates.html.twig', [
+            'baseCurrencyCode' => $dto->baseCurrencyCode,
             'pagination' => $pagination,
             'latestDate' => $latestDate?->format('Y-m-d'),
             'today' => new DateTimeImmutable('today')->format('Y-m-d'),
         ]);
     }
 
-    #[Route('/rate-history/{targetCurrency}', name: 'app_rates_history')]
-    public function rateHistory(string $targetCurrency, Request $request): Response
+    #[Route('/rate-history/{baseCurrencyCode}/{targetCurrencyCode}/', name: 'app_rates_history')]
+    public function rateHistory(#[ValueResolver(RateHistoryAbstractDtoValueResolver::class)] RateHistoryDto $dto): Response
     {
-        // todo: move pagination params to query object
-        // todo: validate params
-
         return $this->render('currency-rate/rate-history.html.twig', [
             'pagination' => ($this->getRateHistoryAction)(
-                $request->query->getInt('page'),
-                $request->query->getInt('itemsPerPage'),
-                self::BASE_CURRENCY,
-                $targetCurrency
+                $this->paginatorConfig,
+                $dto,
             ),
-            'targetCurrency' => $targetCurrency,
+            'baseCurrencyCode' => $dto->baseCurrencyCode,
+            'targetCurrencyCode' => $dto->targetCurrencyCode,
         ]);
     }
 }
-
