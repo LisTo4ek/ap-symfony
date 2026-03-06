@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Tests\Providers\CbrProvider;
+namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
@@ -24,7 +24,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class CbrProviderTest extends TestCase
+class CurrencyRateCbrProviderServiceTest extends TestCase
 {
     private HttpClientInterface&MockObject $httpClient;
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
@@ -413,6 +413,7 @@ class CbrProviderTest extends TestCase
         <Nominal>1</Nominal>
         <Name>US Dollar</Name>
         <Value>90,50</Value>
+        <VunitRate>90,50</VunitRate>
     </Valute>
     <Valute ID="R01239">
         <NumCode>978</NumCode>
@@ -420,6 +421,7 @@ class CbrProviderTest extends TestCase
         <Nominal>1</Nominal>
         <Name>Euro</Name>
         <Value>97,20</Value>
+        <VunitRate>97,20</VunitRate>
     </Valute>
 </ValCurs>
 XML;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Tests\Providers\CbrProvider\Processor;
+namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
@@ -16,11 +16,10 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use function count;
 use function iterator_to_array;
 
-class XmlProcessorTest extends KernelTestCase
+class CurrencyRateParserXmlServiceTest extends KernelTestCase
 {
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserXmlService $processor;
-
 
     protected function setUp(): void
     {

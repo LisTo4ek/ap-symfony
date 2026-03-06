@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Tests\Integration;
+namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateCbrProviderService;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class CbrProviderIntegrationTest extends TestCase
+class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
 {
     /**
      * Test provider can be instantiated with dependencies

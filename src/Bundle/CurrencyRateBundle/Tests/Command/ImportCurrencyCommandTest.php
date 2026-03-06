@@ -1,175 +1,92 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Bundle\CurrencyRateBundle\Tests\Command;
 
-use App\Bundle\CurrencyRateBundle\Src\Base\Rate;
-use App\Bundle\CurrencyRateBundle\Src\Providers\CurrencyRateProviderContract;
-use App\Command\CurrencyRateImportCbrCommand;
-use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
-use App\Event\RateSavedEvent;
-use App\Repository\RateHistoryRepository;
-use App\Tests\KernelTestCase;
-use App\Tests\Trait\CurrencyTrait;
-use DateTimeImmutable;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use App\Bundle\CurrencyRateBundle\Src\ConsoleCommand\CurrencyRateImportCbrCommand;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ImportCurrencyCommandTest extends KernelTestCase
+class ImportCurrencyCommandTest extends TestCase
 {
-    use CurrencyTrait;
-
-    private CurrencyRateProviderContract $rateProvider;
-    private RateHistoryRepository $historyRepository;
-    private EventDispatcherInterface $eventDispatcher;
-    private CommandTester $commandTester;
-
-
+    private CurrencyRateHistoryCbrProcessorService&MockObject $processor;
+    private LoggerInterface&MockObject $logger;
+    private CurrencyRateImportCbrCommand $command;
+    private CommandTester $tester;
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->initCurrencies();
-
-        $this->rateProvider = $this->createMock(CurrencyRateProviderContract::class);
-        $this->historyRepository = $this->createMock(RateHistoryRepository::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $saveAction = new ProcessCbrCurrencyRateHistoryAction(
-            $this->rateProvider,
-            $this->historyRepository,
-            $this->eventDispatcher
-        );
-
-        $command = new CurrencyRateImportCbrCommand(
-            $saveAction
-        );
-
-        $this->commandTester = new CommandTester($command);
+        $this->processor = $this->createMock(CurrencyRateHistoryCbrProcessorService::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->command = new CurrencyRateImportCbrCommand($this->processor, $this->logger);
+        $this->tester = new CommandTester($this->command);
     }
-
-    /**
-     * Test case 1: Successfully imports rates for date range
-     */
-    public function testSuccessfullyImportsRates(): void
+    public function testSuccessfulImportForSingleDay(): void
     {
-        $today = new DateTimeImmutable('today');
-        $rate = new Rate(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            '75.50',
-            $today
-        );
-
-        // Mock getRates to return a generator yielding chunks of rates
-        $this->rateProvider
+        $this->processor
+            ->expects($this->once())
+            ->method('process')
+            ->willReturn(10);
+        $this->tester->execute(['from' => '2026-03-06', 'to' => '2026-03-06']);
+        $this->assertSame(Command::SUCCESS, $this->tester->getStatusCode());
+        $this->assertStringContainsString('Import completed', $this->tester->getDisplay());
+    }
+    public function testSuccessfulImportForDateRange(): void
+    {
+        $this->processor
+            ->expects($this->exactly(3))
+            ->method('process')
+            ->willReturn(5);
+        $this->tester->execute(['from' => '2026-03-01', 'to' => '2026-03-03']);
+        $this->assertSame(Command::SUCCESS, $this->tester->getStatusCode());
+    }
+    public function testFailsWhenFromDateAfterToDate(): void
+    {
+        $this->processor->expects($this->never())->method('process');
+        $this->tester->execute(['from' => '2026-03-10', 'to' => '2026-03-01']);
+        $this->assertSame(Command::FAILURE, $this->tester->getStatusCode());
+        $this->assertStringContainsString('Start date must be before', $this->tester->getDisplay());
+    }
+    public function testFailsWithInvalidDateFormat(): void
+    {
+        $this->processor->expects($this->never())->method('process');
+        $this->tester->execute(['from' => 'not-a-date', 'to' => '2026-03-01']);
+        $this->assertSame(Command::FAILURE, $this->tester->getStatusCode());
+        $this->assertStringContainsString('Invalid date format', $this->tester->getDisplay());
+    }
+    public function testProcessorExceptionResultsInFailure(): void
+    {
+        $this->processor
+            ->method('process')
+            ->willThrowException(new RuntimeException('API down'));
+        $this->tester->execute(['from' => '2026-03-06', 'to' => '2026-03-06']);
+        $this->assertSame(Command::FAILURE, $this->tester->getStatusCode());
+        $this->assertStringContainsString('API down', $this->tester->getDisplay());
+    }
+    public function testProcessorExceptionLogsError(): void
+    {
+        $this->processor
+            ->method('process')
+            ->willThrowException(new RuntimeException('Connection timeout'));
+        $this->logger
             ->expects($this->atLeastOnce())
-            ->method('getRates')
-            ->willReturnCallback(function () use ($rate) {
-                yield [$rate];  // Yield as a chunk (array of rates)
-            });
-
-        $this->historyRepository
-            ->expects($this->atLeastOnce())
-            ->method('saveBatch');
-
-        // EventDispatcher should be called for today's rate
-        $this->eventDispatcher
-            ->expects($this->atLeastOnce())
-            ->method('dispatch')
-            ->with($this->isInstanceOf(RateSavedEvent::class));
-
-        $this->commandTester->execute([
-            'from' => $today->format('Y-m-d'),
-            'to' => $today->format('Y-m-d'),
-        ]);
-
-        $this->assertEquals(0, $this->commandTester->getStatusCode());
-        $this->assertStringContainsString('imported', $this->commandTester->getDisplay());
+            ->method('error');
+        $this->tester->execute(['from' => '2026-03-06', 'to' => '2026-03-06']);
     }
-
-    /**
-     * Test case 2: Uses default date range (last 30 days) when no arguments provided
-     */
-    public function testUsesDefaultDateRange(): void
+    public function testCommandNameIsRegistered(): void
     {
-        // Mock getRates to return empty generator (no rates)
-        $this->rateProvider
-            ->method('getRates')
-            ->willReturnCallback(function () {
-                yield from [];  // Return empty generator
-            });
-
-        $this->commandTester->execute([]);
-
-        $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('Importing rates from', $output);
+        $this->assertSame('app:import:currency-rates:cbr', $this->command->getName());
     }
-
-    /**
-     * Test case 3: Handles invalid date format
-     */
-    public function testHandlesInvalidDateFormat(): void
+    public function testDefaultDatesAreToday(): void
     {
-        $this->commandTester->execute([
-            'from' => 'invalid-date',
-            'to' => '2026-01-03',
-        ]);
-
-        $this->assertEquals(1, $this->commandTester->getStatusCode());
-        $this->assertStringContainsString('Invalid date format', $this->commandTester->getDisplay());
-    }
-
-    /**
-     * Test case 4: Handles start date after end date
-     */
-    public function testHandlesInvalidDateRange(): void
-    {
-        $this->commandTester->execute([
-            'from' => '2026-01-10',
-            'to' => '2026-01-01',
-        ]);
-
-        $this->assertEquals(1, $this->commandTester->getStatusCode());
-        $this->assertStringContainsString('before or equal', $this->commandTester->getDisplay());
-    }
-
-    /**
-     * Test case 5: Handles errors during import (requirement 3.0)
-     */
-    public function testHandlesErrorsDuringImport(): void
-    {
-        $this->rateProvider
-            ->method('getRates')
-            ->willThrowException(new RuntimeException('CBR service unavailable'));
-
-        $this->commandTester->execute([
-            'from' => '2026-01-01',
-            'to' => '2026-01-01',
-        ]);
-
-        $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('errors', $output);
-        $this->assertStringContainsString('CBR service unavailable', $output);
-    }
-
-    /**
-     * Test case 6: Displays progress bar (requirement 3.0)
-     */
-    public function testDisplaysProgressBar(): void
-    {
-        $this->rateProvider
-            ->method('getRates')
-            ->willReturnCallback(function () {
-                yield from [];  // Return empty generator
-            });
-
-        $this->commandTester->execute([
-            'from' => '2026-01-01',
-            'to' => '2026-01-02',
-        ]);
-
-        $output = $this->commandTester->getDisplay();
-
-        $this->assertNotEmpty($output);
+        // When no arguments passed, defaults should be today
+        $this->processor->method('process')->willReturn(0);
+        $this->tester->execute([]);
+        $this->assertSame(Command::SUCCESS, $this->tester->getStatusCode());
     }
 }
