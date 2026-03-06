@@ -1,0 +1,5 @@
+# Bundle routes configuration
+_bundle_routes:
+    resource: '../../Src/Controller'
+    type: attribute
+

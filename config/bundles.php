@@ -18,5 +18,5 @@ return [
     Symfony\UX\StimulusBundle\StimulusBundle::class => ['all' => true],
     Sonata\DoctrineORMAdminBundle\SonataDoctrineORMAdminBundle::class => ['all' => true],
     Knp\Bundle\PaginatorBundle\KnpPaginatorBundle::class => ['all' => true],
-    App\Bundle\CurrencyRateProviderBundle\CurrencyRateProviderBundle::class => ['all' => true],
+    App\Bundle\CurrencyRateBundle\CurrencyRateBundle::class => ['all' => true],
 ];

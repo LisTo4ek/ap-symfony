@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests\Command;
+namespace App\Bundle\CurrencyRateBundle\Tests\Command;
 
-use App\Bundle\CurrencyRateProviderBundle\Src\Base\Rate;
-use App\Bundle\CurrencyRateProviderBundle\Src\Providers\CurrencyRateProviderContract;
+use App\Bundle\CurrencyRateBundle\Src\Base\Rate;
+use App\Bundle\CurrencyRateBundle\Src\Providers\CurrencyRateProviderContract;
 use App\Command\CurrencyRateImportCbrCommand;
 use App\Domain\Action\CurrencyRate\ProcessCbrCurrencyRateHistoryAction;
 use App\Event\RateSavedEvent;

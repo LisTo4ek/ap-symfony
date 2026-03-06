@@ -7,5 +7,12 @@
 # To list all registered routes, run the following command:
 #   bin/console debug:router
 
-controllers:
-    resource: routing.controllers
+# App controllers routes
+_app_controllers:
+    resource: ../src/Controller
+    type: attribute
+
+# Bundle controllers routes
+_bundle_controllers:
+    resource: ../src/Bundle
+    type: attribute

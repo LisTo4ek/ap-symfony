@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Bundle\CurrencyRateBundle\Src\Container;
+
+use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use Symfony\Component\Validator\Constraints as Assert;
+
+class RateHistoryContainer
+{
+    public function __construct(
+        #[Assert\NotBlank(message: 'Base currency code is required')]
+        #[Assert\Currency]
+        public string $baseCurrencyCode = CurrencyEnum::RUB->value,
+
+        #[Assert\NotBlank(message: 'Target currency code is required')]
+        #[Assert\Currency]
+        public string $targetCurrencyCode = '',
+
+        #[Assert\Valid]
+        #[MapQueryString]
+        public PaginationContainer $pagination,
+    ) {
+    }
+}

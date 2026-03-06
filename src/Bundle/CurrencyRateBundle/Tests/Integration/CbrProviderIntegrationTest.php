@@ -1,0 +1,95 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Bundle\CurrencyRateBundle\Tests\Integration;
+
+use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateCbrProviderService;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLogger;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerInterface;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+class CbrProviderIntegrationTest extends TestCase
+{
+    /**
+     * Test provider can be instantiated with dependencies
+     */
+    public function testProviderCanBeInstantiated(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $logger = $this->createMock(CurrencyRateProviderLoggerInterface::class);
+        $processor = new CurrencyRateParserXmlService($logger);
+
+        $provider = new CurrencyRateCbrProviderService(
+            $httpClient,
+            $logger,
+            $processor,
+            'https://cbr.ru/scripts/XML_daily.asp',
+            ['USD', 'EUR'],
+            CurrencyEnum::RUB->value,
+            30,
+            4
+        );
+
+        $this->assertInstanceOf(CurrencyRateCbrProviderService::class, $provider);
+    }
+
+    /**
+     * Test processor can be created with dependencies
+     */
+    public function testProcessorCanBeInstantiated(): void
+    {
+        $logger = $this->createMock(CurrencyRateProviderLoggerInterface::class);
+
+        $processor = new CurrencyRateParserXmlService(
+            $logger
+        );
+
+        $this->assertInstanceOf(CurrencyRateParserXmlService::class, $processor);
+    }
+
+    /**
+     * Test logger can be instantiated with PSR-3 logger
+     */
+    public function testLoggerCanBeInstantiated(): void
+    {
+        $psr3Logger = $this->createMock(LoggerInterface::class);
+        $logger = new CurrencyRateProviderLogger($psr3Logger);
+
+        $this->assertInstanceOf(CurrencyRateProviderLoggerInterface::class, $logger);
+    }
+
+    /**
+     * Test all dependencies can be created together
+     */
+    public function testAllDependenciesCanBeCreatedTogether(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $psr3Logger = $this->createMock(LoggerInterface::class);
+        $logger = new CurrencyRateProviderLogger($psr3Logger);
+
+        $processor = new CurrencyRateParserXmlService(
+            $logger
+        );
+
+        $provider = new CurrencyRateCbrProviderService(
+            $httpClient,
+            $logger,
+            $processor,
+            'https://cbr.ru/scripts/XML_daily.asp',
+            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
+            CurrencyEnum::RUB->value,
+            30,
+            4
+        );
+
+        // Verify all instances
+        $this->assertInstanceOf(CurrencyRateCbrProviderService::class, $provider);
+        $this->assertInstanceOf(CurrencyRateParserXmlService::class, $processor);
+        $this->assertInstanceOf(CurrencyRateProviderLoggerInterface::class, $logger);
+    }
+}
