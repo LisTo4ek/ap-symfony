@@ -14,7 +14,8 @@ use Money\Currency;
 #[ORM\Index(name: 'idx_base_currency_date', columns: ['base_currency', 'date'])]
 #[ORM\Index(name: 'idx_target_currency_date', columns: ['target_currency', 'date'])]
 #[ORM\Index(name: 'idx_date', columns: ['date'])]
-class RateHistory {
+class RateHistory
+{
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 

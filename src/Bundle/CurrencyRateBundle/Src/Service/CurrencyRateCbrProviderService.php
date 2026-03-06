@@ -22,6 +22,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
+
 use function bcdiv;
 use function count;
 use function get_class;
@@ -34,22 +35,16 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly CurrencyRateProviderLoggerServiceInterface $logger,
-
         #[Autowire(service: CurrencyRateParserXmlService::class)]
         private readonly CurrencyRateParserServiceInterface $rateProcessor,
-
         #[Autowire(param: 'currency_rate_provider.cbr_provider.api_url')]
         private readonly string $apiUrl,
-
         #[Autowire(param: 'currency_rate_provider.cbr_provider.monitored_currencies')]
         private readonly array $monitoredCurrencies = [],
-
         #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
         private readonly string $baseCurrencyCode = CurrencyEnum::RUB->value,
-
         #[Autowire(param: 'currency_rate_provider.cbr_provider.timeout')]
         private readonly int $timeout = 30,
-
         #[Autowire(param: 'currency_rate_provider.cbr_provider.rate_precision')]
         private readonly int $ratePrecision = 16,
     ) {
@@ -84,13 +79,15 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
             ]);
 
             // Process and yield rates
-            foreach ($this->rateProcessor->parse(
-                $content,
-                $this->baseCurrencyCode,
-                $this->monitoredCurrencies,
-                $this->ratePrecision,
-                $date
-            ) as $rate) {
+            foreach (
+                $this->rateProcessor->parse(
+                    $content,
+                    $this->baseCurrencyCode,
+                    $this->monitoredCurrencies,
+                    $this->ratePrecision,
+                    $date
+                ) as $rate
+            ) {
                 $chunk[] = $rate;
                 $chunk[] = new RateContainer(
                     $rate->targetCurrency,
@@ -108,7 +105,6 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
             if (!empty($chunk)) {
                 yield $chunk;
             }
-
         } catch (CurrencyRateProviderException $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -199,7 +195,6 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
                 0,
                 $e
             );
-
         } catch (TransportExceptionInterface $e) {
             $errorContext = $this->getErrorContext($startTime, $date, $e);
             $exceptionClass = get_class($e);
@@ -216,7 +211,6 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
                 0,
                 $e
             );
-
         } catch (HttpExceptionInterface $e) {
             $errorContext = $this->getErrorContext($startTime, $date, $e);
 
@@ -226,7 +220,6 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
                 0,
                 $e
             );
-
         } catch (Throwable $e) {
             // Unexpected/unknown error
             $this->logger->error(

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Providers\CbrProvider\Processor;
 
-
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
@@ -13,6 +12,7 @@ use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceI
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
 use function count;
 use function iterator_to_array;
 

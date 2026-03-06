@@ -54,7 +54,6 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
             $entity->setDate($date);
         } else {
             $entity = new CurrentRate($baseCurrency, $targetCurrency, $value, $date);
-
         }
 
         $this->getEntityManager()->persist($entity);

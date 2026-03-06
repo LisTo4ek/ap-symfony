@@ -94,14 +94,32 @@ class CbrProviderTest extends TestCase
 
         // Create inline exception implementation
         $exception = new class extends Exception implements ClientExceptionInterface {
-            public function getResponse(): ResponseInterface {
+            public function getResponse(): ResponseInterface
+            {
                 $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int { return 404; }
-                    public function getHeaders(bool $throw = true): array { return []; }
-                    public function getContent(bool $throw = true): string { return ''; }
-                    public function toArray(bool $throw = true): array { return []; }
-                    public function cancel(): void { }
-                    public function getInfo(?string $type = null): mixed { return null; }
+                    public function getStatusCode(): int
+                    {
+                        return 404;
+                    }
+                    public function getHeaders(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function getContent(bool $throw = true): string
+                    {
+                        return '';
+                    }
+                    public function toArray(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function cancel(): void
+                    {
+                    }
+                    public function getInfo(?string $type = null): mixed
+                    {
+                        return null;
+                    }
                 };
                 return $resp;
             }
@@ -130,14 +148,32 @@ class CbrProviderTest extends TestCase
 
         // Create inline exception implementation
         $exception = new class extends Exception implements RedirectionExceptionInterface {
-            public function getResponse(): ResponseInterface {
+            public function getResponse(): ResponseInterface
+            {
                 $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int { return 301; }
-                    public function getHeaders(bool $throw = true): array { return []; }
-                    public function getContent(bool $throw = true): string { return ''; }
-                    public function toArray(bool $throw = true): array { return []; }
-                    public function cancel(): void { }
-                    public function getInfo(?string $type = null): mixed { return null; }
+                    public function getStatusCode(): int
+                    {
+                        return 301;
+                    }
+                    public function getHeaders(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function getContent(bool $throw = true): string
+                    {
+                        return '';
+                    }
+                    public function toArray(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function cancel(): void
+                    {
+                    }
+                    public function getInfo(?string $type = null): mixed
+                    {
+                        return null;
+                    }
                 };
                 return $resp;
             }
@@ -165,14 +201,32 @@ class CbrProviderTest extends TestCase
 
         // Create inline exception implementation
         $exception = new class extends Exception implements ServerExceptionInterface {
-            public function getResponse(): ResponseInterface {
+            public function getResponse(): ResponseInterface
+            {
                 $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int { return 503; }
-                    public function getHeaders(bool $throw = true): array { return []; }
-                    public function getContent(bool $throw = true): string { return ''; }
-                    public function toArray(bool $throw = true): array { return []; }
-                    public function cancel(): void { }
-                    public function getInfo(?string $type = null): mixed { return null; }
+                    public function getStatusCode(): int
+                    {
+                        return 503;
+                    }
+                    public function getHeaders(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function getContent(bool $throw = true): string
+                    {
+                        return '';
+                    }
+                    public function toArray(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function cancel(): void
+                    {
+                    }
+                    public function getInfo(?string $type = null): mixed
+                    {
+                        return null;
+                    }
                 };
                 return $resp;
             }
@@ -247,14 +301,32 @@ class CbrProviderTest extends TestCase
         $date = new DateTimeImmutable('2026-03-02');
 
         $exception = new class extends Exception implements ClientExceptionInterface {
-            public function getResponse(): ResponseInterface {
+            public function getResponse(): ResponseInterface
+            {
                 $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int { return 404; }
-                    public function getHeaders(bool $throw = true): array { return []; }
-                    public function getContent(bool $throw = true): string { return ''; }
-                    public function toArray(bool $throw = true): array { return []; }
-                    public function cancel(): void { }
-                    public function getInfo(?string $type = null): mixed { return null; }
+                    public function getStatusCode(): int
+                    {
+                        return 404;
+                    }
+                    public function getHeaders(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function getContent(bool $throw = true): string
+                    {
+                        return '';
+                    }
+                    public function toArray(bool $throw = true): array
+                    {
+                        return [];
+                    }
+                    public function cancel(): void
+                    {
+                    }
+                    public function getInfo(?string $type = null): mixed
+                    {
+                        return null;
+                    }
                 };
                 return $resp;
             }

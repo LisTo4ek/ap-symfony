@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Action;
 
 use App\Entity\NewsSection;
 use Random\RandomException;
+
 use function random_int;
 
 class GetNewsSectionAction

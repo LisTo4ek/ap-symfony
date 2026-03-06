@@ -11,17 +11,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 class RateHistoryContainer
 {
     public function __construct(
-        #[Assert\NotBlank(message: 'Base currency code is required')]
-        #[Assert\Currency]
-        public string $baseCurrencyCode = CurrencyEnum::RUB->value,
-
-        #[Assert\NotBlank(message: 'Target currency code is required')]
-        #[Assert\Currency]
-        public string $targetCurrencyCode = '',
-
         #[Assert\Valid]
         #[MapQueryString]
         public PaginationContainer $pagination,
+        #[Assert\NotBlank(message: 'Base currency code is required')]
+        #[Assert\Currency]
+        public string $baseCurrencyCode = CurrencyEnum::RUB->value,
+        #[Assert\NotBlank(message: 'Target currency code is required')]
+        #[Assert\Currency]
+        public string $targetCurrencyCode = '',
     ) {
     }
 }

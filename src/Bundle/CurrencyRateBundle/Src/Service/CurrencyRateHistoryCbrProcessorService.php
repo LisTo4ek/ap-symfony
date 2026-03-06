@@ -12,6 +12,7 @@ use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
 use function array_map;
 use function count;
 

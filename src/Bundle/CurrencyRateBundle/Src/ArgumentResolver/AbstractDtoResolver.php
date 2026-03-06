@@ -7,6 +7,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 use function implode;
 
 abstract class AbstractDtoResolver implements ValueResolverInterface

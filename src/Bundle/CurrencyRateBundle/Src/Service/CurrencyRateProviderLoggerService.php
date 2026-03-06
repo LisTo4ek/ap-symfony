@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Throwable;
+
 use function count;
 
 /**
@@ -17,7 +18,6 @@ use function count;
 #[AsAlias(CurrencyRateProviderLoggerServiceInterface::class)]
 class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerServiceInterface
 {
-
     public function __construct(
         #[Target('monolog.logger.currency_rate_provider')]
         private LoggerInterface $logger,

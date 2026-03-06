@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Config;
 
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+
 use function in_array;
 
 /**

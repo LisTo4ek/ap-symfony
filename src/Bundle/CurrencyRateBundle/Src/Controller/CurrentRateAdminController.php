@@ -77,7 +77,7 @@ final class CurrentRateAdminController extends AbstractAdmin
             ]);
     }
 
-    protected function configureQuery(ProxyQueryInterface $query, ): ProxyQueryInterface
+    protected function configureQuery(ProxyQueryInterface $query,): ProxyQueryInterface
     {
         $today = new DateTimeImmutable('today');
 

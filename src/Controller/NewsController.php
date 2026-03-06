@@ -14,7 +14,8 @@ class NewsController extends AbstractController
 {
     public function __construct(
         private readonly GetNewsSectionAction $getNewsSectionAction
-    ) {}
+    ) {
+    }
 
 
 

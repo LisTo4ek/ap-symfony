@@ -22,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Throwable;
+
 use function count;
 use function iterator_count;
 use function sprintf;
@@ -102,7 +103,8 @@ class CurrencyRateImportCbrCommand extends Command
         $io->title('Currency Rates Import from CBR');
         $io->info(sprintf(
             'Importing rates from %s to %s',
-            $from->format('Y-m-d'), $to->format('Y-m-d')
+            $from->format('Y-m-d'),
+            $to->format('Y-m-d')
         ));
 
         $this->logger->info('Import process started', [
@@ -122,7 +124,7 @@ class CurrencyRateImportCbrCommand extends Command
         $errors = [];
 
         foreach ($period as $date) {
-            $progressBar->setMessage('aaaa'.$date->format('Y-m-d'));
+            $progressBar->setMessage('aaaa' . $date->format('Y-m-d'));
 
             try {
                 $successCount += $this->currencyRateHistoryProcessorService->process($date) ?? 0;

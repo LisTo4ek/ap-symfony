@@ -119,11 +119,6 @@ class CurrencySyncSubscriberTest extends KernelTestCase
             ->method('upsertForCurrencyPair')
             ->willReturn(new CurrentRate($this->rubCurrency, $this->usdCurrency, '75.50', $today));
 
-//        $this->repository
-//            ->expects($this->once())
-//            ->method('findByCurrencyPair')
-//            ->willReturn(null);
-
         $this->repository
             ->expects($this->never())
             ->method('save');
@@ -132,4 +127,3 @@ class CurrencySyncSubscriberTest extends KernelTestCase
         $this->subscriber->onRateSaved($event);
     }
 }
-

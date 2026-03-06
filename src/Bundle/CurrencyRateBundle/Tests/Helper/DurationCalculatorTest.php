@@ -7,6 +7,7 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Helper;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DurationCalculator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+
 use function usleep;
 
 class DurationCalculatorTest extends TestCase
@@ -141,4 +142,3 @@ class DurationCalculatorTest extends TestCase
         }
     }
 }
-
