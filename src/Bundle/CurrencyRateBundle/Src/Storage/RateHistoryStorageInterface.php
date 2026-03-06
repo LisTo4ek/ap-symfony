@@ -15,5 +15,11 @@ interface RateHistoryStorageInterface
      */
     public function saveBatch(array $entities): void;
 
-    public function findByCurrencyPair(Currency $baseCurrency, Currency $targetCurrency): PaginationPageableServiceInterface;
+    /**
+     * @return PaginationPageableServiceInterface<RateHistory>
+     */
+    public function findByCurrencyPair(
+        Currency $baseCurrency,
+        Currency $targetCurrency,
+    ): PaginationPageableServiceInterface;
 }

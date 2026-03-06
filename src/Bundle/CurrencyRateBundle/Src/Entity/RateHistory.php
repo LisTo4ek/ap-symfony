@@ -17,6 +17,7 @@ use Money\Currency;
 class RateHistory
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    /** @phpstan-ignore-next-line property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(name: 'base_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
@@ -94,5 +95,10 @@ class RateHistory
     public function getTargetCurrency(): Currency
     {
         return $this->targetCurrency;
+    }
+
+    public function getUpdatedAt(): DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 }

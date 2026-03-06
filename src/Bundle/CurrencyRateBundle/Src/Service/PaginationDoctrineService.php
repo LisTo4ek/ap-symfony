@@ -24,8 +24,12 @@ class PaginationDoctrineService implements PaginationServiceInterface
      * @param PaginationPageableServiceInterface<TItem> $pageable
      * @return PaginationResultInterface<TItem>
      */
-    public function paginate(PaginationPageableServiceInterface $pageable, PaginationConfigInterface $config, int $perPage, int $page = 1): PaginationResultInterface
-    {
+    public function paginate(
+        PaginationPageableServiceInterface $pageable,
+        PaginationConfigInterface $config,
+        int $perPage,
+        int $page = 1,
+    ): PaginationResultInterface {
         if ($page < 1) {
             $page = 1;
         }

@@ -76,7 +76,10 @@ class AuthorController extends AbstractController
     #[Route('/{id}', name: 'author_delete', methods: ['POST'])]
     public function delete(Request $request, Author $author): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $author->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        $tokenValue = is_string($token) ? $token : null;
+
+        if ($this->isCsrfTokenValid('delete' . $author->getId(), $tokenValue)) {
             $this->authorRepository->remove($author, true);
         }
 

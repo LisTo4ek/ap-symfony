@@ -19,6 +19,7 @@ interface CurrencyRateProviderLoggerServiceInterface
 
     /**
      * Log a provider initialization
+     * @param array<string, mixed> $config
      */
     public function logProviderInit(string $providerName, array $config = []): void;
 
@@ -39,51 +40,61 @@ interface CurrencyRateProviderLoggerServiceInterface
 
     /**
      * Log a validation error
+     * @param array<string, mixed> $errors
      */
     public function logValidationError(array $errors): void;
 
     /**
      * Log a debug message
+     * @param array<string, mixed> $context
      */
     public function debug(string $message, array $context = []): void;
 
     /**
      * Log an info message
+     * @param array<string, mixed> $context
      */
     public function info(string $message, array $context = []): void;
 
     /**
      * Log a notice message
+     * @param array<string, mixed> $context
      */
     public function notice(string $message, array $context = []): void;
 
     /**
      * Log a warning message
+     * @param array<string, mixed> $context
      */
     public function warning(string $message, array $context = []): void;
 
     /**
      * Log an error message
+     * @param array<string, mixed> $context
      */
     public function error(string $message, array $context = []): void;
 
     /**
      * Log a critical message
+     * @param array<string, mixed> $context
      */
     public function critical(string $message, array $context = []): void;
 
     /**
      * Log an alert message
+     * @param array<string, mixed> $context
      */
     public function alert(string $message, array $context = []): void;
 
     /**
      * Log an emergency message
+     * @param array<string, mixed> $context
      */
     public function emergency(string $message, array $context = []): void;
 
     /**
      * Log at the specified level
+     * @param array<string, mixed> $context
      */
     public function log(string $level, string $message, array $context = []): void;
 }

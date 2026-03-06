@@ -40,6 +40,9 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         $em->flush();
     }
 
+    /**
+     * @return PaginationPageableServiceInterface<RateHistory>
+     */
     public function findByCurrencyPair(
         Currency $baseCurrency,
         Currency $targetCurrency
@@ -52,6 +55,7 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
             ->orderBy('rh.date', 'DESC')
             ->orderBy('rh.id', 'DESC');
 
+        /** @phpstan-ignore-next-line varTag.nativeType */
         return new PaginationDoctrinePageableService($queryBuilder);
     }
 }

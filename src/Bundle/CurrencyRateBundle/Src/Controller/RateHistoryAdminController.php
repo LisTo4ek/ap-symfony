@@ -13,6 +13,9 @@ use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\DoctrineORMAdminBundle\Filter\DateFilter;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * @extends AbstractAdmin<RateHistory>
+ */
 #[AutoconfigureTag('sonata.admin', [
     'model_class' => RateHistory::class,
     'manager_type' => 'orm',

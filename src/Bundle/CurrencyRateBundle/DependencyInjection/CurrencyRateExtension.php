@@ -22,9 +22,15 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         $pattern = 'currency_rate_provider.cbr_provider.%s';
         $container->setParameter(sprintf($pattern, 'api_url'), $config['cbr_provider']['api_url']);
         $container->setParameter(sprintf($pattern, 'timeout'), $config['cbr_provider']['timeout']);
-        $container->setParameter(sprintf($pattern, 'rate_precision'), $config['cbr_provider']['rate_precision']);
+        $container->setParameter(
+            sprintf($pattern, 'rate_precision'),
+            $config['cbr_provider']['rate_precision'],
+        );
         $container->setParameter(sprintf($pattern, 'base_currency'), $config['cbr_provider']['base_currency']);
-        $container->setParameter(sprintf($pattern, 'monitored_currencies'), $config['cbr_provider']['monitored_currencies']);
+        $container->setParameter(
+            sprintf($pattern, 'monitored_currencies'),
+            $config['cbr_provider']['monitored_currencies'],
+        );
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -42,21 +48,33 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         }
 
         $monologConfig = Yaml::parseFile($configPath);
-        $env = $container->getParameter('kernel.environment');
 
-        if (isset($monologConfig['monolog'])) {
-            $container->prependExtensionConfig('monolog', $monologConfig['monolog']);
+        if (!is_array($monologConfig)) {
+            throw new RuntimeException('Monolog configuration must be an array');
         }
 
-        $envKey = 'when@' . $env;
-        if (isset($monologConfig[$envKey]['monolog'])) {
-            $container->prependExtensionConfig('monolog', $monologConfig[$envKey]['monolog']);
+        $env = $container->getParameter('kernel.environment');
+
+        if (isset($monologConfig['monolog']) && is_array($monologConfig['monolog'])) {
+            /** @var array<string, mixed> $monologConfigArray */
+            $monologConfigArray = $monologConfig['monolog'];
+            $container->prependExtensionConfig('monolog', $monologConfigArray);
+        }
+
+        if (is_string($env)) {
+            $envKey = 'when@' . $env;
+            if (isset($monologConfig[$envKey]['monolog']) && is_array($monologConfig[$envKey])) {
+                /** @var array<string, mixed> $monologEnvConfig */
+                $monologEnvConfig = $monologConfig[$envKey]['monolog'];
+                $container->prependExtensionConfig('monolog', $monologEnvConfig);
+            }
         }
     }
 
-    private function prependDoctrine(ContainerBuilder $container)
+    private function prependDoctrine(ContainerBuilder $container): void
     {
-        $container->prependExtensionConfig('doctrine', [
+        /** @var array<string, mixed> $doctrineConfig */
+        $doctrineConfig = [
             'orm' => [
                 'mappings' => [
                     'CurrencyRateBundle' => [
@@ -73,13 +91,9 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
                     'money_currency' => 'App\Bundle\CurrencyRateBundle\Src\Entity\MoneyCurrencyType',
                 ],
             ],
-        ]);
+        ];
+        $container->prependExtensionConfig('doctrine', $doctrineConfig);
     }
-
-//    public function getPath(): string
-//    {
-//        return __DIR__;
-//    }
 
     public function getAlias(): string
     {

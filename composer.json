@@ -74,7 +74,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "lint": "phpcs",
+        "lint:fix": "phpcbf",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "analyse:baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=512M"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -87,6 +91,7 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^13.0",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/browser-kit": "8.0.*",

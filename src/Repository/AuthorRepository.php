@@ -41,9 +41,13 @@ class AuthorRepository extends ServiceEntityRepository
      */
     public function findAllOrderedByName(): array
     {
-        return $this->createQueryBuilder('a')
+        $result = $this->createQueryBuilder('a')
             ->orderBy('a.name', 'ASC')
             ->getQuery()
             ->getResult();
+
+        // PHPStan: getResult() returns mixed, but Doctrine ORM guarantees an array
+        /** @var array<Author> $result */
+        return $result;
     }
 }

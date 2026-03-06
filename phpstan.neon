@@ -1,0 +1,19 @@
+parameters:
+    level: 9
+    paths:
+        - src
+        - tests
+    tmpDir: var/phpstan
+    excludePaths:
+        - vendor
+        - var/cache
+        - var/log
+        - src/Bundle/CurrencyRateBundle/Tests/*
+        - tests/*
+
+    treatPhpDocTypesAsCertain: true
+    reportUnmatchedIgnoredErrors: true
+
+
+
+

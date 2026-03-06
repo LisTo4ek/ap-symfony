@@ -72,7 +72,9 @@ class Configuration implements ConfigurationInterface
                             ->scalarPrototype()
                                 ->validate()
                                     ->ifTrue(fn($v) => !preg_match('/^[A-Z]{3}$/', $v))
-                                    ->thenInvalid('Each currency code must be a 3-letter ISO 4217 code (e.g., USD, EUR)')
+                                    ->thenInvalid(
+                                        'Each currency code must be a 3-letter ISO 4217 code (e.g., USD, EUR)'
+                                    )
                                 ->end()
                             ->end()
                         ->end()

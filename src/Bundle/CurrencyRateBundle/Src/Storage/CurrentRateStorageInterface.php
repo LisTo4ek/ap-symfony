@@ -23,5 +23,11 @@ interface CurrentRateStorageInterface
 
     public function getLatestDate(): ?DateTimeImmutable;
 
-    public function findByDateAndBaseCurrency(DateTimeImmutable $date, Currency $baseCurrency): PaginationPageableServiceInterface;
+    /**
+     * @return PaginationPageableServiceInterface<CurrentRate>
+     */
+    public function findByDateAndBaseCurrency(
+        DateTimeImmutable $date,
+        Currency $baseCurrency,
+    ): PaginationPageableServiceInterface;
 }

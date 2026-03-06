@@ -30,8 +30,8 @@ class RateHistoryDtoResolver extends AbstractDtoResolver
         }
 
         $dto = new RateHistoryContainer(
-            baseCurrencyCode: $request->attributes->get('baseCurrencyCode'),
-            targetCurrencyCode: $request->attributes->get('targetCurrencyCode'),
+            baseCurrencyCode: $request->attributes->getString('baseCurrencyCode'),
+            targetCurrencyCode: $request->attributes->getString('targetCurrencyCode'),
             pagination: new PaginationContainer(
                 $request->query->getInt('page', 1),
                 $request->query->getInt('perPage', $this->paginatorConfig->getPerPageDefault())

@@ -45,6 +45,10 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             'date' => $date->format('Y-m-d'),
         ]);
 
+        if (empty($baseCurrencyCode)) {
+            throw new CurrencyRateProviderInvalidRateDataException('Invalid base currency code');
+        }
+
         try {
             libxml_use_internal_errors(true);
             $xml = new SimpleXMLElement($content);
@@ -76,22 +80,22 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
         // Process and yield rates
         $processedCount = 0;
         foreach ($containerNode->Valute as $currencyNode) {
-            $currencyCode = (string) ($currencyNode->CharCode ?? '');
+            $targetCurrencyCode = (string) ($currencyNode->CharCode ?? '');
 
-            if (empty($currencyCode)) {
-                throw new CurrencyRateProviderInvalidRateDataException('Invalid currency: missing CharCode');
+            if (empty($targetCurrencyCode)) {
+                throw new CurrencyRateProviderInvalidRateDataException('Invalid currency code');
             }
 
-            if (!in_array($currencyCode, $monitoredCurrencies, true)) {
+            if (!in_array($targetCurrencyCode, $monitoredCurrencies, true)) {
                 continue;
             }
 
             // todo: rate precision should be handled by provider config, not hardcoded
-            $rateValue = $this->processRate($currencyCode, $currencyNode, $ratePrecision);
+            $rateValue = $this->processRate($targetCurrencyCode, $currencyNode);
 
             yield new RateContainer(
                 new Currency($baseCurrencyCode),
-                new Currency($currencyCode),
+                new Currency($targetCurrencyCode),
                 $rateValue,
                 $rateDate,
             );

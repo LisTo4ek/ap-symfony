@@ -30,7 +30,7 @@ class CurrentRateDtoResolver extends AbstractDtoResolver
         }
 
         $dto = new CurrentRateContainer(
-            baseCurrencyCode: $request->attributes->get('baseCurrencyCode'),
+            baseCurrencyCode: $request->attributes->getString('baseCurrencyCode'),
             pagination: new PaginationContainer(
                 $request->query->getInt('page', 1),
                 $request->query->getInt('perPage', $this->paginatorConfig->getPerPageDefault())

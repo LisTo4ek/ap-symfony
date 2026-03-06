@@ -79,8 +79,15 @@ class CurrencyRateImportCbrCommand extends Command
         ]);
 
         try {
-            $from = new DateTimeImmutable($input->getArgument('from'));
-            $to = new DateTimeImmutable($input->getArgument('to'));
+            $fromArg = $input->getArgument('from');
+            $toArg = $input->getArgument('to');
+
+            if (!is_string($fromArg) || !is_string($toArg)) {
+                throw new DateMalformedStringException('Arguments must be strings');
+            }
+
+            $from = new DateTimeImmutable($fromArg);
+            $to = new DateTimeImmutable($toArg);
         } catch (Throwable $e) {
             $this->logger->error('Invalid date format provided', [
                 'from' => $input->getArgument('from'),
@@ -127,7 +134,7 @@ class CurrencyRateImportCbrCommand extends Command
             $progressBar->setMessage('aaaa' . $date->format('Y-m-d'));
 
             try {
-                $successCount += $this->currencyRateHistoryProcessorService->process($date) ?? 0;
+                $successCount = $this->currencyRateHistoryProcessorService->process($date);
             } catch (Throwable $e) {
                 $errorMessage = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
                 $errors[] = $errorMessage;
@@ -149,7 +156,11 @@ class CurrencyRateImportCbrCommand extends Command
 
         $errorCount = count($errors);
         if ($errorCount > 0) {
-            $io->warning(sprintf('Import completed with errors: %d rates imported, %d errors', $successCount, $errorCount));
+            $io->warning(sprintf(
+                'Import completed with errors: %d rates imported, %d errors',
+                $successCount,
+                $errorCount
+            ));
             $io->listing($errors);
 
             $this->logger->warning('Import process completed with errors', [

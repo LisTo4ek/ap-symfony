@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\BookRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,17 +13,23 @@ class Book
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
     /**
-     * Many Users have Many Groups.
+     * Many Books have Many Authors.
      * @var Collection<int, Author>
      */
     #[ORM\ManyToMany(targetEntity: Author::class, mappedBy: 'books')]
     private Collection $authors;
+
+    public function __construct()
+    {
+        $this->authors = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -41,6 +48,9 @@ class Book
         return $this;
     }
 
+    /**
+     * @return Collection<int, Author>
+     */
     public function getAuthors(): Collection
     {
         return $this->authors;

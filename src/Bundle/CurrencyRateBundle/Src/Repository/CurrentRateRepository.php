@@ -81,11 +81,20 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $res ? new DateTimeImmutable($res) : null;
+        if (!is_string($res) || $res === '') {
+            return null;
+        }
+
+        return new DateTimeImmutable($res);
     }
 
-    public function findByDateAndBaseCurrency(DateTimeImmutable $date, Currency $baseCurrency): PaginationPageableServiceInterface
-    {
+    /**
+     * @return PaginationPageableServiceInterface<CurrentRate>
+     */
+    public function findByDateAndBaseCurrency(
+        DateTimeImmutable $date,
+        Currency $baseCurrency,
+    ): PaginationPageableServiceInterface {
         $queryBuilder = $this->createQueryBuilder('cr')
             ->where('cr.date = :date')
             ->setParameter('date', $date)
@@ -93,6 +102,7 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
             ->setParameter('baseCurrency', $baseCurrency)
             ->orderBy('cr.targetCurrency', 'ASC');
 
+        /** @phpstan-ignore-next-line varTag.nativeType */
         return new PaginationDoctrinePageableService($queryBuilder);
     }
 }

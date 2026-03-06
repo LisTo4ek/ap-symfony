@@ -35,6 +35,9 @@ class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerSer
     }
 
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function logProviderInit(string $providerName, array $config = []): void
     {
         $this->logger->info('Provider initialized', [
@@ -80,6 +83,8 @@ class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerSer
 
     /**
      * Log a validation error
+     *
+     * @param array<string, mixed> $errors
      */
     public function logValidationError(array $errors): void
     {
@@ -97,46 +102,73 @@ class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerSer
         return $this->logger;
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function debug(string $message, array $context = []): void
     {
         $this->logger->debug($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function info(string $message, array $context = []): void
     {
         $this->logger->info($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function notice(string $message, array $context = []): void
     {
         $this->logger->notice($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function warning(string $message, array $context = []): void
     {
         $this->logger->warning($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function error(string $message, array $context = []): void
     {
         $this->logger->error($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function critical(string $message, array $context = []): void
     {
         $this->logger->critical($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function alert(string $message, array $context = []): void
     {
         $this->logger->alert($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function emergency(string $message, array $context = []): void
     {
         $this->logger->emergency($message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function log(string $level, string $message, array $context = []): void
     {
         $this->logger->log($level, $message, $context);

@@ -18,6 +18,10 @@ class MoneyCurrencyType extends StringType
             return null;
         }
 
+        if (!is_string($value) || $value === '') {
+            throw new \InvalidArgumentException('Currency code must be a non-empty string');
+        }
+
         return new Currency($value);
     }
 
@@ -31,7 +35,11 @@ class MoneyCurrencyType extends StringType
             return $value->getCode();
         }
 
-        return (string) $value;
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException('Value must be a string or Currency instance');
+        }
+
+        return $value;
     }
 
     public function getName(): string

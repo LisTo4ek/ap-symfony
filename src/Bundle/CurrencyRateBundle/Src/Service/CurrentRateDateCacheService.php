@@ -27,15 +27,17 @@ class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterfac
 
     public function get(bool $warmUp = false): ?DateTimeInterface
     {
-        $value = $this->cache->get(self::CACHE_KEY, function () {
-            return null;
+        $cached = $this->cache->get(self::CACHE_KEY, function () {
+            $latestDate = $this->storage->getLatestDate();
+
+            return $latestDate?->format(self::DATE_FORMAT);
         });
 
-        if ($value === null && $warmUp) {
+        if ($cached === null && $warmUp) {
             return $this->warmUp();
         }
 
-        return $value ? new DateTimeImmutable($value) : null;
+        return $cached !== null ? new DateTimeImmutable($cached) : null;
     }
 
     public function set(?DateTimeInterface $date = null, ?int $ttl = null): void
@@ -43,9 +45,12 @@ class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterfac
         $ttl ??= self::DEFAULT_TTL;
 
         $this->cache->delete(self::CACHE_KEY);
-        $this->cache->get(self::CACHE_KEY, function () use ($date) {
-            return $date->format(self::DATE_FORMAT);
-        }, $ttl);
+
+        if ($date !== null) {
+            $this->cache->get(self::CACHE_KEY, function () use ($date) {
+                return $date->format(self::DATE_FORMAT);
+            }, $ttl);
+        }
     }
 
     public function warmUp(): ?DateTimeInterface

@@ -51,11 +51,15 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
 
         $offset = ($page - 1) * $itemsPerPage;
 
-        return $this->queryBuilder
+        $result = $this->queryBuilder
             ->setFirstResult($offset)
             ->setMaxResults($itemsPerPage)
             ->getQuery()
             ->getResult();
+
+        // PHPStan: getResult() returns mixed, but Doctrine ORM guarantees an array
+        /** @var array<T> $result */
+        return $result;
     }
 
     public function getTotalPages(int $itemsPerPage): int

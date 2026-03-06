@@ -32,6 +32,9 @@ use function str_contains;
 #[AsAlias(CurrencyRateProviderServiceInterface::class)]
 class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInterface
 {
+    /**
+     * @param array<string> $monitoredCurrencies
+     */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly CurrencyRateProviderLoggerServiceInterface $logger,
@@ -66,10 +69,6 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
             $chunk = [];
 
             $content = $this->requestRates($date);
-
-            if ($content === null) {
-                throw new CurrencyRateProviderException('Failed to retrieve rates from CBR API - empty response');
-            }
 
             $duration = DurationCalculator::elapsed($startTime);
             $this->logger->info('Retrieved rates from CBR', [
@@ -131,7 +130,7 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
      * @throws CurrencyRateProviderConfigurationException For non-retryable errors (4xx, 3xx)
      * @throws CurrencyRateProviderException For retriable errors (5xx, network)
      */
-    private function requestRates(DateTimeInterface $date): ?string
+    private function requestRates(DateTimeInterface $date): string
     {
         $startTime = DurationCalculator::start();
 

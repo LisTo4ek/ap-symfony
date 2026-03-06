@@ -16,6 +16,9 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * @extends AbstractAdmin<CurrentRate>
+ */
 #[AutoconfigureTag('sonata.admin', [
     'model_class' => CurrentRate::class,
     'manager_type' => 'orm',
