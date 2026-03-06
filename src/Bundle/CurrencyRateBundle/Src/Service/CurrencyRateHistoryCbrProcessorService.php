@@ -21,7 +21,7 @@ class CurrencyRateHistoryCbrProcessorService
     private const int CHUNK_SIZE = 1000;
 
     public function __construct(
-        #[Autowire(service: CurrencyRateCbrProviderService::class)]
+        #[Autowire(service: CurrencyRateProviderCbrService::class)]
         private readonly CurrencyRateProviderServiceInterface $provider,
         private readonly RateHistoryStorageInterface $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,

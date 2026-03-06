@@ -1,18 +1,11 @@
 monolog:
     channels:
-        - currency_rates
     handlers:
         main:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
-            channels: ["!currency_rates", "!currency_rate_provider"]
-
-        currency_rates:
-            type: stream
-            path: "%kernel.logs_dir%/currency_rates.log"
-            level: debug
-            channels: [currency_rates]
+            channels: ["!currency_rate_bundle"]
 
         # Console handler - for development environment
         console:
@@ -20,7 +13,7 @@ monolog:
             verbosity_levels:
                 VERBOSITY_NORMAL: error
                 VERBOSITY_VERY_VERBOSE: debug
-            channels: ["!currency_rate_provider", "!currency_rates"]
+            channels: ["!currency_rate_bundle"]
 
 when@dev:
     monolog:
@@ -29,7 +22,7 @@ when@dev:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: info
-                channels: ["!currency_rates", "!currency_rate_provider"]
+                channels: ["!currency_rate_bundle"]
 when@prod:
     monolog:
         handlers:

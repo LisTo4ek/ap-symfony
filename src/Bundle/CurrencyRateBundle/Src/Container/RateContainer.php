@@ -10,10 +10,10 @@ use Money\Currency;
 class RateContainer
 {
     public function __construct(
-        public Currency $baseCurrency,
-        public Currency $targetCurrency,
-        public string $rate,
-        public DateTimeInterface $date
+        public readonly Currency $baseCurrency,
+        public readonly Currency $targetCurrency,
+        public readonly string $rate,
+        public readonly DateTimeInterface $date
     ) {
     }
 }

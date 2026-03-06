@@ -7,9 +7,6 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 use DateTime;
 use Throwable;
 
-/**
- * CurrencyRateProviderLoggerInterface defines the contract for logging in the CurrencyRateProviderBundle
- */
 interface CurrencyRateProviderLoggerServiceInterface
 {
     /**

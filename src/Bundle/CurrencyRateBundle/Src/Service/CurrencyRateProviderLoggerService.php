@@ -19,7 +19,7 @@ use function count;
 class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerServiceInterface
 {
     public function __construct(
-        #[Target('monolog.logger.currency_rate_provider')]
+        #[Target('monolog.logger.currency_rate_bundle')]
         private LoggerInterface $logger,
     ) {
     }

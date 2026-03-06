@@ -30,7 +30,7 @@ use function mb_strlen;
 use function str_contains;
 
 #[AsAlias(CurrencyRateProviderServiceInterface::class)]
-class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInterface
+class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInterface
 {
     /**
      * @param array<string> $monitoredCurrencies

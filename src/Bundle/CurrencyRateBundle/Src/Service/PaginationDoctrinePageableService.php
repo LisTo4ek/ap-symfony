@@ -17,6 +17,8 @@ use Doctrine\ORM\QueryBuilder;
  */
 class PaginationDoctrinePageableService implements PaginationPageableServiceInterface
 {
+    private ?int $cachedTotalCount = null;
+
     public function __construct(
         private readonly QueryBuilder $queryBuilder,
     ) {
@@ -24,16 +26,22 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
 
     public function getTotalCount(): int
     {
-        $countQuery = clone $this->queryBuilder;
+        if ($this->cachedTotalCount !== null) {
+            return $this->cachedTotalCount;
+        }
 
-        // Remove ORDER BY from count query to avoid PostgreSQL grouping errors
-        // when using COUNT(DISTINCT ...) with ORDER BY containing non-grouped columns
-        $countQuery->resetDQLPart('orderBy');
+        // clone is safe here — Doctrine's QueryBuilder::__clone() deep-clones
+        // all DQL part expression objects and creates a fresh ArrayCollection
+        // with cloned parameters, so mutations on the clone cannot affect the original.
+        $countQb = clone $this->queryBuilder;
+        $countQb->resetDQLPart('orderBy');
+        $countQb->select('COUNT(DISTINCT ' . $countQb->getRootAliases()[0] . ')');
 
-        return (int) $countQuery
-            ->select('COUNT(DISTINCT ' . $countQuery->getRootAliases()[0] . ')')
+        $this->cachedTotalCount = (int) $countQb
             ->getQuery()
             ->getSingleScalarResult();
+
+        return $this->cachedTotalCount;
     }
 
     /**

@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Money\Currency;
 
 #[ORM\Entity(repositoryClass: RateHistoryRepository::class)]
-//#[ORM\UniqueConstraint(name: 'idx_currency_pair_date', columns: ['base_currency', 'target_currency', 'date'])]
 #[ORM\Index(name: 'idx_base_currency_date', columns: ['base_currency', 'date'])]
 #[ORM\Index(name: 'idx_target_currency_date', columns: ['target_currency', 'date'])]
 #[ORM\Index(name: 'idx_date', columns: ['date'])]

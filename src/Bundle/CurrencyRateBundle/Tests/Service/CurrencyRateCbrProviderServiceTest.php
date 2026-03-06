@@ -9,7 +9,7 @@ use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateCbrProviderService;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
 use DateTimeImmutable;
@@ -29,7 +29,7 @@ class CurrencyRateCbrProviderServiceTest extends TestCase
     private HttpClientInterface&MockObject $httpClient;
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserServiceInterface&MockObject $rateProcessor;
-    private CurrencyRateCbrProviderService $provider;
+    private CurrencyRateProviderCbrService $provider;
 
     protected function setUp(): void
     {
@@ -37,7 +37,7 @@ class CurrencyRateCbrProviderServiceTest extends TestCase
         $this->logger = $this->createMock(CurrencyRateProviderLoggerServiceInterface::class);
         $this->rateProcessor = $this->createMock(CurrencyRateParserServiceInterface::class);
 
-        $this->provider = new CurrencyRateCbrProviderService(
+        $this->provider = new CurrencyRateProviderCbrService(
             $this->httpClient,
             $this->logger,
             $this->rateProcessor,

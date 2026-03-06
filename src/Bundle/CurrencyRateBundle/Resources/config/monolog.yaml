@@ -1,37 +1,37 @@
 monolog:
     channels:
-        - currency_rate_provider
+        - currency_rate_bundle
     handlers:
-        currency_rate_provider:
+        currency_rate_bundle:
             type: stream
-            path: "%kernel.logs_dir%/currency_rate_provider.log"
+            path: "%kernel.logs_dir%/currency_rate_bundle.log"
             level: debug
-            channels: [currency_rate_provider]
+            channels: [currency_rate_bundle]
 
 when@dev:
     monolog:
         handlers:
-            currency_rate_provider:
+            currency_rate_bundle:
                 type: stream
-                path: "%kernel.logs_dir%/currency_rate_provider.log"
+                path: "%kernel.logs_dir%/currency_rate_bundle.log"
                 level: debug
-                channels: [currency_rate_provider]
+                channels: [currency_rate_bundle]
 
 when@prod:
     monolog:
         handlers:
-            currency_rate_provider:
+            currency_rate_bundle:
                 type: stream
-                path: "%kernel.logs_dir%/currency_rate_provider.log"
+                path: "%kernel.logs_dir%/currency_rate_bundle.log"
                 level: info
-                channels: [currency_rate_provider]
+                channels: [currency_rate_bundle]
 
 when@test:
     monolog:
         handlers:
-            currency_rate_provider:
+            currency_rate_bundle:
                 type: stream
-                path: "%kernel.logs_dir%/currency_rate_provider.log"
+                path: "%kernel.logs_dir%/currency_rate_bundle.log"
                 level: debug
-                channels: [currency_rate_provider]
+                channels: [currency_rate_bundle]
 

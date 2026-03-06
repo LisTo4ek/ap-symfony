@@ -35,7 +35,7 @@ class CurrencyRateImportCbrCommand extends Command
 {
     public function __construct(
         private readonly CurrencyRateHistoryCbrProcessorService $currencyRateHistoryProcessorService,
-        #[Target('monolog.logger.currency_rates')]
+        #[Target('monolog.logger.currency_rate_bundle')]
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct();
@@ -134,7 +134,7 @@ class CurrencyRateImportCbrCommand extends Command
             $progressBar->setMessage('aaaa' . $date->format('Y-m-d'));
 
             try {
-                $successCount = $this->currencyRateHistoryProcessorService->process($date);
+                $successCount += $this->currencyRateHistoryProcessorService->process($date);
             } catch (Throwable $e) {
                 $errorMessage = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
                 $errors[] = $errorMessage;

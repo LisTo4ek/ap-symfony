@@ -24,7 +24,7 @@ class CurrentRate
     #[ORM\Column(name: 'target_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
     private Currency $targetCurrency;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $value;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]

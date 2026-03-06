@@ -53,7 +53,7 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
             ->andWhere('rh.targetCurrency = :targetCurrency')
             ->setParameter('targetCurrency', $targetCurrency)
             ->orderBy('rh.date', 'DESC')
-            ->orderBy('rh.id', 'DESC');
+            ->addOrderBy('rh.id', 'DESC');
 
         /** @phpstan-ignore-next-line varTag.nativeType */
         return new PaginationDoctrinePageableService($queryBuilder);

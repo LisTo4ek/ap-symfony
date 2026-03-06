@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateCbrProviderService;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
@@ -24,7 +24,7 @@ class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
         $logger = $this->createMock(CurrencyRateProviderLoggerServiceInterface::class);
         $processor = new CurrencyRateParserXmlService($logger);
 
-        $provider = new CurrencyRateCbrProviderService(
+        $provider = new CurrencyRateProviderCbrService(
             $httpClient,
             $logger,
             $processor,
@@ -35,7 +35,7 @@ class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
             4
         );
 
-        $this->assertInstanceOf(CurrencyRateCbrProviderService::class, $provider);
+        $this->assertInstanceOf(CurrencyRateProviderCbrService::class, $provider);
     }
 
     /**
@@ -76,7 +76,7 @@ class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
             $logger
         );
 
-        $provider = new CurrencyRateCbrProviderService(
+        $provider = new CurrencyRateProviderCbrService(
             $httpClient,
             $logger,
             $processor,
@@ -88,7 +88,7 @@ class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
         );
 
         // Verify all instances
-        $this->assertInstanceOf(CurrencyRateCbrProviderService::class, $provider);
+        $this->assertInstanceOf(CurrencyRateProviderCbrService::class, $provider);
         $this->assertInstanceOf(CurrencyRateParserXmlService::class, $processor);
         $this->assertInstanceOf(CurrencyRateProviderLoggerServiceInterface::class, $logger);
     }
