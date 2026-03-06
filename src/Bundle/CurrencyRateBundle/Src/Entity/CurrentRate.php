@@ -17,10 +17,10 @@ class CurrentRate
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: 'money_currency', options: ['fixed' => true])]
+    #[ORM\Column(name: 'base_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
     private Currency $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: 'money_currency', options: ['fixed' => true])]
+    #[ORM\Column(name: 'target_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
     private Currency $targetCurrency;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
@@ -29,7 +29,7 @@ class CurrentRate
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private DateTimeInterface $date;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $updatedAt;
 
     public function __construct(

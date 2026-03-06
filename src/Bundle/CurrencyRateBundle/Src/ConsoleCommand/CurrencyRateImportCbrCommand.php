@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\ConsoleCommand;
 
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryProcessorService;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use DateInterval;
 use DateMalformedPeriodStringException;
 use DateMalformedStringException;
@@ -32,9 +32,8 @@ use function sprintf;
 )]
 class CurrencyRateImportCbrCommand extends Command
 {
-
     public function __construct(
-        private readonly CurrencyRateHistoryProcessorService $currencyRateHistoryProcessorService,
+        private readonly CurrencyRateHistoryCbrProcessorService $currencyRateHistoryProcessorService,
         #[Target('monolog.logger.currency_rates')]
         private readonly LoggerInterface $logger,
     ) {

@@ -14,11 +14,9 @@ use DateTimeInterface;
  * - Updating cache with new date
  * - Comparing dates for update logic
  */
-interface CurrentRateDateCacheInterface
+interface CurrentRateDateCacheServiceInterface
 {
     public function get(): ?DateTimeInterface;
     public function set(?DateTimeInterface $date, ?int $ttl = null): void;
     public function warmUp(): ?DateTimeInterface;
 }
-
-

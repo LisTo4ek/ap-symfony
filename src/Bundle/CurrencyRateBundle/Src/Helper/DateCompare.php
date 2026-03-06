@@ -13,4 +13,3 @@ class DateCompare
         return $date1->format('Y-m-d') === $date2->format('Y-m-d');
     }
 }
-

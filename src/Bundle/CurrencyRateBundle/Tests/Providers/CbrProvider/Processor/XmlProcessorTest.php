@@ -7,9 +7,9 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Providers\CbrProvider\Processor;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateInvalidRateDataException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -18,7 +18,7 @@ use function iterator_to_array;
 
 class XmlProcessorTest extends KernelTestCase
 {
-    private CurrencyRateProviderLoggerInterface&MockObject $logger;
+    private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserXmlService $processor;
 
 
@@ -26,7 +26,7 @@ class XmlProcessorTest extends KernelTestCase
     {
         parent::setUp();
 
-        $this->logger = $this->createMock(CurrencyRateProviderLoggerInterface::class);
+        $this->logger = $this->createMock(CurrencyRateProviderLoggerServiceInterface::class);
 
         $this->processor = new CurrencyRateParserXmlService(
             $this->logger
@@ -85,7 +85,7 @@ class XmlProcessorTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $invalidXml = '<invalid>Not proper XML';
 
-        $this->expectException(CurrencyRateInvalidRateDataException::class);
+        $this->expectException(CurrencyRateProviderInvalidRateDataException::class);
 
         // Execute
         iterator_to_array($this->processor->parse(
@@ -106,7 +106,7 @@ class XmlProcessorTest extends KernelTestCase
         $malformedXml = '<?xml version="1.0"?><root></root>';
 
 
-        $this->expectException(CurrencyRateInvalidRateDataException::class);
+        $this->expectException(CurrencyRateProviderInvalidRateDataException::class);
 
         // Execute
         iterator_to_array($this->processor->parse(

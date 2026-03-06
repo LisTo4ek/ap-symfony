@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Controller;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryProcessorService;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
 use DateTimeImmutable;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
@@ -25,7 +25,7 @@ final class CurrentRateAdminController extends AbstractAdmin
 {
     public function __construct(
         private readonly CurrentRateStorageInterface $currentRateStorageContract,
-        private readonly CurrencyRateHistoryProcessorService $currencyRateHistoryProcessorService,
+        private readonly CurrencyRateHistoryCbrProcessorService $currencyRateHistoryProcessorService,
     ) {
         parent::__construct();
     }
@@ -88,4 +88,3 @@ final class CurrentRateAdminController extends AbstractAdmin
         return $query;
     }
 }
-

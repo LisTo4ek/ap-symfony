@@ -10,7 +10,7 @@ use Throwable;
 /**
  * CurrencyRateProviderLoggerInterface defines the contract for logging in the CurrencyRateProviderBundle
  */
-interface CurrencyRateProviderLoggerInterface
+interface CurrencyRateProviderLoggerServiceInterface
 {
     /**
      * Log a rate retrieval operation
@@ -87,4 +87,3 @@ interface CurrencyRateProviderLoggerInterface
      */
     public function log(string $level, string $message, array $context = []): void;
 }
-

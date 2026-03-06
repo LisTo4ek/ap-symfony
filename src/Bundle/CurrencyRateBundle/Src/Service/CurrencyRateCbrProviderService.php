@@ -6,7 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderBundleException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DurationCalculator;
@@ -33,7 +33,7 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
 {
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly CurrencyRateProviderLoggerInterface $logger,
+        private readonly CurrencyRateProviderLoggerServiceInterface $logger,
 
         #[Autowire(service: CurrencyRateParserXmlService::class)]
         private readonly CurrencyRateParserServiceInterface $rateProcessor,
@@ -62,7 +62,7 @@ class CurrencyRateCbrProviderService implements CurrencyRateProviderServiceInter
 
     /**
      * @return Generator<int, array<RateContainer>>
-     * @throws CurrencyRateProviderBundleException
+     * @throws CurrencyRateBundleException
      */
     public function getRates(DateTimeImmutable $date, int $chunkSize = 1000): Generator
     {

@@ -9,7 +9,7 @@ use Exception;
 /**
  * Base exception for all CurrencyRateProviderBundle errors
  */
-class CurrencyRateProviderBundleException extends Exception
+class CurrencyRateBundleException extends Exception
 {
     /**
      * HTTP status code associated with this exception
@@ -33,4 +33,3 @@ class CurrencyRateProviderBundleException extends Exception
         return $this->statusCode;
     }
 }
-

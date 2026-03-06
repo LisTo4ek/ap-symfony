@@ -11,8 +11,8 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Contracts\Cache\CacheInterface;
 
-#[AsAlias(CurrentRateDateCacheInterface::class)]
-class CurrentRateDateCache implements CurrentRateDateCacheInterface
+#[AsAlias(CurrentRateDateCacheServiceInterface::class)]
+class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterface
 {
     private const string CACHE_KEY = 'current_rate_date';
     private const int DEFAULT_TTL = 86400 * 30; // 30 days
@@ -61,5 +61,3 @@ class CurrentRateDateCache implements CurrentRateDateCacheInterface
         return $value;
     }
 }
-
-

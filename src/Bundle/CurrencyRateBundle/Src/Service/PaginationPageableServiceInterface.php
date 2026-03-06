@@ -31,6 +31,3 @@ interface PaginationPageableServiceInterface
      */
     public function getTotalPages(int $itemsPerPage): int;
 }
-
-
-

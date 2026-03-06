@@ -14,8 +14,8 @@ use function count;
 /**
  * CurrencyRateProviderLogger provides logging functionality for the CurrencyRateProviderBundle
  */
-#[AsAlias(CurrencyRateProviderLoggerInterface::class)]
-class CurrencyRateProviderLogger implements CurrencyRateProviderLoggerInterface
+#[AsAlias(CurrencyRateProviderLoggerServiceInterface::class)]
+class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerServiceInterface
 {
 
     public function __construct(
@@ -142,5 +142,3 @@ class CurrencyRateProviderLogger implements CurrencyRateProviderLoggerInterface
         $this->logger->log($level, $message, $context);
     }
 }
-
-

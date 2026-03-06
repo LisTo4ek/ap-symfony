@@ -6,12 +6,12 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Providers\CbrProvider;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderBundleException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateCbrProviderService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserServiceInterface;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
 use DateTimeImmutable;
 use Exception;
 use Generator;
@@ -27,14 +27,14 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 class CbrProviderTest extends TestCase
 {
     private HttpClientInterface&MockObject $httpClient;
-    private CurrencyRateProviderLoggerInterface&MockObject $logger;
+    private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserServiceInterface&MockObject $rateProcessor;
     private CurrencyRateCbrProviderService $provider;
 
     protected function setUp(): void
     {
         $this->httpClient = $this->createMock(HttpClientInterface::class);
-        $this->logger = $this->createMock(CurrencyRateProviderLoggerInterface::class);
+        $this->logger = $this->createMock(CurrencyRateProviderLoggerServiceInterface::class);
         $this->rateProcessor = $this->createMock(CurrencyRateParserServiceInterface::class);
 
         $this->provider = new CurrencyRateCbrProviderService(
@@ -208,7 +208,7 @@ class CbrProviderTest extends TestCase
             ->willThrowException($exception);
 
         // Plain exceptions are unexpected, so wrapped as CurrencyRateProviderBundleException
-        $this->expectException(CurrencyRateProviderBundleException::class);
+        $this->expectException(CurrencyRateBundleException::class);
         $this->expectExceptionMessageMatches('/Unexpected error/');
 
         // Execute

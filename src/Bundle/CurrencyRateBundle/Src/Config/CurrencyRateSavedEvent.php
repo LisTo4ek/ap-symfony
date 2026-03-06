@@ -19,4 +19,3 @@ class CurrencyRateSavedEvent extends Event
         return $this->rate;
     }
 }
-

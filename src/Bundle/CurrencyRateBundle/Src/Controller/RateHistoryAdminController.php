@@ -83,4 +83,3 @@ final class RateHistoryAdminController extends AbstractAdmin
         $sortValues['_sort_by'] = 'date';
     }
 }
-

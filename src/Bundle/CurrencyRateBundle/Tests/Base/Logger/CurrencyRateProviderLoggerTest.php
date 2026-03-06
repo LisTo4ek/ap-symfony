@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Base\Logger;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLogger;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerService;
 use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -15,12 +15,12 @@ use RuntimeException;
 class CurrencyRateProviderLoggerTest extends TestCase
 {
     private LoggerInterface&MockObject $psr3Logger;
-    private CurrencyRateProviderLogger $logger;
+    private CurrencyRateProviderLoggerService $logger;
 
     protected function setUp(): void
     {
         $this->psr3Logger = $this->createMock(LoggerInterface::class);
-        $this->logger = new CurrencyRateProviderLogger($this->psr3Logger);
+        $this->logger = new CurrencyRateProviderLoggerService($this->psr3Logger);
     }
 
     /**

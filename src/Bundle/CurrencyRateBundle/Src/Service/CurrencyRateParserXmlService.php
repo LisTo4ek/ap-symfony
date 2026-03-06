@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateInvalidRateDataException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Helper\NumberHelper;
 use DateTimeImmutable;
@@ -23,14 +23,14 @@ use function mb_strlen;
 class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
 {
     public function __construct(
-        private CurrencyRateProviderLoggerInterface $logger,
+        private CurrencyRateProviderLoggerServiceInterface $logger,
     ) {
     }
 
     /**
      * @param array<string> $monitoredCurrencies
      * @return Generator<int, RateContainer>
-     * @throws CurrencyRateInvalidRateDataException when XML processing fails
+     * @throws CurrencyRateProviderInvalidRateDataException when XML processing fails
      */
     public function parse(
         string $content,
@@ -52,22 +52,22 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
         } catch (Throwable $e) {
             libxml_use_internal_errors(false);
             libxml_clear_errors();
-            throw new CurrencyRateInvalidRateDataException("Invalid XML: {$e->getMessage()}", 0, $e);
+            throw new CurrencyRateProviderInvalidRateDataException("Invalid XML: {$e->getMessage()}", 0, $e);
         }
 
         // Validate structure
         $containerNode = $this->resolveContainerNode($xml);
         if ($containerNode === null) {
-            throw new CurrencyRateInvalidRateDataException('Invalid XML structure: missing ValCurs node');
+            throw new CurrencyRateProviderInvalidRateDataException('Invalid XML structure: missing ValCurs node');
         }
 
         $rateDate = $this->parseRateDate($containerNode);
         if ($rateDate === null) {
-            throw new CurrencyRateInvalidRateDataException('Invalid XML: missing or invalid date attribute');
+            throw new CurrencyRateProviderInvalidRateDataException('Invalid XML: missing or invalid date attribute');
         }
 
         if (!DateCompare::eq($rateDate, $date)) {
-            throw new CurrencyRateInvalidRateDataException(
+            throw new CurrencyRateProviderInvalidRateDataException(
                 "Rates date is not current: {$rateDate->format('Y-m-d')}"
             );
         }
@@ -78,7 +78,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             $currencyCode = (string) ($currencyNode->CharCode ?? '');
 
             if (empty($currencyCode)) {
-                throw new CurrencyRateInvalidRateDataException('Invalid currency: missing CharCode');
+                throw new CurrencyRateProviderInvalidRateDataException('Invalid currency: missing CharCode');
             }
 
             if (!in_array($currencyCode, $monitoredCurrencies, true)) {
@@ -131,12 +131,12 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
     }
 
     /**
-     * @throws CurrencyRateInvalidRateDataException
+     * @throws CurrencyRateProviderInvalidRateDataException
      */
     private function processRate(string $currencyCode, SimpleXMLElement $currencyNode): string
     {
         if (!$currencyNode->VunitRate) {
-            throw new CurrencyRateInvalidRateDataException(
+            throw new CurrencyRateProviderInvalidRateDataException(
                 "Invalid rate data for {$currencyCode}: missing VunitRate"
             );
         }

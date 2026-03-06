@@ -18,10 +18,10 @@ class RateHistory {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: 'money_currency', options: ['fixed' => true])]
+    #[ORM\Column(name: 'base_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
     private Currency $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: 'money_currency', options: ['fixed' => true])]
+    #[ORM\Column(name: 'target_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
     private Currency $targetCurrency;
 
     #[ORM\Column(type: Types::STRING, length: 255)]

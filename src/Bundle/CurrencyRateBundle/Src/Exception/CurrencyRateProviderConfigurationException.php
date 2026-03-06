@@ -23,4 +23,3 @@ class CurrencyRateProviderConfigurationException extends CurrencyRateProviderExc
 {
     protected int $statusCode = 500;
 }
-

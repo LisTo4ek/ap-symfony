@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use function array_map;
 use function count;
 
-class CurrencyRateHistoryProcessorService
+class CurrencyRateHistoryCbrProcessorService
 {
     private const int CHUNK_SIZE = 1000;
 
