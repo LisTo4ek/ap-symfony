@@ -1,7 +1,7 @@
 <?php
-namespace App\Domain\Action;
+namespace App\Action;
 
-use App\Domain\Entity\NewsSection;
+use App\Entity\NewsSection;
 use Random\RandomException;
 use function random_int;
 

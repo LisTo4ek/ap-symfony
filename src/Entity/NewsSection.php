@@ -1,5 +1,5 @@
 <?php
-namespace App\Domain\Entity;
+namespace App\Entity;
 
 class NewsSection
 {
