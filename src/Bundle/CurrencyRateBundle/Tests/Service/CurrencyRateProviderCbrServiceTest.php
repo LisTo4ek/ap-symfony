@@ -25,7 +25,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class CurrencyRateCbrProviderServiceTest extends TestCase
+class CurrencyRateProviderCbrServiceTest extends TestCase
 {
     private HttpClientInterface&MockObject $httpClient;
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
@@ -43,9 +43,9 @@ class CurrencyRateCbrProviderServiceTest extends TestCase
             $this->logger,
             $this->rateProcessor,
             'https://cbr.ru/scripts/XML_daily.asp',
+            30,
             ['USD', 'EUR'],
             'RUB',
-            30,
             4
         );
     }
@@ -68,7 +68,7 @@ class CurrencyRateCbrProviderServiceTest extends TestCase
             ->method('request')
             ->with('GET', 'https://cbr.ru/scripts/XML_daily.asp', [
                 'query' => ['date_req' => '02/03/2026'],
-                'timeout' => 30,
+                'timeout' => 4,
                 'headers' => ['Accept' => 'text/xml'],
             ])
             ->willReturn($response);

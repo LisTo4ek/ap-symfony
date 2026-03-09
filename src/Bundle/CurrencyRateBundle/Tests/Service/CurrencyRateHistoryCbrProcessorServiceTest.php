@@ -23,6 +23,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     private RateHistoryStorageInterface&MockObject $storage;
     private EventDispatcherInterface&MockObject $dispatcher;
     private CurrencyRateHistoryCbrProcessorService $service;
+
     protected function setUp(): void
     {
         $this->provider = $this->createMock(CurrencyRateProviderServiceInterface::class);
@@ -34,12 +35,14 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
             $this->dispatcher,
         );
     }
+
     public function testProcessReturnsZeroForEmptyRates(): void
     {
         $this->provider->method('getRates')->willReturn($this->emptyGenerator());
         $count = $this->service->process(new DateTimeImmutable('2026-03-06'));
         $this->assertSame(0, $count);
     }
+
     public function testProcessSavesRatesToStorage(): void
     {
         $date = new DateTimeImmutable('yesterday');
@@ -54,6 +57,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
             ->with($this->callback(fn(array $entities) => count($entities) === 2));
         $this->service->process($date);
     }
+
     public function testProcessReturnsTotalCount(): void
     {
         $date = new DateTimeImmutable('yesterday');
@@ -68,6 +72,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
         $count = $this->service->process($date);
         $this->assertSame(3, $count);
     }
+
     public function testProcessDispatchesEventForTodaysRates(): void
     {
         $today = new DateTimeImmutable('today');
@@ -81,6 +86,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
             ->with($this->isInstanceOf(CurrencyRateSavedEvent::class));
         $this->service->process($today);
     }
+
     public function testProcessDoesNotDispatchEventForOldRates(): void
     {
         $yesterday = new DateTimeImmutable('yesterday');
@@ -91,6 +97,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
         $this->dispatcher->expects($this->never())->method('dispatch');
         $this->service->process($yesterday);
     }
+
     public function testProcessHandlesMultipleChunks(): void
     {
         $date = new DateTimeImmutable('yesterday');
@@ -101,6 +108,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
         $count = $this->service->process($date);
         $this->assertSame(2, $count);
     }
+
     /**
      * @return Generator<int, array<RateContainer>>
      */
@@ -108,6 +116,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     {
         yield from [];
     }
+
     /**
      * @param array<array<RateContainer>> $chunks
      * @return Generator<int, array<RateContainer>>

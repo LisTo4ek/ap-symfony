@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
+class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
 {
     /**
      * Test provider can be instantiated with dependencies
@@ -29,10 +29,10 @@ class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
             $logger,
             $processor,
             'https://cbr.ru/scripts/XML_daily.asp',
+            30,
             ['USD', 'EUR'],
             CurrencyEnum::RUB->value,
-            30,
-            4
+            14
         );
 
         $this->assertInstanceOf(CurrencyRateProviderCbrService::class, $provider);
@@ -81,10 +81,10 @@ class CurrencyRateCbrProviderServiceIntegrationTest extends TestCase
             $logger,
             $processor,
             'https://cbr.ru/scripts/XML_daily.asp',
+            30,
             [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
             CurrencyEnum::RUB->value,
-            30,
-            4
+            14
         );
 
         // Verify all instances

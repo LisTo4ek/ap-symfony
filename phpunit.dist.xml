@@ -22,6 +22,9 @@
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
         </testsuite>
+        <testsuite name="CurrencyRateBundle Bundle Test Suite">
+            <directory>src/Bundle/CurrencyRateBundle/Tests</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
