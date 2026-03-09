@@ -13,9 +13,12 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validation;
 
+use function iterator_to_array;
+
 class RateHistoryDtoResolverTest extends TestCase
 {
     private RateHistoryDtoResolver $resolver;
+
     protected function setUp(): void
     {
         $validator = Validation::createValidatorBuilder()
@@ -23,6 +26,7 @@ class RateHistoryDtoResolverTest extends TestCase
             ->getValidator();
         $this->resolver = new RateHistoryDtoResolver($validator, new PaginationConfigDefault());
     }
+
     public function testResolveYieldsRateHistoryContainer(): void
     {
         $request = new Request(query: ['page' => 2, 'perPage' => 25]);
@@ -37,6 +41,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $this->assertSame(2, $results[0]->pagination->page);
         $this->assertSame(25, $results[0]->pagination->perPage);
     }
+
     public function testResolveYieldsNothingForWrongType(): void
     {
         $request = new Request();
@@ -44,6 +49,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertEmpty($results);
     }
+
     public function testResolveThrowsBadRequestWhenTargetCurrencyMissing(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
@@ -53,6 +59,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
+
     public function testResolveThrowsBadRequestWhenBaseCurrencyInvalid(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
@@ -62,6 +69,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
+
     public function testResolveThrowsBadRequestWhenBothCurrenciesEmpty(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
@@ -71,6 +79,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
+
     public function testResolveUsesDefaultPagination(): void
     {
         $request = new Request();

@@ -10,6 +10,8 @@ use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DurationCalculator;
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
@@ -34,6 +36,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
 {
     /**
      * @param array<string> $monitoredCurrencies
+     * @param non-negative-int $ratePrecision
      */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -42,14 +45,14 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         private readonly CurrencyRateParserServiceInterface $rateProcessor,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.api_url')]
         private readonly string $apiUrl,
+        #[Autowire(param: 'currency_rate_provider.cbr_provider.rate_precision')]
+        private readonly int $ratePrecision,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.monitored_currencies')]
         private readonly array $monitoredCurrencies = [],
         #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]
         private readonly string $baseCurrencyCode = CurrencyEnum::RUB->value,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.timeout')]
         private readonly int $timeout = 30,
-        #[Autowire(param: 'currency_rate_provider.cbr_provider.rate_precision')]
-        private readonly int $ratePrecision = 16,
     ) {
         $this->logger->logProviderInit('CBR', [
             'api_url' => $this->apiUrl,
@@ -91,7 +94,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 $chunk[] = new RateContainer(
                     $rate->targetCurrency,
                     $rate->baseCurrency,
-                    bcdiv("1", $rate->rate, $this->ratePrecision),
+                    BigDecimal::of(1)->dividedBy($rate->rate, max(1, $this->ratePrecision), RoundingMode::Ceiling),
                     $rate->date
                 );
 
@@ -112,6 +115,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 'date' => $date->format('Y-m-d'),
                 'error' => $e->getMessage(),
                 'exception_class' => get_class($e),
+                'trace' => $e->getTraceAsString(),
             ]);
             throw new CurrencyRateProviderException(
                 "Unexpected error: {$e->getMessage()}",

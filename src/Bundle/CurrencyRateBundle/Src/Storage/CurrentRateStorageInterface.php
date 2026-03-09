@@ -6,6 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Storage;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationPageableServiceInterface;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Money\Currency;
@@ -15,7 +16,7 @@ interface CurrentRateStorageInterface
     public function upsertForCurrencyPair(
         Currency $baseCurrency,
         Currency $targetCurrency,
-        string $value,
+        BigDecimal $value,
         DateTimeInterface $date,
     ): CurrentRate;
 

@@ -15,22 +15,26 @@ class PaginationContainerTest extends TestCase
         $this->assertSame(1, $c->page);
         $this->assertSame(0, $c->perPage);
     }
+
     public function testCustomValues(): void
     {
         $c = new PaginationContainer(page: 5, perPage: 50);
         $this->assertSame(5, $c->page);
         $this->assertSame(50, $c->perPage);
     }
+
     public function testPageCanBeOne(): void
     {
         $c = new PaginationContainer(page: 1, perPage: 10);
         $this->assertSame(1, $c->page);
     }
+
     public function testPerPageBoundary(): void
     {
         $c = new PaginationContainer(page: 1, perPage: 100);
         $this->assertSame(100, $c->perPage);
     }
+
     public function testPropertiesArePublic(): void
     {
         $c = new PaginationContainer(page: 3, perPage: 25);

@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationDoctrinePageableService;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationPageableServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -44,7 +45,7 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     public function upsertForCurrencyPair(
         Currency $baseCurrency,
         Currency $targetCurrency,
-        string $value,
+        BigDecimal $value,
         DateTimeInterface $date,
     ): CurrentRate {
         $entity = $this->findByCurrencyPair($baseCurrency, $targetCurrency);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Entity;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Money\Currency;
 use PHPUnit\Framework\TestCase;
@@ -24,17 +25,18 @@ class RateHistoryTest extends TestCase
 
     public function testConstructorSetsAllProperties(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '75.50', $this->date);
+        $value = BigDecimal::of('75.50');
+        $history = new RateHistory($this->rub, $this->usd, $value, $this->date);
 
         $this->assertSame('RUB', $history->getBaseCurrency()->getCode());
         $this->assertSame('USD', $history->getTargetCurrency()->getCode());
-        $this->assertSame('75.50', $history->getValue());
+        $this->assertTrue($value->isEqualTo($history->getValue()));
         $this->assertSame('2026-03-06', $history->getDate()->format('Y-m-d'));
     }
 
     public function testIdIsNullBeforePersistence(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
 
         $this->assertNull($history->getId());
     }
@@ -42,7 +44,7 @@ class RateHistoryTest extends TestCase
     public function testUpdatedAtIsSetOnConstruction(): void
     {
         $before = new DateTimeImmutable();
-        $history = new RateHistory($this->rub, $this->usd, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
         $after = new DateTimeImmutable();
 
         $this->assertGreaterThanOrEqual($before->getTimestamp(), $history->getUpdatedAt()->getTimestamp());
@@ -51,7 +53,7 @@ class RateHistoryTest extends TestCase
 
     public function testSetBaseCurrencyReplacesCurrency(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
         $eur = new Currency('EUR');
 
         $result = $history->setBaseCurrency($eur);
@@ -62,7 +64,7 @@ class RateHistoryTest extends TestCase
 
     public function testSetTargetCurrencyReplacesCurrency(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
         $gbp = new Currency('GBP');
 
         $result = $history->setTargetCurrency($gbp);
@@ -73,17 +75,18 @@ class RateHistoryTest extends TestCase
 
     public function testSetValueReturnsSelf(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
 
-        $result = $history->setValue('99.99');
+        $value = BigDecimal::of('99.99');
+        $result = $history->setValue($value);
 
-        $this->assertSame('99.99', $history->getValue());
+        $this->assertTrue($value->isEqualTo($history->getValue()));
         $this->assertSame($history, $result);
     }
 
     public function testSetDateReturnsSelf(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
         $newDate = new DateTimeImmutable('2020-01-01');
 
         $result = $history->setDate($newDate);
@@ -94,7 +97,7 @@ class RateHistoryTest extends TestCase
 
     public function testSameCurrencyPairIsAllowed(): void
     {
-        $history = new RateHistory($this->rub, $this->rub, '1', $this->date);
+        $history = new RateHistory($this->rub, $this->rub, BigDecimal::of('1'), $this->date);
 
         $this->assertSame('RUB', $history->getBaseCurrency()->getCode());
         $this->assertSame('RUB', $history->getTargetCurrency()->getCode());
@@ -102,8 +105,9 @@ class RateHistoryTest extends TestCase
 
     public function testValueAcceptsHighPrecision(): void
     {
-        $history = new RateHistory($this->rub, $this->usd, '0.0000000123456789', $this->date);
+        $value = BigDecimal::of('0.0000000123456789');
+        $history = new RateHistory($this->rub, $this->usd, $value, $this->date);
 
-        $this->assertSame('0.0000000123456789', $history->getValue());
+        $this->assertTrue($value->isEqualTo($history->getValue()));
     }
 }

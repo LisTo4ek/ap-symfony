@@ -3,6 +3,7 @@
 namespace App\Bundle\CurrencyRateBundle\Src\Entity;
 
 use App\Bundle\CurrencyRateBundle\Src\Repository\CurrentRateRepository;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
@@ -24,8 +25,8 @@ class CurrentRate
     #[ORM\Column(name: 'target_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
     private Currency $targetCurrency;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    private string $value;
+    #[ORM\Column(type: BigDecimalStringType::NAME, length: 255)]
+    private BigDecimal $value;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private DateTimeInterface $date;
@@ -36,7 +37,7 @@ class CurrentRate
     public function __construct(
         Currency $baseCurrency,
         Currency $targetCurrency,
-        string $value,
+        BigDecimal $value,
         DateTimeInterface $date,
     ) {
         $this->baseCurrency = $baseCurrency;
@@ -51,12 +52,12 @@ class CurrentRate
         return $this->id;
     }
 
-    public function getValue(): string
+    public function getValue(): BigDecimal
     {
         return $this->value;
     }
 
-    public function setValue(string $value): self
+    public function setValue(BigDecimal $value): self
     {
         $this->value = $value;
         $this->updatedAt = new DateTimeImmutable();

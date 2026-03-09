@@ -23,6 +23,7 @@ class RateHistoryContainerTest extends TestCase
         $this->assertSame('EUR', $dto->targetCurrencyCode);
         $this->assertSame(3, $dto->pagination->page);
     }
+
     public function testDefaultBaseCurrencyIsRUB(): void
     {
         $dto = new RateHistoryContainer(
@@ -30,6 +31,7 @@ class RateHistoryContainerTest extends TestCase
         );
         $this->assertSame(CurrencyEnum::RUB->value, $dto->baseCurrencyCode);
     }
+
     public function testDefaultTargetCurrencyIsEmpty(): void
     {
         $dto = new RateHistoryContainer(

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Entity;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Money\Currency;
-use PHPUnit\Framework\Attributes\DataProvider;
+//use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CurrentRateTest extends TestCase
@@ -25,17 +26,19 @@ class CurrentRateTest extends TestCase
 
     public function testConstructorSetsAllProperties(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '75.50', $this->date);
+        $value = BigDecimal::of('75.50');
+        $rate = new CurrentRate($this->rub, $this->usd, $value, $this->date);
 
         $this->assertSame('RUB', $rate->getBaseCurrency()->getCode());
         $this->assertSame('USD', $rate->getTargetCurrency()->getCode());
-        $this->assertSame('75.50', $rate->getValue());
+        $this->assertSame($value->toString(), $rate->getValue()->toString());
         $this->assertSame('2026-03-06', $rate->getDate()->format('Y-m-d'));
     }
 
     public function testIdIsNullBeforePersistence(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '1', $this->date);
+        $value = BigDecimal::of('1');
+        $rate = new CurrentRate($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
 
         $this->assertNull($rate->getId());
     }
@@ -43,7 +46,7 @@ class CurrentRateTest extends TestCase
     public function testUpdatedAtIsSetOnConstruction(): void
     {
         $before = new DateTimeImmutable();
-        $rate = new CurrentRate($this->rub, $this->usd, '1', $this->date);
+        $rate = new CurrentRate($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
         $after = new DateTimeImmutable();
 
         $this->assertGreaterThanOrEqual(
@@ -58,15 +61,18 @@ class CurrentRateTest extends TestCase
 
     public function testSetValueUpdatesValueAndUpdatedAt(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '75.50', $this->date);
+        $value1 = BigDecimal::of('75.50');
+        $value2 = BigDecimal::of('80.00');
+
+        $rate = new CurrentRate($this->rub, $this->usd, $value1, $this->date);
         $originalUpdatedAt = $rate->getUpdatedAt();
 
         // DateTimeImmutable resolution is seconds; force a tick
         usleep(1_100_000);
 
-        $rate->setValue('80.00');
+        $rate->setValue($value2);
 
-        $this->assertSame('80.00', $rate->getValue());
+        $this->assertSame($value2->toString(), $rate->getValue()->toString());
         $this->assertGreaterThan(
             $originalUpdatedAt->getTimestamp(),
             $rate->getUpdatedAt()->getTimestamp()
@@ -75,16 +81,16 @@ class CurrentRateTest extends TestCase
 
     public function testSetValueReturnsSelf(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '1', $this->date);
+        $rate = new CurrentRate($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
 
-        $result = $rate->setValue('2');
+        $result = $rate->setValue(BigDecimal::of('2'));
 
         $this->assertSame($rate, $result);
     }
 
     public function testSetDateChangesDate(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '1', $this->date);
+        $rate = new CurrentRate($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
         $newDate = new DateTimeImmutable('2026-01-01');
 
         $rate->setDate($newDate);
@@ -94,7 +100,7 @@ class CurrentRateTest extends TestCase
 
     public function testSetDateReturnsSelf(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '1', $this->date);
+        $rate = new CurrentRate($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
 
         $result = $rate->setDate(new DateTimeImmutable());
 
@@ -103,29 +109,33 @@ class CurrentRateTest extends TestCase
 
     public function testValueAcceptsZero(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '0', $this->date);
+        $value = BigDecimal::of('0');
+        $rate = new CurrentRate($this->rub, $this->usd, $value, $this->date);
 
-        $this->assertSame('0', $rate->getValue());
+        $this->assertSame($value->toString(), $rate->getValue()->toString());
     }
 
     public function testValueAcceptsNegative(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '-1.5', $this->date);
+        $value = BigDecimal::of('-1.5');
+        $rate = new CurrentRate($this->rub, $this->usd, $value, $this->date);
 
-        $this->assertSame('-1.5', $rate->getValue());
+        $this->assertSame($value->toString(), $rate->getValue()->toString());
     }
 
     public function testValueAcceptsHighPrecision(): void
     {
-        $rate = new CurrentRate($this->rub, $this->usd, '0.00000001', $this->date);
+        $value = BigDecimal::of('0.00000001');
+        $rate = new CurrentRate($this->rub, $this->usd, $value, $this->date);
 
-        $this->assertSame('0.00000001', $rate->getValue());
+        $this->assertSame($value->toString(), $rate->getValue()->toString());
     }
 
-    public function testValueAcceptsEmptyString(): void
-    {
-        $rate = new CurrentRate($this->rub, $this->usd, '', $this->date);
-
-        $this->assertSame('', $rate->getValue());
-    }
+//    public function testValueFailsOnEmptyString(): void
+//    {
+//        $value = BigDecimal::of('');
+//        $rate = new CurrentRate($this->rub, $this->usd, $value, $this->date);
+//
+//        $this->assertSame($value->toString(), $rate->getValue()->toString());
+//    }
 }

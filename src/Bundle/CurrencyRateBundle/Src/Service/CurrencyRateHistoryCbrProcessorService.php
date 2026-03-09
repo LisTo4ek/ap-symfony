@@ -38,7 +38,7 @@ class CurrencyRateHistoryCbrProcessorService
                 static fn(RateContainer $rate) => new RateHistory(
                     $rate->baseCurrency,
                     $rate->targetCurrency,
-                    (string) $rate->rate,
+                    $rate->rate,
                     $rate->date
                 ),
                 $chunk

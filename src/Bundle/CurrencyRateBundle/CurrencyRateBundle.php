@@ -12,11 +12,6 @@ use function dirname;
 
 class CurrencyRateBundle extends Bundle
 {
-    public function getPath(): string
-    {
-        return dirname(__DIR__);
-    }
-
     public function getContainerExtension(): ?ExtensionInterface
     {
         return new CurrencyRateExtension();

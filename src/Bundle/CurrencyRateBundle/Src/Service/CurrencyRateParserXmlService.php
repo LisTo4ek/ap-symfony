@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Helper\NumberHelper;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Generator;
 use Money\Currency;
@@ -138,7 +139,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
     /**
      * @throws CurrencyRateProviderInvalidRateDataException
      */
-    private function processRate(string $currencyCode, SimpleXMLElement $currencyNode): string
+    private function processRate(string $currencyCode, SimpleXMLElement $currencyNode): BigDecimal
     {
         if (!$currencyNode->VunitRate) {
             throw new CurrencyRateProviderInvalidRateDataException(

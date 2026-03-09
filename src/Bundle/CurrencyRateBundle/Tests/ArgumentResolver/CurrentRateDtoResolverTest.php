@@ -13,9 +13,12 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validation;
 
+use function iterator_to_array;
+
 class CurrentRateDtoResolverTest extends TestCase
 {
     private CurrentRateDtoResolver $resolver;
+
     protected function setUp(): void
     {
         $validator = Validation::createValidatorBuilder()
@@ -23,6 +26,7 @@ class CurrentRateDtoResolverTest extends TestCase
             ->getValidator();
         $this->resolver = new CurrentRateDtoResolver($validator, new PaginationConfigDefault());
     }
+
     public function testResolveYieldsCurrentRateContainer(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
@@ -35,6 +39,7 @@ class CurrentRateDtoResolverTest extends TestCase
         $this->assertSame(1, $results[0]->pagination->page);
         $this->assertSame(10, $results[0]->pagination->perPage);
     }
+
     public function testResolveUsesDefaultPageAndPerPage(): void
     {
         $request = new Request();
@@ -44,6 +49,7 @@ class CurrentRateDtoResolverTest extends TestCase
         $this->assertSame(1, $results[0]->pagination->page);
         $this->assertSame(10, $results[0]->pagination->perPage); // PaginationConfigDefault default
     }
+
     public function testResolveYieldsNothingForWrongType(): void
     {
         $request = new Request();
@@ -51,6 +57,7 @@ class CurrentRateDtoResolverTest extends TestCase
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertEmpty($results);
     }
+
     public function testResolveThrowsBadRequestForInvalidCurrencyCode(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
@@ -59,6 +66,7 @@ class CurrentRateDtoResolverTest extends TestCase
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
+
     public function testResolveThrowsBadRequestForEmptyCurrencyCode(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);

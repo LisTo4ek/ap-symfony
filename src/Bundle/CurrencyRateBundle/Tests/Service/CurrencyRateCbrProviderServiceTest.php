@@ -12,6 +12,7 @@ use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Exception;
 use Generator;
@@ -367,10 +368,10 @@ class CurrencyRateCbrProviderServiceTest extends TestCase
         $eur = new Currency(CurrencyEnum::EUR->value);
 
         $rates = [
-            new RateContainer($rub, $usd, '90.5', $date),
-            new RateContainer($usd, $rub, '0.01105', $date),
-            new RateContainer($rub, $eur, '97.2', $date),
-            new RateContainer($eur, $rub, '0.01029', $date),
+            new RateContainer($rub, $usd, BigDecimal::of('90.5'), $date),
+            new RateContainer($usd, $rub, BigDecimal::of('0.01105'), $date),
+            new RateContainer($rub, $eur, BigDecimal::of('97.2'), $date),
+            new RateContainer($eur, $rub, BigDecimal::of('0.01029'), $date),
         ];
 
         $this->rateProcessor->method('parse')->willReturn($this->createGeneratorFromRates($rates));

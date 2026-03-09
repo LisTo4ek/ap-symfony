@@ -91,6 +91,7 @@
         }
     },
     "require-dev": {
+        "brick/math": "^0.16.0",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^13.0",
         "squizlabs/php_codesniffer": "^4.0",

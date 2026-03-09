@@ -9,6 +9,7 @@ use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
+use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Generator;
 use Money\Currency;
@@ -43,8 +44,8 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     {
         $date = new DateTimeImmutable('yesterday');
         $rates = [
-            new RateContainer(new Currency('RUB'), new Currency('USD'), '75', $date),
-            new RateContainer(new Currency('RUB'), new Currency('EUR'), '85', $date),
+            new RateContainer(new Currency('RUB'), new Currency('USD'), BigDecimal::of('75'), $date),
+            new RateContainer(new Currency('RUB'), new Currency('EUR'), BigDecimal::of('85'), $date),
         ];
         $this->provider->method('getRates')->willReturn($this->generatorFromChunks([$rates]));
         $this->storage
@@ -57,11 +58,11 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     {
         $date = new DateTimeImmutable('yesterday');
         $chunk1 = [
-            new RateContainer(new Currency('RUB'), new Currency('USD'), '75', $date),
+            new RateContainer(new Currency('RUB'), new Currency('USD'), BigDecimal::of('75'), $date),
         ];
         $chunk2 = [
-            new RateContainer(new Currency('RUB'), new Currency('EUR'), '85', $date),
-            new RateContainer(new Currency('RUB'), new Currency('GBP'), '92', $date),
+            new RateContainer(new Currency('RUB'), new Currency('EUR'), BigDecimal::of('85'), $date),
+            new RateContainer(new Currency('RUB'), new Currency('GBP'), BigDecimal::of('92'), $date),
         ];
         $this->provider->method('getRates')->willReturn($this->generatorFromChunks([$chunk1, $chunk2]));
         $count = $this->service->process($date);
@@ -71,7 +72,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     {
         $today = new DateTimeImmutable('today');
         $rates = [
-            new RateContainer(new Currency('RUB'), new Currency('USD'), '75', $today),
+            new RateContainer(new Currency('RUB'), new Currency('USD'), BigDecimal::of('75'), $today),
         ];
         $this->provider->method('getRates')->willReturn($this->generatorFromChunks([$rates]));
         $this->dispatcher
@@ -84,7 +85,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     {
         $yesterday = new DateTimeImmutable('yesterday');
         $rates = [
-            new RateContainer(new Currency('RUB'), new Currency('USD'), '75', $yesterday),
+            new RateContainer(new Currency('RUB'), new Currency('USD'), BigDecimal::of('75'), $yesterday),
         ];
         $this->provider->method('getRates')->willReturn($this->generatorFromChunks([$rates]));
         $this->dispatcher->expects($this->never())->method('dispatch');
@@ -93,8 +94,8 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     public function testProcessHandlesMultipleChunks(): void
     {
         $date = new DateTimeImmutable('yesterday');
-        $chunk1 = [new RateContainer(new Currency('RUB'), new Currency('USD'), '75', $date)];
-        $chunk2 = [new RateContainer(new Currency('RUB'), new Currency('EUR'), '85', $date)];
+        $chunk1 = [new RateContainer(new Currency('RUB'), new Currency('USD'), BigDecimal::of('75'), $date)];
+        $chunk2 = [new RateContainer(new Currency('RUB'), new Currency('EUR'), BigDecimal::of('85'), $date)];
         $this->provider->method('getRates')->willReturn($this->generatorFromChunks([$chunk1, $chunk2]));
         $this->storage->expects($this->exactly(2))->method('saveBatch');
         $count = $this->service->process($date);

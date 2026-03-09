@@ -22,6 +22,7 @@ class CurrentRateContainerTest extends TestCase
         $this->assertSame(2, $dto->pagination->page);
         $this->assertSame(25, $dto->pagination->perPage);
     }
+
     public function testDefaultBaseCurrencyIsRUB(): void
     {
         $dto = new CurrentRateContainer(
@@ -29,6 +30,7 @@ class CurrentRateContainerTest extends TestCase
         );
         $this->assertSame(CurrencyEnum::RUB->value, $dto->baseCurrencyCode);
     }
+
     public function testPaginationObjectIsShared(): void
     {
         $pagination = new PaginationContainer(page: 1, perPage: 10);

@@ -22,6 +22,7 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         $pattern = 'currency_rate_provider.cbr_provider.%s';
         $container->setParameter(sprintf($pattern, 'api_url'), $config['cbr_provider']['api_url']);
         $container->setParameter(sprintf($pattern, 'timeout'), $config['cbr_provider']['timeout']);
+        $container->setParameter(sprintf($pattern, 'timeout'), $config['cbr_provider']['timeout']);
         $container->setParameter(
             sprintf($pattern, 'rate_precision'),
             $config['cbr_provider']['rate_precision'],
