@@ -38,7 +38,6 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
         string $content,
         string $baseCurrencyCode,
         array $monitoredCurrencies,
-        int $ratePrecision,
         DateTimeImmutable $date,
     ): Generator {
         $this->logger->debug('Processing XML response', [

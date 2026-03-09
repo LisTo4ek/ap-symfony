@@ -27,7 +27,7 @@ class CurrentCurrencyRateSyncListener implements EventSubscriberInterface
     public function onRateSaved(CurrencyRateSavedEvent $event): void
     {
         $rate = $event->getRate();
-        $today = new DateTimeImmutable();
+        $today = new DateTimeImmutable('today');
 
         if (!DateCompare::eq($rate->date, $today)) {
             return;

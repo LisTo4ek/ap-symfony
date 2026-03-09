@@ -16,7 +16,7 @@ use DateTimeInterface;
  */
 interface CurrentRateDateCacheServiceInterface
 {
-    public function get(): ?DateTimeInterface;
+    public function get(bool $warmUp = false): ?DateTimeInterface;
     public function set(?DateTimeInterface $date, ?int $ttl = null): void;
     public function warmUp(): ?DateTimeInterface;
 }

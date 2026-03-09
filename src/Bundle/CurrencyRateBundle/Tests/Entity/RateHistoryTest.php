@@ -51,50 +51,6 @@ class RateHistoryTest extends TestCase
         $this->assertLessThanOrEqual($after->getTimestamp(), $history->getUpdatedAt()->getTimestamp());
     }
 
-    public function testSetBaseCurrencyReplacesCurrency(): void
-    {
-        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
-        $eur = new Currency('EUR');
-
-        $result = $history->setBaseCurrency($eur);
-
-        $this->assertSame('EUR', $history->getBaseCurrency()->getCode());
-        $this->assertSame($history, $result);
-    }
-
-    public function testSetTargetCurrencyReplacesCurrency(): void
-    {
-        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
-        $gbp = new Currency('GBP');
-
-        $result = $history->setTargetCurrency($gbp);
-
-        $this->assertSame('GBP', $history->getTargetCurrency()->getCode());
-        $this->assertSame($history, $result);
-    }
-
-    public function testSetValueReturnsSelf(): void
-    {
-        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
-
-        $value = BigDecimal::of('99.99');
-        $result = $history->setValue($value);
-
-        $this->assertTrue($value->isEqualTo($history->getValue()));
-        $this->assertSame($history, $result);
-    }
-
-    public function testSetDateReturnsSelf(): void
-    {
-        $history = new RateHistory($this->rub, $this->usd, BigDecimal::of('1'), $this->date);
-        $newDate = new DateTimeImmutable('2020-01-01');
-
-        $result = $history->setDate($newDate);
-
-        $this->assertSame('2020-01-01', $history->getDate()->format('Y-m-d'));
-        $this->assertSame($history, $result);
-    }
-
     public function testSameCurrencyPairIsAllowed(): void
     {
         $history = new RateHistory($this->rub, $this->rub, BigDecimal::of('1'), $this->date);

@@ -45,7 +45,7 @@ class CurrencyRateController extends AbstractController
         ]);
     }
 
-    #[Route('/rate-history/{baseCurrencyCode}/{targetCurrencyCode}/', name: 'app_rates_history')]
+    #[Route('/rate-history/{baseCurrencyCode}/{targetCurrencyCode}', name: 'app_rates_history')]
     public function rateHistory(#[ValueResolver(RateHistoryDtoResolver::class)] RateHistoryContainer $dto): Response
     {
         return $this->render('currency-rate/rate-history.html.twig', [

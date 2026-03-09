@@ -25,7 +25,6 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
-use function bcdiv;
 use function count;
 use function get_class;
 use function mb_strlen;

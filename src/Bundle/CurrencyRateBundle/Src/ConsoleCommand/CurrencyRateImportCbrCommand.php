@@ -44,24 +44,9 @@ class CurrencyRateImportCbrCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument(
-                'from',
-                InputArgument::OPTIONAL,
-                'Start date (Y-m-d)',
-                new DateTime()->format('Y-m-d')
-            )
-            ->addArgument(
-                'to',
-                InputArgument::OPTIONAL,
-                'End date (Y-m-d)',
-                new DateTime()->format('Y-m-d')
-            )
-            ->addOption(
-                'force',
-                'f',
-                InputOption::VALUE_NONE,
-                'Force re-import existing data'
-            );
+            ->addArgument('from', InputArgument::OPTIONAL, 'Start date (Y-m-d)')
+            ->addArgument('to', InputArgument::OPTIONAL, 'End date (Y-m-d)')
+            ->addOption('force', 'f', InputOption::VALUE_NONE);
     }
 
     /**
@@ -79,8 +64,10 @@ class CurrencyRateImportCbrCommand extends Command
         ]);
 
         try {
-            $fromArg = $input->getArgument('from');
-            $toArg = $input->getArgument('to');
+            $fromArg = $input->getArgument('from')
+                ?? new DateTime()->format('Y-m-d');
+            $toArg = $input->getArgument('to')
+                ?? new DateTime()->format('Y-m-d');
 
             if (!is_string($fromArg) || !is_string($toArg)) {
                 throw new DateMalformedStringException('Arguments must be strings');
@@ -131,7 +118,7 @@ class CurrencyRateImportCbrCommand extends Command
         $errors = [];
 
         foreach ($period as $date) {
-            $progressBar->setMessage('aaaa' . $date->format('Y-m-d'));
+            $progressBar->setMessage($date->format('Y-m-d'));
 
             try {
                 $successCount += $this->currencyRateHistoryProcessorService->process($date);

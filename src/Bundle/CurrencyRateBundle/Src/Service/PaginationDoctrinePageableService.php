@@ -59,7 +59,9 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
 
         $offset = ($page - 1) * $itemsPerPage;
 
-        $result = $this->queryBuilder
+        $qb = clone $this->queryBuilder;
+
+        $result = $qb
             ->setFirstResult($offset)
             ->setMaxResults($itemsPerPage)
             ->getQuery()

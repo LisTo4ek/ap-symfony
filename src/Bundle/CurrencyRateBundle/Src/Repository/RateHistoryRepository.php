@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Bundle\CurrencyRateBundle\Src\Repository;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;

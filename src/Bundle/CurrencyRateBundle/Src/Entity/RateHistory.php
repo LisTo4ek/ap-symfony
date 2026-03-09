@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Bundle\CurrencyRateBundle\Src\Entity;
 
 use App\Bundle\CurrencyRateBundle\Src\Repository\RateHistoryRepository;
@@ -32,7 +34,7 @@ class RateHistory
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private DateTimeInterface $date;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $updatedAt;
 
     public function __construct(
@@ -53,38 +55,14 @@ class RateHistory
         return $this->id;
     }
 
-    public function setBaseCurrency(Currency $baseCurrency): self
-    {
-        $this->baseCurrency = $baseCurrency;
-        return $this;
-    }
-
-    public function setTargetCurrency(Currency $targetCurrency): self
-    {
-        $this->targetCurrency = $targetCurrency;
-        return $this;
-    }
-
     public function getValue(): BigDecimal
     {
         return $this->value;
     }
 
-    public function setValue(BigDecimal $value): self
-    {
-        $this->value = $value;
-        return $this;
-    }
-
     public function getDate(): DateTimeInterface
     {
         return $this->date;
-    }
-
-    public function setDate(DateTimeInterface $date): self
-    {
-        $this->date = $date;
-        return $this;
     }
 
     public function getBaseCurrency(): Currency

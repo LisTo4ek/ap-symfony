@@ -20,7 +20,6 @@ interface CurrencyRateParserServiceInterface
         string $content,
         string $baseCurrencyCode,
         array $monitoredCurrencies,
-        int $ratePrecision,
         DateTimeImmutable $date,
     ): Generator;
 }
