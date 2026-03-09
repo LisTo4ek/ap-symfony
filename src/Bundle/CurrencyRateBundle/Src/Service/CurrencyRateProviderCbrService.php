@@ -45,7 +45,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         private readonly CurrencyRateParserServiceInterface $rateProcessor,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.api_url')]
         private readonly string $apiUrl,
-        #[Autowire(param: 'currency_rate_provider.cbr_provider.rate_precision')]
+        #[Autowire(param: 'currency_rate_provider.calculate_rate_precision')]
         private readonly int $ratePrecision,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.monitored_currencies')]
         private readonly array $monitoredCurrencies = [],

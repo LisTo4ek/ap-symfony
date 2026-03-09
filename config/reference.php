@@ -1687,10 +1687,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     remove_first_page_param?: bool|Param, // Default: false
  * }
  * @psalm-type CurrencyRateProviderConfig = array{
+ *     calculate_rate_precision: int|Param, // Number of decimal places for currency rates
+ *     display_rate_precision: int|Param, // Number of decimal places for currency rates
  *     cbr_provider?: array{
  *         api_url: scalar|Param|null,
  *         timeout: int|Param,
- *         rate_precision: int|Param, // Number of decimal places for currency rates
  *         base_currency: scalar|Param|null, // Base currency code (e.g., USD, EUR, RUB)
  *         monitored_currencies: list<scalar|Param|null>,
  *     },

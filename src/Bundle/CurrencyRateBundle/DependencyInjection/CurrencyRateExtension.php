@@ -19,18 +19,25 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
-        $pattern = 'currency_rate_provider.cbr_provider.%s';
-        $container->setParameter(sprintf($pattern, 'api_url'), $config['cbr_provider']['api_url']);
-        $container->setParameter(sprintf($pattern, 'timeout'), $config['cbr_provider']['timeout']);
-        $container->setParameter(sprintf($pattern, 'timeout'), $config['cbr_provider']['timeout']);
+
+        $pattern = 'currency_rate_provider.%s';
         $container->setParameter(
-            sprintf($pattern, 'rate_precision'),
-            $config['cbr_provider']['rate_precision'],
+            sprintf($pattern, 'calculate_rate_precision'),
+            $config['calculate_rate_precision'],
         );
-        $container->setParameter(sprintf($pattern, 'base_currency'), $config['cbr_provider']['base_currency']);
         $container->setParameter(
-            sprintf($pattern, 'monitored_currencies'),
-            $config['cbr_provider']['monitored_currencies'],
+            sprintf($pattern, 'display_rate_precision'),
+            $config['display_rate_precision'],
+        );
+
+        $sectionConfig = $config['cbr_provider'];
+        $cbrProviderPattern = 'currency_rate_provider.cbr_provider.%s';
+        $container->setParameter(sprintf($cbrProviderPattern, 'api_url'), $sectionConfig['api_url']);
+        $container->setParameter(sprintf($cbrProviderPattern, 'timeout'), $sectionConfig['timeout']);
+        $container->setParameter(sprintf($cbrProviderPattern, 'base_currency'), $sectionConfig['base_currency']);
+        $container->setParameter(
+            sprintf($cbrProviderPattern, 'monitored_currencies'),
+            $sectionConfig['monitored_currencies'],
         );
     }
 
@@ -90,6 +97,7 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
             'dbal' => [
                 'types' => [
                     'money_currency' => 'App\Bundle\CurrencyRateBundle\Src\Entity\MoneyCurrencyType',
+                    'big_decimal_string' => 'App\Bundle\CurrencyRateBundle\Src\Entity\BigDecimalStringType',
                 ],
             ],
         ];

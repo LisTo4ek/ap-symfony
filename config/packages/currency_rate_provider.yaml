@@ -1,9 +1,10 @@
 currency_rate_provider:
+    calculate_rate_precision: 32
+    display_rate_precision: 8
     cbr_provider:
         api_url: 'https://cbr.ru/scripts/XML_daily.asp'
         timeout: 30
         base_currency: RUB
-        rate_precision: 32
         monitored_currencies:
             - USD
             - EUR

@@ -26,6 +26,8 @@ class CurrencyRateController extends AbstractController
         private RateHistoryPaginatorService $rateHistoryPaginatorService,
         #[Autowire(service: PaginationConfigDefault::class)]
         private readonly PaginationConfigInterface $paginatorConfig,
+        #[Autowire(param: 'currency_rate_provider.display_rate_precision')]
+        private readonly int $displayRatePrecision,
     ) {
     }
 
@@ -35,6 +37,7 @@ class CurrencyRateController extends AbstractController
         [$latestDate, $pagination] = $this->currentRatesGetterService->get($this->paginatorConfig, $dto);
 
         return $this->render('currency-rate/current-rates.html.twig', [
+            'displayRatePrecision' => $this->displayRatePrecision,
             'baseCurrencyCode' => $dto->baseCurrencyCode,
             'pagination' => $pagination,
             'latestDate' => $latestDate?->format('Y-m-d'),
@@ -46,6 +49,7 @@ class CurrencyRateController extends AbstractController
     public function rateHistory(#[ValueResolver(RateHistoryDtoResolver::class)] RateHistoryContainer $dto): Response
     {
         return $this->render('currency-rate/rate-history.html.twig', [
+            'displayRatePrecision' => $this->displayRatePrecision,
             'pagination' => $this->rateHistoryPaginatorService->get($this->paginatorConfig, $dto),
             'baseCurrencyCode' => $dto->baseCurrencyCode,
             'targetCurrencyCode' => $dto->targetCurrencyCode,

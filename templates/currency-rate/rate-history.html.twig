@@ -5,6 +5,7 @@
 {# @var rate \App\Entity\RateHistory #}
 {# @var baseCurrencyCode string #}
 {# @var targetCurrencyCode string #}
+{# @var displayRatePrecision int #}
 
 {% block title %}Rate History{% endblock %}
 
@@ -24,7 +25,7 @@
                     {% for rate in pagination.getItems() %}
                         <tr>
                             <td>{{ rate.date|date('d.m.Y') }}</td>
-                            <td class="text-end">{{ (rate.value|number_format(10, '.', '')) }}</td>
+                            <td class="text-end">{{ (rate.value.toString()|number_format(displayRatePrecision, '.', '')) }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
