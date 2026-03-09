@@ -85,7 +85,6 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                     $content,
                     $this->baseCurrencyCode,
                     $this->monitoredCurrencies,
-                    $this->ratePrecision,
                     $date
                 ) as $rate
             ) {

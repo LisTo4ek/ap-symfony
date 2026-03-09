@@ -26,12 +26,6 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 ])]
 final class CurrentRateAdminController extends AbstractAdmin
 {
-    public function __construct(
-        private readonly CurrentRateStorageInterface $currentRateStorageContract,
-        private readonly CurrencyRateHistoryCbrProcessorService $currencyRateHistoryProcessorService,
-    ) {
-        parent::__construct();
-    }
     protected function configureDatagridFilters(DatagridMapper $filter): void
     {
         $filter
@@ -78,16 +72,5 @@ final class CurrentRateAdminController extends AbstractAdmin
                 'label' => 'Updated',
                 'format' => 'd.m.Y H:i:s'
             ]);
-    }
-
-    protected function configureQuery(ProxyQueryInterface $query,): ProxyQueryInterface
-    {
-        $today = new DateTimeImmutable('today');
-
-        if (!$this->currentRateStorageContract->hasRecordsByDay($today)) {
-            $this->currencyRateHistoryProcessorService->process($today);
-        }
-
-        return $query;
     }
 }
