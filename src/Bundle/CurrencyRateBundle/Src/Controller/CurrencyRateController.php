@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\Controller;
 
-use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\CurrentRateDtoResolver;
-use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\RateHistoryDtoResolver;
+use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\CurrentRateContainerResolver;
+use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\RateHistoryContainerResolver;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
@@ -32,13 +32,15 @@ class CurrencyRateController extends AbstractController
     }
 
     #[Route('/current-rates/{baseCurrencyCode}', name: 'app_current_rates')]
-    public function currentRates(#[ValueResolver(CurrentRateDtoResolver::class)] CurrentRateContainer $dto): Response
-    {
-        [$latestDate, $pagination] = $this->currentRatesGetterService->get($this->paginatorConfig, $dto);
+    public function currentRates(
+        #[ValueResolver(CurrentRateContainerResolver::class)]
+        CurrentRateContainer $container,
+    ): Response {
+        [$latestDate, $pagination] = $this->currentRatesGetterService->get($this->paginatorConfig, $container);
 
         return $this->render('currency-rate/current-rates.html.twig', [
             'displayRatePrecision' => $this->displayRatePrecision,
-            'baseCurrencyCode' => $dto->baseCurrencyCode,
+            'baseCurrencyCode' => $container->baseCurrencyCode,
             'pagination' => $pagination,
             'latestDate' => $latestDate?->format('Y-m-d'),
             'today' => new DateTimeImmutable('today')->format('Y-m-d'),
@@ -46,13 +48,15 @@ class CurrencyRateController extends AbstractController
     }
 
     #[Route('/rate-history/{baseCurrencyCode}/{targetCurrencyCode}', name: 'app_rates_history')]
-    public function rateHistory(#[ValueResolver(RateHistoryDtoResolver::class)] RateHistoryContainer $dto): Response
-    {
+    public function rateHistory(
+        #[ValueResolver(RateHistoryContainerResolver::class)]
+        RateHistoryContainer $container,
+    ): Response {
         return $this->render('currency-rate/rate-history.html.twig', [
             'displayRatePrecision' => $this->displayRatePrecision,
-            'pagination' => $this->rateHistoryPaginatorService->get($this->paginatorConfig, $dto),
-            'baseCurrencyCode' => $dto->baseCurrencyCode,
-            'targetCurrencyCode' => $dto->targetCurrencyCode,
+            'pagination' => $this->rateHistoryPaginatorService->get($this->paginatorConfig, $container),
+            'baseCurrencyCode' => $container->baseCurrencyCode,
+            'targetCurrencyCode' => $container->targetCurrencyCode,
         ]);
     }
 }

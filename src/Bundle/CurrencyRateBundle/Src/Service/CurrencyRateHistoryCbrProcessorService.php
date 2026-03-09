@@ -54,7 +54,8 @@ class CurrencyRateHistoryCbrProcessorService
                     continue;
                 }
 
-                // todo: n+1 problem, but we can live with it for now, because we are going process rates once per day I think
+                // todo: n+1 problem,
+                // todo: but we can live with it for now, because we are going process rates once per day I think
                 $this->eventDispatcher->dispatch(new CurrencyRateSavedEvent($rate));
             }
         }

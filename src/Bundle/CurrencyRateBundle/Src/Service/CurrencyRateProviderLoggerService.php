@@ -6,6 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use DateTime;
 use Psr\Log\LoggerInterface;
+use Stringable;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Throwable;
@@ -33,7 +34,6 @@ class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerSer
             'duration_ms' => $durationMs,
         ]);
     }
-
 
     /**
      * @param array<string, mixed> $config
@@ -80,7 +80,6 @@ class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerSer
         ]);
     }
 
-
     /**
      * Log a validation error
      *
@@ -103,73 +102,73 @@ class CurrencyRateProviderLoggerService implements CurrencyRateProviderLoggerSer
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function debug($message, array $context = []): void
+    public function debug(string|Stringable $message, array $context = []): void
     {
         $this->logger->debug($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function info($message, array $context = []): void
+    public function info(string|Stringable $message, array $context = []): void
     {
         $this->logger->info($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function notice($message, array $context = []): void
+    public function notice(string|Stringable $message, array $context = []): void
     {
         $this->logger->notice($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function warning($message, array $context = []): void
+    public function warning(string|Stringable $message, array $context = []): void
     {
         $this->logger->warning($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function error($message, array $context = []): void
+    public function error(string|Stringable $message, array $context = []): void
     {
         $this->logger->error($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function critical($message, array $context = []): void
+    public function critical(string|Stringable $message, array $context = []): void
     {
         $this->logger->critical($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function alert($message, array $context = []): void
+    public function alert(string|Stringable $message, array $context = []): void
     {
         $this->logger->alert($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function emergency($message, array $context = []): void
+    public function emergency(string|Stringable $message, array $context = []): void
     {
         $this->logger->emergency($message, $context);
     }
 
     /**
-     * @param array<string, mixed> $context
+     * @inheritDoc
      */
-    public function log($level, $message, array $context = []): void
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         $this->logger->log($level, $message, $context);
     }

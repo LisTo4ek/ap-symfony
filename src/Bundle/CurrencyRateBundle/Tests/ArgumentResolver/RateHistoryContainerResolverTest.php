@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\ArgumentResolver;
 
-use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\RateHistoryDtoResolver;
+use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\RateHistoryContainerResolver;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateHistoryContainer;
 use PHPUnit\Framework\TestCase;
@@ -15,16 +15,16 @@ use Symfony\Component\Validator\Validation;
 
 use function iterator_to_array;
 
-class RateHistoryDtoResolverTest extends TestCase
+class RateHistoryContainerResolverTest extends TestCase
 {
-    private RateHistoryDtoResolver $resolver;
+    private RateHistoryContainerResolver $resolver;
 
     protected function setUp(): void
     {
         $validator = Validation::createValidatorBuilder()
             ->enableAttributeMapping()
             ->getValidator();
-        $this->resolver = new RateHistoryDtoResolver($validator, new PaginationConfigDefault());
+        $this->resolver = new RateHistoryContainerResolver($validator, new PaginationConfigDefault());
     }
 
     public function testResolveYieldsRateHistoryContainer(): void
@@ -32,7 +32,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $request = new Request(query: ['page' => 2, 'perPage' => 25]);
         $request->attributes->set('baseCurrencyCode', 'RUB');
         $request->attributes->set('targetCurrencyCode', 'USD');
-        $metadata = new ArgumentMetadata('dto', RateHistoryContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertCount(1, $results);
         $this->assertInstanceOf(RateHistoryContainer::class, $results[0]);
@@ -45,7 +45,7 @@ class RateHistoryDtoResolverTest extends TestCase
     public function testResolveYieldsNothingForWrongType(): void
     {
         $request = new Request();
-        $metadata = new ArgumentMetadata('dto', 'stdClass', false, false, null);
+        $metadata = new ArgumentMetadata('container', 'stdClass', false, false, null);
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertEmpty($results);
     }
@@ -55,7 +55,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
         $request->attributes->set('baseCurrencyCode', 'RUB');
         $request->attributes->set('targetCurrencyCode', '');
-        $metadata = new ArgumentMetadata('dto', RateHistoryContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
@@ -65,7 +65,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
         $request->attributes->set('baseCurrencyCode', 'XXXXX'); // too long
         $request->attributes->set('targetCurrencyCode', 'USD');
-        $metadata = new ArgumentMetadata('dto', RateHistoryContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
@@ -85,7 +85,7 @@ class RateHistoryDtoResolverTest extends TestCase
         $request = new Request();
         $request->attributes->set('baseCurrencyCode', 'RUB');
         $request->attributes->set('targetCurrencyCode', 'EUR');
-        $metadata = new ArgumentMetadata('dto', RateHistoryContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertSame(1, $results[0]->pagination->page);
         $this->assertSame(10, $results[0]->pagination->perPage);

@@ -8,9 +8,10 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
+use function count;
 use function implode;
 
-abstract class AbstractDtoResolver implements ValueResolverInterface
+abstract class AbstractContainerResolver implements ValueResolverInterface
 {
     public function processErrors(ConstraintViolationListInterface $errors): void
     {

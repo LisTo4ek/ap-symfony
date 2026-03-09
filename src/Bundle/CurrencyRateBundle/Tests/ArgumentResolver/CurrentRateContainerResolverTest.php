@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\ArgumentResolver;
 
-use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\CurrentRateDtoResolver;
+use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\CurrentRateContainerResolver;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use PHPUnit\Framework\TestCase;
@@ -15,23 +15,23 @@ use Symfony\Component\Validator\Validation;
 
 use function iterator_to_array;
 
-class CurrentRateDtoResolverTest extends TestCase
+class CurrentRateContainerResolverTest extends TestCase
 {
-    private CurrentRateDtoResolver $resolver;
+    private CurrentRateContainerResolver $resolver;
 
     protected function setUp(): void
     {
         $validator = Validation::createValidatorBuilder()
             ->enableAttributeMapping()
             ->getValidator();
-        $this->resolver = new CurrentRateDtoResolver($validator, new PaginationConfigDefault());
+        $this->resolver = new CurrentRateContainerResolver($validator, new PaginationConfigDefault());
     }
 
     public function testResolveYieldsCurrentRateContainer(): void
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
         $request->attributes->set('baseCurrencyCode', 'RUB');
-        $metadata = new ArgumentMetadata('dto', CurrentRateContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', CurrentRateContainer::class, false, false, null);
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertCount(1, $results);
         $this->assertInstanceOf(CurrentRateContainer::class, $results[0]);
@@ -44,7 +44,7 @@ class CurrentRateDtoResolverTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set('baseCurrencyCode', 'USD');
-        $metadata = new ArgumentMetadata('dto', CurrentRateContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', CurrentRateContainer::class, false, false, null);
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertSame(1, $results[0]->pagination->page);
         $this->assertSame(10, $results[0]->pagination->perPage); // PaginationConfigDefault default
@@ -53,7 +53,7 @@ class CurrentRateDtoResolverTest extends TestCase
     public function testResolveYieldsNothingForWrongType(): void
     {
         $request = new Request();
-        $metadata = new ArgumentMetadata('dto', 'stdClass', false, false, null);
+        $metadata = new ArgumentMetadata('container', 'stdClass', false, false, null);
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
         $this->assertEmpty($results);
     }
@@ -62,7 +62,7 @@ class CurrentRateDtoResolverTest extends TestCase
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
         $request->attributes->set('baseCurrencyCode', 'XX'); // 2 chars, not valid ISO 4217
-        $metadata = new ArgumentMetadata('dto', CurrentRateContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', CurrentRateContainer::class, false, false, null);
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }
@@ -71,7 +71,7 @@ class CurrentRateDtoResolverTest extends TestCase
     {
         $request = new Request(query: ['page' => 1, 'perPage' => 10]);
         $request->attributes->set('baseCurrencyCode', '');
-        $metadata = new ArgumentMetadata('dto', CurrentRateContainer::class, false, false, null);
+        $metadata = new ArgumentMetadata('container', CurrentRateContainer::class, false, false, null);
         $this->expectException(BadRequestHttpException::class);
         iterator_to_array($this->resolver->resolve($request, $metadata));
     }

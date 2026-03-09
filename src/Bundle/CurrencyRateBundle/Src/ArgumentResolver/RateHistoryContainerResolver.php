@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class RateHistoryDtoResolver extends AbstractDtoResolver
+class RateHistoryContainerResolver extends AbstractContainerResolver
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
@@ -30,12 +30,12 @@ class RateHistoryDtoResolver extends AbstractDtoResolver
         }
 
         $dto = new RateHistoryContainer(
-            baseCurrencyCode: $request->attributes->getString('baseCurrencyCode'),
-            targetCurrencyCode: $request->attributes->getString('targetCurrencyCode'),
             pagination: new PaginationContainer(
                 $request->query->getInt('page', 1),
                 $request->query->getInt('perPage', $this->paginatorConfig->getPerPageDefault())
             ),
+            baseCurrencyCode: $request->attributes->getString('baseCurrencyCode'),
+            targetCurrencyCode: $request->attributes->getString('targetCurrencyCode'),
         );
 
         $errors = $this->validator->validate($dto);
