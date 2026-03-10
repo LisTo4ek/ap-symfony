@@ -8,7 +8,6 @@ use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Money\Currency;
-//use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CurrentRateTest extends TestCase
