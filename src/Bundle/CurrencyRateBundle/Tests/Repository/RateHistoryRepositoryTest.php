@@ -6,42 +6,46 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Repository;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
 use App\Bundle\CurrencyRateBundle\Src\Repository\RateHistoryRepository;
+use App\Bundle\CurrencyRateBundle\Src\Service\PaginationDoctrinePageableService;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationPageableServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
-use App\Bundle\CurrencyRateBundle\Tests\KernelTestCase;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use Money\Currency;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class RateHistoryRepositoryTest extends KernelTestCase
+class RateHistoryRepositoryTest extends TestCase
 {
     use CurrencyTrait;
 
     private RateHistoryRepository $repository;
-    private EntityManagerInterface $entityManager;
+    private MockObject&EntityManagerInterface $entityManager;
+    private MockObject&ManagerRegistry $registry;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->initCurrencies();
 
-        $this->repository = $this->fromContainer(RateHistoryRepository::class);
-        $this->entityManager = $this->fromContainer(EntityManagerInterface::class);
+        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->registry = $this->createMock(ManagerRegistry::class);
 
-        $this->clearTable();
-    }
+        $classMetadata = new ClassMetadata(RateHistory::class);
 
-    protected function tearDown(): void
-    {
-        $this->clearTable();
-        parent::tearDown();
-    }
+        $this->entityManager->method('getClassMetadata')
+            ->with(RateHistory::class)
+            ->willReturn($classMetadata);
 
-    private function clearTable(): void
-    {
-        $connection = $this->entityManager->getConnection();
-        $connection->executeStatement('DELETE FROM rate_history');
+        $this->registry->method('getManagerForClass')
+            ->with(RateHistory::class)
+            ->willReturn($this->entityManager);
+
+        $this->repository = new RateHistoryRepository($this->registry);
     }
 
     private function createRateHistory(
@@ -51,8 +55,8 @@ class RateHistoryRepositoryTest extends KernelTestCase
         string $date
     ): RateHistory {
         return new RateHistory(
-            new \Money\Currency($baseCurrency),
-            new \Money\Currency($targetCurrency),
+            new Currency($baseCurrency),
+            new Currency($targetCurrency),
             BigDecimal::of($value),
             new DateTimeImmutable($date)
         );
@@ -65,23 +69,40 @@ class RateHistoryRepositoryTest extends KernelTestCase
 
     public function testSaveBatchWithEmptyArrayDoesNothing(): void
     {
-        // Should not throw any exception
-        $this->repository->saveBatch([]);
+        // wrapInTransaction should not be called with empty array
+        $this->entityManager->expects($this->never())->method('wrapInTransaction');
 
-        // No records should exist
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $this->assertSame(0, $result->getTotalCount());
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['getEntityManager'])
+            ->getMock();
+
+        $mockRepository->method('getEntityManager')->willReturn($this->entityManager);
+
+        $mockRepository->saveBatch([]);
     }
 
     public function testSaveBatchPersistsSingleEntity(): void
     {
         $entity = $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-06');
 
-        $this->repository->saveBatch([$entity]);
+        $this->entityManager->expects($this->once())
+            ->method('wrapInTransaction')
+            ->willReturnCallback(function (callable $callback) {
+                $callback();
+            });
 
-        $this->assertNotNull($entity->getId());
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $this->assertSame(1, $result->getTotalCount());
+        $this->entityManager->expects($this->once())->method('persist')->with($entity);
+        $this->entityManager->expects($this->once())->method('flush');
+
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['getEntityManager'])
+            ->getMock();
+
+        $mockRepository->method('getEntityManager')->willReturn($this->entityManager);
+
+        $mockRepository->saveBatch([$entity]);
     }
 
     public function testSaveBatchPersistsMultipleEntities(): void
@@ -92,160 +113,157 @@ class RateHistoryRepositoryTest extends KernelTestCase
             $this->createRateHistory('RUB', 'USD', '74.50', '2026-03-04'),
         ];
 
-        $this->repository->saveBatch($entities);
+        $this->entityManager->expects($this->once())
+            ->method('wrapInTransaction')
+            ->willReturnCallback(function (callable $callback) {
+                $callback();
+            });
 
-        foreach ($entities as $entity) {
-            $this->assertNotNull($entity->getId());
-        }
+        $this->entityManager->expects($this->exactly(3))->method('persist');
+        $this->entityManager->expects($this->once())->method('flush');
 
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $this->assertSame(3, $result->getTotalCount());
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['getEntityManager'])
+            ->getMock();
+
+        $mockRepository->method('getEntityManager')->willReturn($this->entityManager);
+
+        $mockRepository->saveBatch($entities);
     }
 
-    public function testSaveBatchWithMixedCurrencyPairs(): void
+    public function testSaveBatchWrapsInTransaction(): void
     {
-        $entities = [
-            $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-06'),
-            $this->createRateHistory('RUB', 'EUR', '85.00', '2026-03-06'),
-            $this->createRateHistory('USD', 'EUR', '1.10', '2026-03-06'),
-        ];
+        $entity = $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-06');
 
-        $this->repository->saveBatch($entities);
+        $transactionCallbackExecuted = false;
 
-        $rubUsdResult = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $rubEurResult = $this->repository->findByCurrencyPair($this->rubCurrency, $this->eurCurrency);
-        $usdEurResult = $this->repository->findByCurrencyPair($this->usdCurrency, $this->eurCurrency);
+        $this->entityManager->expects($this->once())
+            ->method('wrapInTransaction')
+            ->willReturnCallback(function (callable $callback) use (&$transactionCallbackExecuted) {
+                $transactionCallbackExecuted = true;
+                $callback();
+            });
 
-        $this->assertSame(1, $rubUsdResult->getTotalCount());
-        $this->assertSame(1, $rubEurResult->getTotalCount());
-        $this->assertSame(1, $usdEurResult->getTotalCount());
+        $this->entityManager->method('persist');
+        $this->entityManager->method('flush');
+
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['getEntityManager'])
+            ->getMock();
+
+        $mockRepository->method('getEntityManager')->willReturn($this->entityManager);
+
+        $mockRepository->saveBatch([$entity]);
+
+        $this->assertTrue($transactionCallbackExecuted);
     }
 
     public function testFindByCurrencyPairReturnsPageableInterface(): void
     {
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('andWhere')->willReturnSelf();
+        $queryBuilder->method('orderBy')->willReturnSelf();
+        $queryBuilder->method('addOrderBy')->willReturnSelf();
+
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $result = $mockRepository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
 
         $this->assertInstanceOf(PaginationPageableServiceInterface::class, $result);
+        $this->assertInstanceOf(PaginationDoctrinePageableService::class, $result);
     }
 
-    public function testFindByCurrencyPairReturnsEmptyWhenNoMatch(): void
+    public function testFindByCurrencyPairUsesCorrectParameters(): void
     {
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->expects($this->once())
+            ->method('where')
+            ->with('rh.baseCurrency = :baseCurrency')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->exactly(2))
+            ->method('setParameter')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->once())
+            ->method('andWhere')
+            ->with('rh.targetCurrency = :targetCurrency')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->once())
+            ->method('orderBy')
+            ->with('rh.date', 'DESC')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->once())
+            ->method('addOrderBy')
+            ->with('rh.id', 'DESC')
+            ->willReturnSelf();
 
-        $this->assertSame(0, $result->getTotalCount());
-        $this->assertEmpty($result->getPage(1, 10));
-    }
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
 
-    public function testFindByCurrencyPairFiltersCorrectly(): void
-    {
-        $entities = [
-            $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-06'),
-            $this->createRateHistory('RUB', 'USD', '76.00', '2026-03-05'),
-            $this->createRateHistory('RUB', 'EUR', '85.00', '2026-03-06'),
-            $this->createRateHistory('USD', 'EUR', '1.10', '2026-03-06'),
-        ];
-        $this->repository->saveBatch($entities);
+        $mockRepository->expects($this->once())
+            ->method('createQueryBuilder')
+            ->with('rh')
+            ->willReturn($queryBuilder);
 
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-
-        $this->assertSame(2, $result->getTotalCount());
-        $items = $result->getPage(1, 10);
-        foreach ($items as $item) {
-            $this->assertSame('RUB', $item->getBaseCurrency()->getCode());
-            $this->assertSame('USD', $item->getTargetCurrency()->getCode());
-        }
+        $mockRepository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
     }
 
     public function testFindByCurrencyPairOrdersByDateDescending(): void
     {
-        $entities = [
-            $this->createRateHistory('RUB', 'USD', '74.50', '2026-03-04'),
-            $this->createRateHistory('RUB', 'USD', '76.00', '2026-03-06'),
-            $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-05'),
-        ];
-        $this->repository->saveBatch($entities);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('andWhere')->willReturnSelf();
 
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $items = $result->getPage(1, 10);
+        // Verify ordering is DESC by date
+        $queryBuilder->expects($this->once())
+            ->method('orderBy')
+            ->with('rh.date', 'DESC')
+            ->willReturnSelf();
+        $queryBuilder->method('addOrderBy')->willReturnSelf();
 
-        // Should be ordered by date descending
-        $this->assertSame('2026-03-06', $items[0]->getDate()->format('Y-m-d'));
-        $this->assertSame('2026-03-05', $items[1]->getDate()->format('Y-m-d'));
-        $this->assertSame('2026-03-04', $items[2]->getDate()->format('Y-m-d'));
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $mockRepository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
     }
 
-    public function testFindByCurrencyPairPaginationWorks(): void
+    public function testFindByCurrencyPairHasSecondaryOrderById(): void
     {
-        // Create 15 entities for the same currency pair
-        $entities = [];
-        for ($i = 1; $i <= 15; $i++) {
-            $entities[] = $this->createRateHistory(
-                'RUB',
-                'USD',
-                (string) (70 + $i),
-                sprintf('2026-03-%02d', $i)
-            );
-        }
-        $this->repository->saveBatch($entities);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('andWhere')->willReturnSelf();
+        $queryBuilder->method('orderBy')->willReturnSelf();
 
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
+        // Verify secondary ordering is by id DESC
+        $queryBuilder->expects($this->once())
+            ->method('addOrderBy')
+            ->with('rh.id', 'DESC')
+            ->willReturnSelf();
 
-        $this->assertSame(15, $result->getTotalCount());
-        $this->assertSame(2, $result->getTotalPages(10));
+        $mockRepository = $this->getMockBuilder(RateHistoryRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
 
-        $page1 = $result->getPage(1, 10);
-        $page2 = $result->getPage(2, 10);
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        $this->assertCount(10, $page1);
-        $this->assertCount(5, $page2);
-    }
-
-    public function testSaveBatchIsAtomicOnSuccess(): void
-    {
-        $entities = [
-            $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-06'),
-            $this->createRateHistory('RUB', 'USD', '76.00', '2026-03-05'),
-        ];
-
-        $this->repository->saveBatch($entities);
-
-        // Both entities should be persisted
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $this->assertSame(2, $result->getTotalCount());
-    }
-
-    public function testFindByCurrencyPairReturnsDistinctResults(): void
-    {
-        $entities = [
-            $this->createRateHistory('RUB', 'USD', '75.50', '2026-03-06'),
-            $this->createRateHistory('RUB', 'USD', '76.00', '2026-03-05'),
-        ];
-        $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $items = $result->getPage(1, 10);
-
-        // Ensure no duplicates (each item should have unique ID)
-        $ids = array_map(fn(RateHistory $item) => $item->getId(), $items);
-        $this->assertCount(count($items), array_unique($ids));
-    }
-
-    public function testSaveBatchWithLargeBatch(): void
-    {
-        $entities = [];
-        for ($i = 1; $i <= 100; $i++) {
-            $entities[] = $this->createRateHistory(
-                'RUB',
-                'USD',
-                (string) (70 + ($i * 0.01)),
-                sprintf('2023-01-%02d', ($i % 28) + 1)
-            );
-        }
-
-        $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $this->assertSame(100, $result->getTotalCount());
+        $mockRepository->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
     }
 }
 

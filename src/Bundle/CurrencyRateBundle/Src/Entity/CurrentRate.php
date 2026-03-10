@@ -22,10 +22,10 @@ class CurrentRate
     /** @phpstan-ignore-next-line property.unusedType */
     private ?int $id = null;
 
-    #[ORM\Column(name: 'base_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
+    #[ORM\Column(name: 'base_currency', type: MoneyCurrencyType::NAME, length: 3, options: ['fixed' => true])]
     private Currency $baseCurrency;
 
-    #[ORM\Column(name: 'target_currency', type: MoneyCurrencyType::NAME, options: ['fixed' => true])]
+    #[ORM\Column(name: 'target_currency', type: MoneyCurrencyType::NAME, length: 3, options: ['fixed' => true])]
     private Currency $targetCurrency;
 
     #[ORM\Column(type: BigDecimalStringType::NAME, length: 255)]

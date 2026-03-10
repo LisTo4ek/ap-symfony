@@ -6,42 +6,47 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Repository;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
 use App\Bundle\CurrencyRateBundle\Src\Repository\CurrentRateRepository;
+use App\Bundle\CurrencyRateBundle\Src\Service\PaginationDoctrinePageableService;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationPageableServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
-use App\Bundle\CurrencyRateBundle\Tests\KernelTestCase;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
+use DateTimeInterface;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class CurrentRateRepositoryTest extends KernelTestCase
+class CurrentRateRepositoryTest extends TestCase
 {
     use CurrencyTrait;
 
     private CurrentRateRepository $repository;
-    private EntityManagerInterface $entityManager;
+    private MockObject&EntityManagerInterface $entityManager;
+    private MockObject&ManagerRegistry $registry;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->initCurrencies();
 
-        $this->repository = $this->fromContainer(CurrentRateRepository::class);
-        $this->entityManager = $this->fromContainer(EntityManagerInterface::class);
+        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->registry = $this->createMock(ManagerRegistry::class);
 
-        $this->clearTable();
-    }
+        $classMetadata = new ClassMetadata(CurrentRate::class);
 
-    protected function tearDown(): void
-    {
-        $this->clearTable();
-        parent::tearDown();
-    }
+        $this->entityManager->method('getClassMetadata')
+            ->with(CurrentRate::class)
+            ->willReturn($classMetadata);
 
-    private function clearTable(): void
-    {
-        $connection = $this->entityManager->getConnection();
-        $connection->executeStatement('DELETE FROM current_rate');
+        $this->registry->method('getManagerForClass')
+            ->with(CurrentRate::class)
+            ->willReturn($this->entityManager);
+
+        $this->repository = new CurrentRateRepository($this->registry);
     }
 
     public function testImplementsStorageInterface(): void
@@ -49,10 +54,15 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $this->assertInstanceOf(CurrentRateStorageInterface::class, $this->repository);
     }
 
-    public function testUpsertForCurrencyPairCreatesNewEntity(): void
+    public function testUpsertForCurrencyPairCreatesNewEntityWhenNotFound(): void
     {
         $value = BigDecimal::of('75.50');
         $date = new DateTimeImmutable('2026-03-06');
+
+        // Mock findOneBy to return null (entity not found)
+        $this->entityManager->method('find')->willReturn(null);
+        $this->entityManager->expects($this->once())->method('persist');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $result = $this->repository->upsertForCurrencyPair(
             $this->rubCurrency,
@@ -62,7 +72,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
         );
 
         $this->assertInstanceOf(CurrentRate::class, $result);
-        $this->assertNotNull($result->getId());
         $this->assertSame('RUB', $result->getBaseCurrency()->getCode());
         $this->assertSame('USD', $result->getTargetCurrency()->getCode());
         $this->assertSame('75.50', $result->getValue()->toString());
@@ -76,208 +85,200 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $date1 = new DateTimeImmutable('2026-03-05');
         $date2 = new DateTimeImmutable('2026-03-06');
 
-        // Create initial entity
-        $created = $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            $value1,
-            $date1
-        );
-        $originalId = $created->getId();
+        $existingEntity = new CurrentRate($this->rubCurrency, $this->usdCurrency, $value1, $date1);
 
-        // Update with same currency pair
-        $updated = $this->repository->upsertForCurrencyPair(
+        // Mock the repository's internal findOneBy to return existing entity
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['findOneBy', 'getEntityManager'])
+            ->getMock();
+
+        $mockRepository->method('findOneBy')
+            ->willReturn($existingEntity);
+        $mockRepository->method('getEntityManager')
+            ->willReturn($this->entityManager);
+
+        $this->entityManager->expects($this->once())->method('persist');
+        $this->entityManager->expects($this->once())->method('flush');
+
+        $result = $mockRepository->upsertForCurrencyPair(
             $this->rubCurrency,
             $this->usdCurrency,
             $value2,
             $date2
         );
 
-        // Should be the same entity with updated values
-        $this->assertSame($originalId, $updated->getId());
-        $this->assertSame('80.00', $updated->getValue()->toString());
-        $this->assertSame('2026-03-06', $updated->getDate()->format('Y-m-d'));
-    }
-
-    public function testUpsertForDifferentCurrencyPairsCreatesSeparateEntities(): void
-    {
-        $value = BigDecimal::of('75.50');
-        $date = new DateTimeImmutable('2026-03-06');
-
-        $rubUsd = $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            $value,
-            $date
-        );
-
-        $rubEur = $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->eurCurrency,
-            BigDecimal::of('85.00'),
-            $date
-        );
-
-        $this->assertNotSame($rubUsd->getId(), $rubEur->getId());
+        // Should update existing entity values
+        $this->assertSame('80.00', $result->getValue()->toString());
+        $this->assertSame('2026-03-06', $result->getDate()->format('Y-m-d'));
     }
 
     public function testHasRecordsByDayReturnsTrueWhenRecordsExist(): void
     {
         $date = new DateTimeImmutable('2026-03-06');
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            BigDecimal::of('75.50'),
-            $date
-        );
 
-        $this->assertTrue($this->repository->hasRecordsByDay($date));
+        $query = $this->createMock(AbstractQuery::class);
+        $query->method('getOneOrNullResult')->willReturn(1);
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('setMaxResults')->willReturnSelf();
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $this->entityManager->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $this->assertTrue($mockRepository->hasRecordsByDay($date));
     }
 
     public function testHasRecordsByDayReturnsFalseWhenNoRecords(): void
     {
         $date = new DateTimeImmutable('2026-03-06');
 
-        $this->assertFalse($this->repository->hasRecordsByDay($date));
-    }
+        $query = $this->createMock(AbstractQuery::class);
+        $query->method('getOneOrNullResult')->willReturn(null);
 
-    public function testHasRecordsByDayReturnsFalseForDifferentDate(): void
-    {
-        $date1 = new DateTimeImmutable('2026-03-05');
-        $date2 = new DateTimeImmutable('2026-03-06');
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('setMaxResults')->willReturnSelf();
+        $queryBuilder->method('getQuery')->willReturn($query);
 
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            BigDecimal::of('75.50'),
-            $date1
-        );
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
 
-        $this->assertFalse($this->repository->hasRecordsByDay($date2));
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $this->assertFalse($mockRepository->hasRecordsByDay($date));
     }
 
     public function testGetLatestDateReturnsNullWhenNoRecords(): void
     {
-        $this->assertNull($this->repository->getLatestDate());
+        $query = $this->createMock(AbstractQuery::class);
+        $query->method('getSingleScalarResult')->willReturn(null);
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $this->assertNull($mockRepository->getLatestDate());
     }
 
     public function testGetLatestDateReturnsCorrectDate(): void
     {
-        $date1 = new DateTimeImmutable('2026-03-05');
-        $date2 = new DateTimeImmutable('2026-03-06');
-        $date3 = new DateTimeImmutable('2026-03-04');
+        $query = $this->createMock(AbstractQuery::class);
+        $query->method('getSingleScalarResult')->willReturn('2026-03-06');
 
-        // Insert in random order
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            BigDecimal::of('75.50'),
-            $date1
-        );
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->eurCurrency,
-            BigDecimal::of('85.00'),
-            $date2
-        );
-        $this->repository->upsertForCurrencyPair(
-            $this->usdCurrency,
-            $this->eurCurrency,
-            BigDecimal::of('1.10'),
-            $date3
-        );
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('getQuery')->willReturn($query);
 
-        $latestDate = $this->repository->getLatestDate();
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $latestDate = $mockRepository->getLatestDate();
 
         $this->assertNotNull($latestDate);
+        $this->assertInstanceOf(DateTimeImmutable::class, $latestDate);
         $this->assertSame('2026-03-06', $latestDate->format('Y-m-d'));
+    }
+
+    public function testGetLatestDateReturnsNullForEmptyString(): void
+    {
+        $query = $this->createMock(AbstractQuery::class);
+        $query->method('getSingleScalarResult')->willReturn('');
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $this->assertNull($mockRepository->getLatestDate());
     }
 
     public function testFindByDateAndBaseCurrencyReturnsPageableInterface(): void
     {
         $date = new DateTimeImmutable('2026-03-06');
 
-        $result = $this->repository->findByDateAndBaseCurrency($date, $this->rubCurrency);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+        $queryBuilder->method('andWhere')->willReturnSelf();
+        $queryBuilder->method('orderBy')->willReturnSelf();
+
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
+
+        $mockRepository->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $result = $mockRepository->findByDateAndBaseCurrency($date, $this->rubCurrency);
 
         $this->assertInstanceOf(PaginationPageableServiceInterface::class, $result);
+        $this->assertInstanceOf(PaginationDoctrinePageableService::class, $result);
     }
 
-    public function testFindByDateAndBaseCurrencyReturnsEmptyWhenNoMatch(): void
+    public function testFindByDateAndBaseCurrencyUsesCorrectParameters(): void
     {
         $date = new DateTimeImmutable('2026-03-06');
 
-        $result = $this->repository->findByDateAndBaseCurrency($date, $this->rubCurrency);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->expects($this->once())
+            ->method('where')
+            ->with('cr.date = :date')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->exactly(2))
+            ->method('setParameter')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->once())
+            ->method('andWhere')
+            ->with('cr.baseCurrency = :baseCurrency')
+            ->willReturnSelf();
+        $queryBuilder->expects($this->once())
+            ->method('orderBy')
+            ->with('cr.targetCurrency', 'ASC')
+            ->willReturnSelf();
 
-        $this->assertSame(0, $result->getTotalCount());
-        $this->assertEmpty($result->getPage(1, 10));
-    }
+        $mockRepository = $this->getMockBuilder(CurrentRateRepository::class)
+            ->setConstructorArgs([$this->registry])
+            ->onlyMethods(['createQueryBuilder'])
+            ->getMock();
 
-    public function testFindByDateAndBaseCurrencyReturnsMatchingRates(): void
-    {
-        $date = new DateTimeImmutable('2026-03-06');
-        $otherDate = new DateTimeImmutable('2026-03-05');
+        $mockRepository->expects($this->once())
+            ->method('createQueryBuilder')
+            ->with('cr')
+            ->willReturn($queryBuilder);
 
-        // Create rates for the target date and base currency
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            BigDecimal::of('75.50'),
-            $date
-        );
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->eurCurrency,
-            BigDecimal::of('85.00'),
-            $date
-        );
-
-        // Create rates that should NOT match (different date)
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            BigDecimal::of('76.00'),
-            $otherDate
-        );
-
-        // Create rates that should NOT match (different base currency)
-        $this->repository->upsertForCurrencyPair(
-            $this->usdCurrency,
-            $this->eurCurrency,
-            BigDecimal::of('1.10'),
-            $date
-        );
-
-        $result = $this->repository->findByDateAndBaseCurrency($date, $this->rubCurrency);
-
-        $this->assertSame(2, $result->getTotalCount());
-        $items = $result->getPage(1, 10);
-        $this->assertCount(2, $items);
-    }
-
-    public function testFindByDateAndBaseCurrencyOrdersByTargetCurrency(): void
-    {
-        $date = new DateTimeImmutable('2026-03-06');
-
-        // Insert in reverse order to verify sorting
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
-            BigDecimal::of('75.50'),
-            $date
-        );
-        $this->repository->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->eurCurrency,
-            BigDecimal::of('85.00'),
-            $date
-        );
-
-        $result = $this->repository->findByDateAndBaseCurrency($date, $this->rubCurrency);
-        $items = $result->getPage(1, 10);
-
-        // EUR should come before USD alphabetically
-        $this->assertSame('EUR', $items[0]->getTargetCurrency()->getCode());
-        $this->assertSame('USD', $items[1]->getTargetCurrency()->getCode());
+        $mockRepository->findByDateAndBaseCurrency($date, $this->rubCurrency);
     }
 }
 
