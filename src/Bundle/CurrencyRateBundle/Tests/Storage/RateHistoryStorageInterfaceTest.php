@@ -10,7 +10,6 @@ use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
-use Money\Currency;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,7 +22,6 @@ class RateHistoryStorageInterfaceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->initCurrencies();
     }
 
     public function testSaveBatchAcceptsEmptyArray(): void
@@ -40,8 +38,8 @@ class RateHistoryStorageInterfaceTest extends TestCase
     {
         $date = new DateTimeImmutable('2026-03-06');
         $entities = [
-            new RateHistory($this->rubCurrency, $this->usdCurrency, BigDecimal::of('75.50'), $date),
-            new RateHistory($this->rubCurrency, $this->eurCurrency, BigDecimal::of('85.00'), $date),
+            new RateHistory(self::getRub(), self::getUsd(), BigDecimal::of('75.50'), $date),
+            new RateHistory(self::getRub(), self::getEur(), BigDecimal::of('85.00'), $date),
         ];
 
         $storage = $this->createMock(RateHistoryStorageInterface::class);
@@ -58,10 +56,10 @@ class RateHistoryStorageInterfaceTest extends TestCase
 
         $storage = $this->createMock(RateHistoryStorageInterface::class);
         $storage->method('findByCurrencyPair')
-            ->with($this->rubCurrency, $this->usdCurrency)
+            ->with(self::getRub(), self::getUsd())
             ->willReturn($pageable);
 
-        $result = $storage->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
+        $result = $storage->findByCurrencyPair(self::getRub(), self::getUsd());
 
         $this->assertInstanceOf(PaginationPageableServiceInterface::class, $result);
     }
@@ -77,12 +75,12 @@ class RateHistoryStorageInterfaceTest extends TestCase
         $storage = $this->createMock(RateHistoryStorageInterface::class);
         $storage->method('findByCurrencyPair')
             ->willReturnMap([
-                [$this->rubCurrency, $this->usdCurrency, $rubUsdPageable],
-                [$this->rubCurrency, $this->eurCurrency, $rubEurPageable],
+                [self::getRub(), self::getUsd(), $rubUsdPageable],
+                [self::getRub(), self::getEur(), $rubEurPageable],
             ]);
 
-        $rubUsdResult = $storage->findByCurrencyPair($this->rubCurrency, $this->usdCurrency);
-        $rubEurResult = $storage->findByCurrencyPair($this->rubCurrency, $this->eurCurrency);
+        $rubUsdResult = $storage->findByCurrencyPair(self::getRub(), self::getUsd());
+        $rubEurResult = $storage->findByCurrencyPair(self::getRub(), self::getEur());
 
         $this->assertSame(10, $rubUsdResult->getTotalCount());
         $this->assertSame(5, $rubEurResult->getTotalCount());

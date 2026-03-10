@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Money\Currency;
@@ -16,6 +17,8 @@ use stdClass;
 
 class PaginationResultContainerTest extends TestCase
 {
+    use CurrencyTrait;
+
     private PaginationConfigDefault $config;
 
     protected function setUp(): void
@@ -73,8 +76,8 @@ class PaginationResultContainerTest extends TestCase
     public function testItemsReturnedAsIs(): void
     {
         $items = [
-            new CurrentRate(new Currency('RUB'), new Currency('USD'), BigDecimal::of('75'), new DateTimeImmutable()),
-            new CurrentRate(new Currency('RUB'), new Currency('EUR'), BigDecimal::of('85'), new DateTimeImmutable()),
+            new CurrentRate(self::getRub(), self::getUsd(), BigDecimal::of('75'), new DateTimeImmutable()),
+            new CurrentRate(self::getRub(), self::getEur(), BigDecimal::of('85'), new DateTimeImmutable()),
         ];
         $result = $this->make($items, 2, 1);
         $this->assertCount(2, $result->getItems());

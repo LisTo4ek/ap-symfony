@@ -9,12 +9,15 @@ use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
 {
+    use CurrencyTrait;
+
     /**
      * Test provider can be instantiated with dependencies
      */
@@ -30,8 +33,8 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
             $processor,
             'https://cbr.ru/scripts/XML_daily.asp',
             30,
-            ['USD', 'EUR'],
-            CurrencyEnum::RUB->value,
+            [self::getUsd()->getCode(), self::getEur()->getCode()],
+            self::getRub()->getCode(),
             14
         );
 
@@ -82,8 +85,8 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
             $processor,
             'https://cbr.ru/scripts/XML_daily.asp',
             30,
-            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
-            CurrencyEnum::RUB->value,
+            [self::getUsd()->getCode(), self::getEur()->getCode()],
+            self::getRub()->getCode(),
             14
         );
 

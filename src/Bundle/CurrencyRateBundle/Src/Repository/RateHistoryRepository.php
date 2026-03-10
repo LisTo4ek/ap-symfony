@@ -52,9 +52,9 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
     ): PaginationPageableServiceInterface {
         $queryBuilder = $this->createQueryBuilder('rh')
             ->where('rh.baseCurrency = :baseCurrency')
-            ->setParameter('baseCurrency', $baseCurrency)
+            ->setParameter('baseCurrency', $baseCurrency->getCode())
             ->andWhere('rh.targetCurrency = :targetCurrency')
-            ->setParameter('targetCurrency', $targetCurrency)
+            ->setParameter('targetCurrency', $targetCurrency->getCode())
             ->orderBy('rh.date', 'DESC')
             ->addOrderBy('rh.id', 'DESC');
 

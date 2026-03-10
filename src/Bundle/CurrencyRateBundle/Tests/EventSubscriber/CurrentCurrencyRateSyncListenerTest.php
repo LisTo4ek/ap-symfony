@@ -24,7 +24,6 @@ class CurrentCurrencyRateSyncListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->initCurrencies();
         $this->storage = $this->createMock(CurrentRateStorageInterface::class);
         $this->listener = new CurrentCurrencyRateSyncListener($this->storage);
     }
@@ -40,19 +39,19 @@ class CurrentCurrencyRateSyncListenerTest extends TestCase
     {
         $today = new DateTimeImmutable('today');
         $value = BigDecimal::of('75.50');
-        $rate = new RateContainer($this->rubCurrency, $this->usdCurrency, $value, $today);
+        $rate = new RateContainer(self::getRub(), self::getUsd(), $value, $today);
         $this->storage
             ->expects($this->once())
             ->method('upsertForCurrencyPair')
-            ->with($this->rubCurrency, $this->usdCurrency, $value, $today)
-            ->willReturn(new CurrentRate($this->rubCurrency, $this->usdCurrency, $value, $today));
+            ->with(self::getRub(), self::getUsd(), $value, $today)
+            ->willReturn(new CurrentRate(self::getRub(), self::getUsd(), $value, $today));
         $this->listener->onRateSaved(new CurrencyRateSavedEvent($rate));
     }
 
     public function testDoesNotUpsertWhenRateIsNotForToday(): void
     {
         $yesterday = new DateTimeImmutable('yesterday');
-        $rate = new RateContainer($this->rubCurrency, $this->usdCurrency, BigDecimal::of('75.50'), $yesterday);
+        $rate = new RateContainer(self::getRub(), self::getUsd(), BigDecimal::of('75.50'), $yesterday);
         $this->storage->expects($this->never())->method('upsertForCurrencyPair');
         $this->listener->onRateSaved(new CurrencyRateSavedEvent($rate));
     }
@@ -60,7 +59,7 @@ class CurrentCurrencyRateSyncListenerTest extends TestCase
     public function testDoesNotUpsertForFutureDates(): void
     {
         $tomorrow = new DateTimeImmutable('tomorrow');
-        $rate = new RateContainer($this->rubCurrency, $this->eurCurrency, BigDecimal::of('85'), $tomorrow);
+        $rate = new RateContainer(self::getRub(), self::getEur(), BigDecimal::of('85'), $tomorrow);
         $this->storage->expects($this->never())->method('upsertForCurrencyPair');
         $this->listener->onRateSaved(new CurrencyRateSavedEvent($rate));
     }
@@ -69,17 +68,17 @@ class CurrentCurrencyRateSyncListenerTest extends TestCase
     {
         $today = new DateTimeImmutable('today');
         $value = BigDecimal::of('0.0105');
-        $rate = new RateContainer($this->eurCurrency, $this->rubCurrency, $value, $today);
+        $rate = new RateContainer(self::getEur(), self::getRub(), $value, $today);
         $this->storage
             ->expects($this->once())
             ->method('upsertForCurrencyPair')
             ->with(
-                $this->callback(fn($c) => $c->getCode() === 'EUR'),
-                $this->callback(fn($c) => $c->getCode() === 'RUB'),
+                $this->callback(fn($c) => $c->getCode() === self::getEur()->getCode()),
+                $this->callback(fn($c) => $c->getCode() === self::getRub()->getCode()),
                 $value,
                 $today,
             )
-            ->willReturn(new CurrentRate($this->eurCurrency, $this->rubCurrency, $value, $today));
+            ->willReturn(new CurrentRate(self::getEur(), self::getRub(), $value, $today));
         $this->listener->onRateSaved(new CurrencyRateSavedEvent($rate));
     }
 }

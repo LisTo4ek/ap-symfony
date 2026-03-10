@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validation;
 
-class CurrentRateContainerResolverTest extends AbstractContainerResolverTest
+class CurrentRateContainerResolverTest extends AbstractContainerResolverTestCase
 {
     protected function getResolver(): ValueResolverInterface
     {
@@ -49,10 +49,10 @@ class CurrentRateContainerResolverTest extends AbstractContainerResolverTest
                 ],
                 'baseCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'USD',
+                    'value' => self::getUsd()->getCode(),
                     'expected' => [
                         'path' => 'baseCurrencyCode',
-                        'value' => 'USD',
+                        'value' => self::getUsd()->getCode(),
                     ],
                 ],
             ],
@@ -81,10 +81,10 @@ class CurrentRateContainerResolverTest extends AbstractContainerResolverTest
                 ],
                 'baseCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'USD',
+                    'value' => self::getUsd()->getCode(),
                     'expected' => [
                         'path' => 'baseCurrencyCode',
-                        'value' => 'USD',
+                        'value' => self::getUsd()->getCode(),
                     ],
                 ],
             ],

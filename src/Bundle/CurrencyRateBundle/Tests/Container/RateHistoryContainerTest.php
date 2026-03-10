@@ -7,20 +7,28 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Container;
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateHistoryContainer;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use PHPUnit\Framework\TestCase;
 
 class RateHistoryContainerTest extends TestCase
 {
+    use CurrencyTrait;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
     public function testConstructorSetsAllProperties(): void
     {
         $pagination = new PaginationContainer(page: 3, perPage: 50);
         $dto = new RateHistoryContainer(
             pagination: $pagination,
-            baseCurrencyCode: 'RUB',
-            targetCurrencyCode: 'EUR',
+            baseCurrencyCode: self::getRub()->getCode(),
+            targetCurrencyCode: self::getEur()->getCode(),
         );
-        $this->assertSame('RUB', $dto->baseCurrencyCode);
-        $this->assertSame('EUR', $dto->targetCurrencyCode);
+        $this->assertSame(self::getRub()->getCode(), $dto->baseCurrencyCode);
+        $this->assertSame(self::getEur()->getCode(), $dto->targetCurrencyCode);
         $this->assertSame(3, $dto->pagination->page);
     }
 

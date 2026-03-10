@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Entity;
 
 use App\Bundle\CurrencyRateBundle\Src\Entity\MoneyCurrencyType;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use InvalidArgumentException;
 use Money\Currency;
@@ -12,6 +13,8 @@ use PHPUnit\Framework\TestCase;
 
 class MoneyCurrencyTypeTest extends TestCase
 {
+    use CurrencyTrait;
+
     private MoneyCurrencyType $type;
     private AbstractPlatform $platform;
 
@@ -36,10 +39,10 @@ class MoneyCurrencyTypeTest extends TestCase
 
     public function testConvertToPHPValueReturnsCurrencyForString(): void
     {
-        $result = $this->type->convertToPHPValue('USD', $this->platform);
+        $result = $this->type->convertToPHPValue(self::getUsd()->getCode(), $this->platform);
 
         $this->assertInstanceOf(Currency::class, $result);
-        $this->assertSame('USD', $result->getCode());
+        $this->assertSame(self::getUsd()->getCode(), $result->getCode());
     }
 
     public function testConvertToPHPValueThrowsOnEmptyString(): void
@@ -65,16 +68,16 @@ class MoneyCurrencyTypeTest extends TestCase
 
     public function testConvertToDatabaseValueReturnsCodeForCurrency(): void
     {
-        $result = $this->type->convertToDatabaseValue(new Currency('EUR'), $this->platform);
+        $result = $this->type->convertToDatabaseValue(self::getEur(), $this->platform);
 
-        $this->assertSame('EUR', $result);
+        $this->assertSame(self::getEur()->getCode(), $result);
     }
 
     public function testConvertToDatabaseValuePassesThroughString(): void
     {
-        $result = $this->type->convertToDatabaseValue('GBP', $this->platform);
+        $result = $this->type->convertToDatabaseValue(self::getGbp()->getCode(), $this->platform);
 
-        $this->assertSame('GBP', $result);
+        $this->assertSame(self::getGbp()->getCode(), $result);
     }
 
     public function testConvertToDatabaseValueThrowsOnInvalidType(): void
@@ -86,11 +89,11 @@ class MoneyCurrencyTypeTest extends TestCase
 
     public function testRoundTripConversion(): void
     {
-        $original = new Currency('JPY');
+        $original = self::getJpy();
         $dbValue = $this->type->convertToDatabaseValue($original, $this->platform);
         $phpValue = $this->type->convertToPHPValue($dbValue, $this->platform);
 
         $this->assertInstanceOf(Currency::class, $phpValue);
-        $this->assertSame('JPY', $phpValue->getCode());
+        $this->assertSame($original->getCode(), $phpValue->getCode());
     }
 }

@@ -10,7 +10,6 @@ use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
-use Money\Currency;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,30 +22,30 @@ class CurrentRateStorageInterfaceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->initCurrencies();
+        parent::setUp();
     }
 
     public function testUpsertForCurrencyPairReturnsCurrentRateEntity(): void
     {
         $date = new DateTimeImmutable('2026-03-06');
         $value = BigDecimal::of('75.50');
-        $expectedRate = new CurrentRate($this->rubCurrency, $this->usdCurrency, $value, $date);
+        $expectedRate = new CurrentRate(self::getRub(), self::getUsd(), $value, $date);
 
         $storage = $this->createMock(CurrentRateStorageInterface::class);
         $storage->method('upsertForCurrencyPair')
-            ->with($this->rubCurrency, $this->usdCurrency, $value, $date)
+            ->with(self::getRub(), self::getUsd(), $value, $date)
             ->willReturn($expectedRate);
 
         $result = $storage->upsertForCurrencyPair(
-            $this->rubCurrency,
-            $this->usdCurrency,
+            self::getRub(),
+            self::getUsd(),
             $value,
             $date
         );
 
         $this->assertInstanceOf(CurrentRate::class, $result);
-        $this->assertSame('RUB', $result->getBaseCurrency()->getCode());
-        $this->assertSame('USD', $result->getTargetCurrency()->getCode());
+        $this->assertSame(self::getRub(), $result->getBaseCurrency());
+        $this->assertSame(self::getUsd(), $result->getTargetCurrency());
         $this->assertSame('75.50', $result->getValue()->toString());
     }
 
@@ -105,10 +104,10 @@ class CurrentRateStorageInterfaceTest extends TestCase
 
         $storage = $this->createMock(CurrentRateStorageInterface::class);
         $storage->method('findByDateAndBaseCurrency')
-            ->with($date, $this->rubCurrency)
+            ->with($date, self::getRub())
             ->willReturn($pageable);
 
-        $result = $storage->findByDateAndBaseCurrency($date, $this->rubCurrency);
+        $result = $storage->findByDateAndBaseCurrency($date, self::getRub());
 
         $this->assertInstanceOf(PaginationPageableServiceInterface::class, $result);
     }

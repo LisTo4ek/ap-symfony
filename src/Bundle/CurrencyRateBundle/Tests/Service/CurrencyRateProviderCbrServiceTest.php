@@ -12,6 +12,7 @@ use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Exception;
@@ -27,6 +28,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class CurrencyRateProviderCbrServiceTest extends TestCase
 {
+    use CurrencyTrait;
+
     private HttpClientInterface&MockObject $httpClient;
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserServiceInterface&MockObject $rateProcessor;
@@ -44,8 +47,8 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             $this->rateProcessor,
             'https://cbr.ru/scripts/XML_daily.asp',
             30,
-            ['USD', 'EUR'],
-            'RUB',
+            [self::getUsd()->getCode(), self::getEur()->getCode()],
+            self::getRub()->getCode(),
             4
         );
     }

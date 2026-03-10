@@ -5,17 +5,23 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Container;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
-use Money\Currency;
 use PHPUnit\Framework\TestCase;
 
 class RateContainerTest extends TestCase
 {
+    use CurrencyTrait;
+
+    protected function setUp(): void
+    {
+    }
+
     public function testPropertiesArePublicAndReadable(): void
     {
-        $base = new Currency('RUB');
-        $target = new Currency('USD');
+        $base = self::getRub();
+        $target = self::getUsd();
         $date = new DateTimeImmutable('2026-03-06');
         $value = BigDecimal::of('75.50');
         $c = new RateContainer($base, $target, $value, $date);
@@ -27,17 +33,17 @@ class RateContainerTest extends TestCase
 
     public function testSameCurrencyPairIsAllowed(): void
     {
-        $rub = new Currency('RUB');
-        $c = new RateContainer($rub, $rub, BigDecimal::of('1'), new DateTimeImmutable());
-        $this->assertSame('RUB', $c->baseCurrency->getCode());
-        $this->assertSame('RUB', $c->targetCurrency->getCode());
+        $rub = self::getRub();
+        $c = new RateContainer(self::getRub(), self::getRub(), BigDecimal::of('1'), new DateTimeImmutable());
+        $this->assertSame(self::getRub(), $c->baseCurrency);
+        $this->assertSame(self::getRub(), $c->targetCurrency);
     }
 
     public function testEmptyRateStringIsAllowed(): void
     {
         $c = new RateContainer(
-            new Currency('RUB'),
-            new Currency('USD'),
+            self::getRub(),
+            self::getUsd(),
             BigDecimal::of('0'),
             new DateTimeImmutable()
         );
@@ -48,8 +54,8 @@ class RateContainerTest extends TestCase
     {
         $value = BigDecimal::of('-0.5');
         $c = new RateContainer(
-            new Currency('RUB'),
-            new Currency('USD'),
+            self::getRub(),
+            self::getUsd(),
             $value,
             new DateTimeImmutable()
         );

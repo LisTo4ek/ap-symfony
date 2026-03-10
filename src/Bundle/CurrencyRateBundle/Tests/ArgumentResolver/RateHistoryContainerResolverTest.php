@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validation;
 
-class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
+class RateHistoryContainerResolverTest extends AbstractContainerResolverTestCase
 {
     protected function getResolver(): ValueResolverInterface
     {
@@ -49,18 +49,18 @@ class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
                 ],
                 'baseCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'RUB',
+                    'value' => self::getRub()->getCode(),
                     'expected' => [
                         'path' => 'baseCurrencyCode',
-                        'value' => 'RUB',
+                        'value' => self::getRub()->getCode(),
                     ],
                 ],
                 'targetCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'USD',
+                    'value' => self::getUsd()->getCode(),
                     'expected' => [
                         'path' => 'targetCurrencyCode',
-                        'value' => 'USD',
+                        'value' => self::getUsd()->getCode(),
                     ],
                 ],
             ],
@@ -89,18 +89,18 @@ class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
                 ],
                 'baseCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'RUB',
+                    'value' => self::getRub(),
                     'expected' => [
                         'path' => 'baseCurrencyCode',
-                        'value' => 'RUB',
+                        'value' => self::getRub()->getCode(),
                     ],
                 ],
                 'targetCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'USD',
+                    'value' => self::getUsd()->getCode(),
                     'expected' => [
                         'path' => 'targetCurrencyCode',
-                        'value' => 'USD',
+                        'value' => self::getUsd()->getCode(),
                     ],
                 ],
             ],
@@ -155,7 +155,7 @@ class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
                 ],
                 'targetCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'USD',
+                    'value' => self::getUsd()->getCode(),
                     'expected' => [],
                 ],
             ],
@@ -167,7 +167,7 @@ class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
             'params' => [
                 'baseCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'RUB',
+                    'value' => self::getRub()->getCode(),
                     'expected' => [],
                 ],
                 'targetCurrencyCode' => [
@@ -184,7 +184,7 @@ class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
             'params' => [
                 'baseCurrencyCode' => [
                     'type' => 'attr',
-                    'value' => 'RUB',
+                    'value' => self::getRub(),
                     'expected' => [],
                 ],
                 'targetCurrencyCode' => [

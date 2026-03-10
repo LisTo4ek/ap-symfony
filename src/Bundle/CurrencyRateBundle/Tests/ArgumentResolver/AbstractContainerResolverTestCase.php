@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\ArgumentResolver;
 
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -15,13 +16,16 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 use function iterator_to_array;
 
-abstract class AbstractContainerResolverTest extends TestCase
+abstract class AbstractContainerResolverTestCase extends TestCase
 {
+    use CurrencyTrait;
+
     protected ValueResolverInterface $resolver;
     protected PropertyAccessorInterface $propertyAccessor;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->resolver = $this->getResolver();
         $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
     }
@@ -94,3 +98,4 @@ abstract class AbstractContainerResolverTest extends TestCase
         }
     }
 }
+

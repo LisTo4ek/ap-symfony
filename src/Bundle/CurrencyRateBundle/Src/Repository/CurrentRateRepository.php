@@ -12,6 +12,7 @@ use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 use Money\Currency;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
@@ -34,8 +35,8 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     private function findByCurrencyPair(Currency $baseCurrency, Currency $targetCurrency): ?CurrentRate
     {
         return $this->findOneBy([
-            'baseCurrency' => $baseCurrency,
-            'targetCurrency' => $targetCurrency,
+            'baseCurrency' => $baseCurrency->getCode(),
+            'targetCurrency' => $targetCurrency->getCode(),
         ]);
     }
 
@@ -68,7 +69,7 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         return $this->createQueryBuilder('cr')
             ->select('1')
             ->where('cr.date = :date')
-            ->setParameter('date', $date)
+            ->setParameter('date', $date, Types::DATE_IMMUTABLE)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult() !== null;
@@ -98,9 +99,9 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     ): PaginationPageableServiceInterface {
         $queryBuilder = $this->createQueryBuilder('cr')
             ->where('cr.date = :date')
-            ->setParameter('date', $date)
+            ->setParameter('date', $date, Types::DATE_IMMUTABLE)
             ->andWhere('cr.baseCurrency = :baseCurrency')
-            ->setParameter('baseCurrency', $baseCurrency)
+            ->setParameter('baseCurrency', $baseCurrency->getCode())
             ->orderBy('cr.targetCurrency', 'ASC');
 
         /** @phpstan-ignore-next-line varTag.nativeType */

@@ -11,6 +11,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-libxml": "*",
+        "ext-pdo": "*",
         "ext-simplexml": "*",
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
@@ -78,7 +79,18 @@
         "lint": "phpcs",
         "lint:fix": "phpcbf",
         "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
-        "analyse:baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=512M"
+        "analyse:baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=512M",
+        "test:db:create": "php bin/console doctrine:database:create --env=test --if-not-exists",
+        "test:db:schema": "php bin/console doctrine:schema:update --force --env=test",
+        "test:db:reset": [
+            "php bin/console doctrine:database:drop --force --env=test --if-exists",
+            "php bin/console doctrine:database:create --env=test",
+            "php bin/console doctrine:schema:create --env=test"
+        ],
+        "test:db:setup": [
+            "@test:db:create",
+            "@test:db:schema"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"

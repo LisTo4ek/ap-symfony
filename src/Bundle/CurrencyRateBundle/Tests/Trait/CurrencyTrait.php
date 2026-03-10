@@ -9,14 +9,34 @@ use Money\Currency;
 
 trait CurrencyTrait
 {
-    protected Currency $rubCurrency;
-    protected Currency $usdCurrency;
-    protected Currency $eurCurrency;
+    protected static Currency $rubCurrency;
+    protected static Currency $usdCurrency;
+    protected static Currency $eurCurrency;
+    protected static Currency $gbpCurrency;
+    protected static Currency $jpyCurrency;
 
-    protected function initCurrencies(): void
+    public static function getEur(): Currency
     {
-        $this->rubCurrency = new Currency(CurrencyEnum::RUB->value);
-        $this->usdCurrency = new Currency(CurrencyEnum::USD->value);
-        $this->eurCurrency = new Currency(CurrencyEnum::EUR->value);
+        return self::$eurCurrency ??= new Currency(CurrencyEnum::EUR->value);
+    }
+
+    public static function getRub(): Currency
+    {
+        return self::$rubCurrency ??= new Currency(CurrencyEnum::RUB->value);
+    }
+
+    public static function getUsd(): Currency
+    {
+        return self::$usdCurrency ??= new Currency(CurrencyEnum::USD->value);
+    }
+
+    public static function getGbp(): Currency
+    {
+        return self::$gbpCurrency ??= new Currency(CurrencyEnum::GBP->value);
+    }
+
+    public static function getJpy(): Currency
+    {
+        return self::$jpyCurrency ??= new Currency(CurrencyEnum::JPY->value);
     }
 }

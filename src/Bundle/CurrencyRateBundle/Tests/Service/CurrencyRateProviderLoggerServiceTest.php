@@ -6,6 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerService;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,8 @@ use RuntimeException;
 
 class CurrencyRateProviderLoggerServiceTest extends TestCase
 {
+    use CurrencyTrait;
+
     private LoggerInterface&MockObject $psr3Logger;
     private CurrencyRateProviderLoggerService $logger;
 
@@ -68,7 +71,7 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
     {
         $date = new DateTime('2026-03-02 15:30:00');
         $context = [
-            'currency' => 'USD',
+            'currency' => self::getUsd()->getCode(),
             'rate' => '90.5',
             'timestamp' => $date->format('Y-m-d H:i:s'),
         ];
@@ -78,7 +81,7 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
             ->expects($this->once())
             ->method('info')
             ->with('Currency rate updated', [
-                'currency' => 'USD',
+                'currency' => self::getUsd()->getCode(),
                 'rate' => '90.5',
                 'timestamp' => $date->format('Y-m-d H:i:s'),
             ]);
@@ -129,7 +132,7 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
      */
     public function testLogValidationError(): void
     {
-        $errors = [CurrencyEnum::USD->value => 'Invalid currency code', 'EUR' => 'Not in monitored list'];
+        $errors = [CurrencyEnum::USD->value => 'Invalid currency code', self::getEur()->getCode() => 'Not in monitored list'];
 
         $this->psr3Logger
             ->expects($this->once())

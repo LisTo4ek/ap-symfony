@@ -8,27 +8,36 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrentRatesGetterService;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationPageableServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
+use App\Bundle\CurrencyRateBundle\Tests\KernelTestCase;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
-class CurrentRatesGetterServiceTest extends TestCase
+class CurrentRatesGetterServiceTest extends KernelTestCase
 {
+    use CurrencyTrait;
     private PaginationServiceInterface&MockObject $paginator;
     private CurrentRateStorageInterface&MockObject $storage;
     private CurrentRatesGetterService $service;
     private PaginationConfigDefault $config;
+
     protected function setUp(): void
     {
         $this->paginator = $this->createMock(PaginationServiceInterface::class);
         $this->storage = $this->createMock(CurrentRateStorageInterface::class);
-        $this->service = new CurrentRatesGetterService($this->paginator, $this->storage);
+        $this->service = new CurrentRatesGetterService(
+            $this->paginator,
+            $this->storage,
+            $this->fromContainer(CurrencyRateHistoryCbrProcessorService::class),
+        );
         $this->config = new PaginationConfigDefault();
     }
+
     public function testReturnsLatestDateAndNullPaginationWhenBaseCurrencyEmpty(): void
     {
         $latestDate = new DateTimeImmutable();
@@ -41,17 +50,19 @@ class CurrentRatesGetterServiceTest extends TestCase
         $this->assertSame($latestDate, $date);
         $this->assertNull($pagination);
     }
+
     public function testReturnsNullPaginationWhenNoLatestDate(): void
     {
         $this->storage->method('getLatestDate')->willReturn(null);
         $dto = new CurrentRateContainer(
             pagination: new PaginationContainer(1, 10),
-            baseCurrencyCode: 'RUB',
+            baseCurrencyCode: self::getRub()->getCode(),
         );
         [$date, $pagination] = $this->service->get($this->config, $dto);
         $this->assertNull($date);
         $this->assertNull($pagination);
     }
+
     public function testReturnsPaginatedResultWhenDateExists(): void
     {
         $latestDate = new DateTimeImmutable();
@@ -62,12 +73,13 @@ class CurrentRatesGetterServiceTest extends TestCase
         $this->paginator->method('paginate')->willReturn($paginationResult);
         $dto = new CurrentRateContainer(
             pagination: new PaginationContainer(2, 25),
-            baseCurrencyCode: 'RUB',
+            baseCurrencyCode: self::getRub()->getCode(),
         );
         [$date, $pagination] = $this->service->get($this->config, $dto);
         $this->assertSame($latestDate, $date);
         $this->assertSame($paginationResult, $pagination);
     }
+
     public function testPaginatorReceivesCorrectArguments(): void
     {
         $latestDate = new DateTimeImmutable();
@@ -81,10 +93,11 @@ class CurrentRatesGetterServiceTest extends TestCase
             ->willReturn($this->createMock(PaginationResultInterface::class));
         $dto = new CurrentRateContainer(
             pagination: new PaginationContainer(3, 25),
-            baseCurrencyCode: 'USD',
+            baseCurrencyCode: self::getUsd()->getCode(),
         );
         $this->service->get($this->config, $dto);
     }
+
     public function testStorageCalledWithCorrectCurrency(): void
     {
         $latestDate = new DateTimeImmutable();
@@ -94,14 +107,14 @@ class CurrentRatesGetterServiceTest extends TestCase
             ->method('findByDateAndBaseCurrency')
             ->with(
                 $latestDate,
-                $this->callback(fn($c) => $c->getCode() === 'EUR')
+                $this->callback(fn($c) => $c->getCode() === self::getEur()->getCode())
             )
             ->willReturn($this->createMock(PaginationPageableServiceInterface::class));
         $this->paginator->method('paginate')
             ->willReturn($this->createMock(PaginationResultInterface::class));
         $dto = new CurrentRateContainer(
             pagination: new PaginationContainer(1, 10),
-            baseCurrencyCode: 'EUR',
+            baseCurrencyCode: self::getEur()->getCode(),
         );
         $this->service->get($this->config, $dto);
     }
