@@ -7,87 +7,211 @@ namespace App\Bundle\CurrencyRateBundle\Tests\ArgumentResolver;
 use App\Bundle\CurrencyRateBundle\Src\ArgumentResolver\RateHistoryContainerResolver;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateHistoryContainer;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
+use Generator;
+use stdClass;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validation;
 
-use function iterator_to_array;
-
-class RateHistoryContainerResolverTest extends TestCase
+class RateHistoryContainerResolverTest extends AbstractContainerResolverTest
 {
-    private RateHistoryContainerResolver $resolver;
-
-    protected function setUp(): void
+    protected function getResolver(): ValueResolverInterface
     {
         $validator = Validation::createValidatorBuilder()
             ->enableAttributeMapping()
             ->getValidator();
-        $this->resolver = new RateHistoryContainerResolver($validator, new PaginationConfigDefault());
+        return new RateHistoryContainerResolver($validator, new PaginationConfigDefault());
     }
 
-    public function testResolveYieldsRateHistoryContainer(): void
+    /**
+     * @inheritDoc
+     */
+    public static function paramsProvider(): Generator
     {
-        $request = new Request(query: ['page' => 2, 'perPage' => 25]);
-        $request->attributes->set('baseCurrencyCode', 'RUB');
-        $request->attributes->set('targetCurrencyCode', 'USD');
-        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
-        $results = iterator_to_array($this->resolver->resolve($request, $metadata));
-        $this->assertCount(1, $results);
-        $this->assertInstanceOf(RateHistoryContainer::class, $results[0]);
-        $this->assertSame('RUB', $results[0]->baseCurrencyCode);
-        $this->assertSame('USD', $results[0]->targetCurrencyCode);
-        $this->assertSame(2, $results[0]->pagination->page);
-        $this->assertSame(25, $results[0]->pagination->perPage);
-    }
+        yield 'testResolveYieldsRateHistoryContainer' => [
+            'params' => [
+                'page' => [
+                    'type' => 'query',
+                    'value' => 2,
+                    'expected' => [
+                        'path' => 'pagination.page',
+                        'value' => 2,
+                    ],
+                ],
+                'perPage' => [
+                    'type' => 'query',
+                    'value' => 25,
+                    'expected' => [
+                        'path' => 'pagination.perPage',
+                        'value' => 25,
+                    ],
+                ],
+                'baseCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'RUB',
+                    'expected' => [
+                        'path' => 'baseCurrencyCode',
+                        'value' => 'RUB',
+                    ],
+                ],
+                'targetCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'USD',
+                    'expected' => [
+                        'path' => 'targetCurrencyCode',
+                        'value' => 'USD',
+                    ],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => null,
+            'resultCount' => 1,
+        ];
 
-    public function testResolveYieldsNothingForWrongType(): void
-    {
-        $request = new Request();
-        $metadata = new ArgumentMetadata('container', 'stdClass', false, false, null);
-        $results = iterator_to_array($this->resolver->resolve($request, $metadata));
-        $this->assertEmpty($results);
-    }
+        yield 'testResolveUsesDefaultPagination' => [
+            'params' => [
+                'page' => [
+                    'type' => 'query',
+                    'value' => null,
+                    'expected' => [
+                        'path' => 'pagination.page',
+                        'value' => 1,
+                    ],
+                ],
+                'perPage' => [
+                    'type' => 'query',
+                    'value' => null,
+                    'expected' => [
+                        'path' => 'pagination.perPage',
+                        'value' => 10,
+                    ],
+                ],
+                'baseCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'RUB',
+                    'expected' => [
+                        'path' => 'baseCurrencyCode',
+                        'value' => 'RUB',
+                    ],
+                ],
+                'targetCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'USD',
+                    'expected' => [
+                        'path' => 'targetCurrencyCode',
+                        'value' => 'USD',
+                    ],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => null,
+            'resultCount' => 1,
+        ];
 
-    public function testResolveThrowsBadRequestWhenTargetCurrencyMissing(): void
-    {
-        $request = new Request(query: ['page' => 1, 'perPage' => 10]);
-        $request->attributes->set('baseCurrencyCode', 'RUB');
-        $request->attributes->set('targetCurrencyCode', '');
-        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
-        $this->expectException(BadRequestHttpException::class);
-        iterator_to_array($this->resolver->resolve($request, $metadata));
-    }
+        yield 'testResolveInvalidPage' => [
+            'params' => [
+                'page' => [
+                    'type' => 'query',
+                    'value' => 'INVALID',
+                    'expected' => [
+                        'path' => 'pagination.page',
+                        'value' => 1,
+                    ],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => BadRequestException::class,
+        ];
 
-    public function testResolveThrowsBadRequestWhenBaseCurrencyInvalid(): void
-    {
-        $request = new Request(query: ['page' => 1, 'perPage' => 10]);
-        $request->attributes->set('baseCurrencyCode', 'XXXXX'); // too long
-        $request->attributes->set('targetCurrencyCode', 'USD');
-        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
-        $this->expectException(BadRequestHttpException::class);
-        iterator_to_array($this->resolver->resolve($request, $metadata));
-    }
+        yield 'testResolveEmptyPage' => [
+            'params' => [
+                'page' => [
+                    'type' => 'query',
+                    'value' => '',
+                    'expected' => [
+                        'path' => 'pagination.page',
+                        'value' => 1,
+                    ],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => BadRequestException::class,
+        ];
 
-    public function testResolveThrowsBadRequestWhenBothCurrenciesEmpty(): void
-    {
-        $request = new Request(query: ['page' => 1, 'perPage' => 10]);
-        $request->attributes->set('baseCurrencyCode', '');
-        $request->attributes->set('targetCurrencyCode', '');
-        $metadata = new ArgumentMetadata('dto', RateHistoryContainer::class, false, false, null);
-        $this->expectException(BadRequestHttpException::class);
-        iterator_to_array($this->resolver->resolve($request, $metadata));
-    }
+        yield 'testResolveYieldsNothingForWrongType' => [
+            'params' => null,
+            'metadataClass' => stdClass::class,
+            'exception' => null,
+            'resultCount' => 0,
+        ];
 
-    public function testResolveUsesDefaultPagination(): void
-    {
-        $request = new Request();
-        $request->attributes->set('baseCurrencyCode', 'RUB');
-        $request->attributes->set('targetCurrencyCode', 'EUR');
-        $metadata = new ArgumentMetadata('container', RateHistoryContainer::class, false, false, null);
-        $results = iterator_to_array($this->resolver->resolve($request, $metadata));
-        $this->assertSame(1, $results[0]->pagination->page);
-        $this->assertSame(10, $results[0]->pagination->perPage);
+        yield 'testResolveThrowsBadRequestWhenBaseCurrencyInvalid' => [
+            'params' => [
+                'baseCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'XX',
+                    'expected' => [],
+                ],
+                'targetCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'USD',
+                    'expected' => [],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => BadRequestHttpException::class,
+        ];
+
+        yield 'testResolveThrowsBadRequestWhenTargetCurrencyInvalid' => [
+            'params' => [
+                'baseCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'RUB',
+                    'expected' => [],
+                ],
+                'targetCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'XX',
+                    'expected' => [],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => BadRequestHttpException::class,
+        ];
+
+        yield 'testResolveThrowsBadRequestWhenTargetCurrencyMissing' => [
+            'params' => [
+                'baseCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => 'RUB',
+                    'expected' => [],
+                ],
+                'targetCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => '',
+                    'expected' => [],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => BadRequestHttpException::class,
+        ];
+
+        yield 'testResolveThrowsBadRequestWhenBothCurrenciesEmpty' => [
+            'params' => [
+                'baseCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => '',
+                    'expected' => [],
+                ],
+                'targetCurrencyCode' => [
+                    'type' => 'attr',
+                    'value' => '',
+                    'expected' => [],
+                ],
+            ],
+            'metadataClass' => RateHistoryContainer::class,
+            'exception' => BadRequestHttpException::class,
+        ];
     }
 }

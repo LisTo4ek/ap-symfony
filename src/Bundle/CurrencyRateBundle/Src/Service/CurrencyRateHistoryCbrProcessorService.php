@@ -48,14 +48,14 @@ class CurrencyRateHistoryCbrProcessorService
 
             $count += count($chunk);
 
+            // todo: n+1 problem,
+            // todo: but we can live with it for now, because we are going process rates once per day I think
             /** @var RateContainer $rate */
             foreach ($chunk as $rate) {
                 if (!DateCompare::eq($rate->date, $today)) {
                     continue;
                 }
 
-                // todo: n+1 problem,
-                // todo: but we can live with it for now, because we are going process rates once per day I think
                 $this->eventDispatcher->dispatch(new CurrencyRateSavedEvent($rate));
             }
         }

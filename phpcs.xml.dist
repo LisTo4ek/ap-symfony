@@ -12,6 +12,7 @@
     <!-- Directories to ignore -->
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/var/*</exclude-pattern>
+    <exclude-pattern>*/src/Bundle/CurrencyRateBundle/Migrations/*</exclude-pattern>
 
     <!-- Show progress -->
     <arg value="p"/>

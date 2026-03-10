@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
+use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Helper\NumberHelper;
@@ -32,6 +33,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
     /**
      * @param array<string> $monitoredCurrencies
      * @return Generator<int, RateContainer>
+     * @throws CurrencyRateProviderConfigurationException when empty monitored currencies
      * @throws CurrencyRateProviderInvalidRateDataException when XML processing fails
      */
     public function parse(
@@ -44,6 +46,10 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             'content_size' => mb_strlen($content),
             'date' => $date->format('Y-m-d'),
         ]);
+
+        if (empty($monitoredCurrencies)) {
+            throw new CurrencyRateProviderConfigurationException('Monitored currencies list is empty');
+        }
 
         if (empty($baseCurrencyCode)) {
             throw new CurrencyRateProviderInvalidRateDataException('Invalid base currency code');

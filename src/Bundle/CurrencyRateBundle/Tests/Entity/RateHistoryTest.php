@@ -30,7 +30,7 @@ class RateHistoryTest extends TestCase
 
         $this->assertSame('RUB', $history->getBaseCurrency()->getCode());
         $this->assertSame('USD', $history->getTargetCurrency()->getCode());
-        $this->assertTrue($value->isEqualTo($history->getValue()));
+        $this->assertSame($value->toString(), $history->getValue()->toString());
         $this->assertSame('2026-03-06', $history->getDate()->format('Y-m-d'));
     }
 
@@ -64,6 +64,6 @@ class RateHistoryTest extends TestCase
         $value = BigDecimal::of('0.0000000123456789');
         $history = new RateHistory($this->rub, $this->usd, $value, $this->date);
 
-        $this->assertTrue($value->isEqualTo($history->getValue()));
+        $this->assertSame($value->toString(), $history->getValue()->toString());
     }
 }

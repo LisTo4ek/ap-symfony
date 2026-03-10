@@ -6,6 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
+use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
@@ -19,17 +20,14 @@ use function iterator_to_array;
 class CurrencyRateParserXmlServiceTest extends KernelTestCase
 {
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
-    private CurrencyRateParserXmlService $processor;
+    private CurrencyRateParserXmlService $parser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->logger = $this->createMock(CurrencyRateProviderLoggerServiceInterface::class);
-
-        $this->processor = new CurrencyRateParserXmlService(
-            $this->logger
-        );
+        $this->parser = new CurrencyRateParserXmlService($this->logger);
     }
 
     /**
@@ -39,17 +37,13 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
-
-        // Execute
-        $result = iterator_to_array($this->processor->parse(
+        $result = iterator_to_array($this->parser->parse(
             $xml,
             CurrencyEnum::RUB->value,
             [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
-            4,
             $date
         ));
 
-        // Assert rates are parsed
         $this->assertGreaterThan(0, count($result));
         $this->assertInstanceOf(RateContainer::class, $result[0]);
     }
@@ -62,18 +56,14 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
 
+        $this->expectException(CurrencyRateProviderConfigurationException::class);
 
-        // Execute with empty currencies list
-        $result = iterator_to_array($this->processor->parse(
+        iterator_to_array($this->parser->parse(
             $xml,
             CurrencyEnum::RUB->value,
             [], // No monitored currencies
-            4,
             $date
         ));
-
-        // Assert no rates returned
-        $this->assertEmpty($result);
     }
 
     /**
@@ -86,12 +76,10 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
 
         $this->expectException(CurrencyRateProviderInvalidRateDataException::class);
 
-        // Execute
-        iterator_to_array($this->processor->parse(
+        iterator_to_array($this->parser->parse(
             $invalidXml,
             CurrencyEnum::RUB->value,
             [CurrencyEnum::USD->value],
-            4,
             $date
         ));
     }
@@ -104,15 +92,12 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $malformedXml = '<?xml version="1.0"?><root></root>';
 
-
         $this->expectException(CurrencyRateProviderInvalidRateDataException::class);
 
-        // Execute
-        iterator_to_array($this->processor->parse(
+        iterator_to_array($this->parser->parse(
             $malformedXml,
             CurrencyEnum::RUB->value,
             [CurrencyEnum::USD->value],
-            4,
             $date
         ));
     }
@@ -132,11 +117,10 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
             ->method('debug');
 
         // Execute
-        iterator_to_array($this->processor->parse(
+        iterator_to_array($this->parser->parse(
             $xml,
             CurrencyEnum::RUB->value,
             [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
-            4,
             $date
         ));
     }
@@ -149,21 +133,18 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
 
-
         // Execute with different precision values
-        $result2Precision = iterator_to_array($this->processor->parse(
+        $result2Precision = iterator_to_array($this->parser->parse(
             $xml,
             CurrencyEnum::RUB->value,
             [CurrencyEnum::USD->value],
-            2,
             $date
         ));
 
-        $result4Precision = iterator_to_array($this->processor->parse(
+        $result4Precision = iterator_to_array($this->parser->parse(
             $xml,
             CurrencyEnum::RUB->value,
             [CurrencyEnum::USD->value],
-            4,
             $date
         ));
 

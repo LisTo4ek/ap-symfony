@@ -6,6 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Helper;
 
 use App\Bundle\CurrencyRateBundle\Src\Helper\NumberHelper;
 use Brick\Math\Exception\NumberFormatException;
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -18,9 +19,9 @@ class NumberHelperTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{string, string}>
+     * @return Generator<string, array{string, string}>
      */
-    public static function normalizeProvider(): \Generator
+    public static function normalizeProvider(): Generator
     {
         yield 'simple decimal' => ['1.5', '1.5'];
         yield 'comma separator' => ['1,5', '1.5'];

@@ -21,7 +21,7 @@ class RateContainerTest extends TestCase
         $c = new RateContainer($base, $target, $value, $date);
         $this->assertSame($base, $c->baseCurrency);
         $this->assertSame($target, $c->targetCurrency);
-        $this->assertTrue($c->rate->isEqualTo($value));
+        $this->assertSame($c->rate->toString(), $value->toString());
         $this->assertSame($date, $c->date);
     }
 
@@ -41,7 +41,7 @@ class RateContainerTest extends TestCase
             BigDecimal::of('0'),
             new DateTimeImmutable()
         );
-        $this->assertTrue($c->rate->isEqualTo(BigDecimal::of('0')));
+        $this->assertSame($c->rate->toString(), BigDecimal::of('0')->toString());
     }
 
     public function testNegativeRateIsAllowed(): void
@@ -53,6 +53,6 @@ class RateContainerTest extends TestCase
             $value,
             new DateTimeImmutable()
         );
-        $this->assertTrue($c->rate->isEqualTo($value));
+        $this->assertSame($c->rate->toString(), $value->toString());
     }
 }
