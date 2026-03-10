@@ -6,8 +6,6 @@ namespace App\Bundle\CurrencyRateBundle\Src\ArgumentResolver;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
-use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
-use Generator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
