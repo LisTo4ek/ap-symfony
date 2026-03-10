@@ -11,7 +11,10 @@ use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+use Throwable;
 
 use function array_map;
 use function count;
@@ -25,6 +28,8 @@ class CurrencyRateHistoryCbrProcessorService
         private readonly CurrencyRateProviderServiceInterface $provider,
         private readonly RateHistoryStorageInterface $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
+        #[Target('monolog.logger.currency_rate_bundle')]
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -32,32 +37,44 @@ class CurrencyRateHistoryCbrProcessorService
     {
         $today = new DateTimeImmutable('today');
         $count = 0;
-        /** @var array<RateContainer> $chunk */
-        foreach ($this->provider->getRates($date, self::CHUNK_SIZE) as $chunk) {
-            $historyEntities = array_map(
-                static fn(RateContainer $rate) => new RateHistory(
-                    $rate->baseCurrency,
-                    $rate->targetCurrency,
-                    $rate->rate,
-                    $rate->date
-                ),
-                $chunk
-            );
 
-            $this->rateHistoryStorage->saveBatch($historyEntities);
+        try {
+            /** @var array<RateContainer> $chunk */
+            foreach ($this->provider->getRates($date, self::CHUNK_SIZE) as $chunk) {
+                $historyEntities = array_map(
+                    static fn(RateContainer $rate) => new RateHistory(
+                        $rate->baseCurrency,
+                        $rate->targetCurrency,
+                        $rate->rate,
+                        $rate->date
+                    ),
+                    $chunk
+                );
 
-            $count += count($chunk);
+                $this->rateHistoryStorage->saveBatch($historyEntities);
 
-            // todo: n+1 problem,
-            // todo: but we can live with it for now, because we are going process rates once per day I think
-            /** @var RateContainer $rate */
-            foreach ($chunk as $rate) {
-                if (!DateCompare::eq($rate->date, $today)) {
-                    continue;
+                $count += count($chunk);
+
+                // todo: n+1 problem,
+                // todo: but we can live with it for now, because we are going process rates once per day I think
+                /** @var RateContainer $rate */
+                foreach ($chunk as $rate) {
+                    if (!DateCompare::eq($rate->date, $today)) {
+                        continue;
+                    }
+
+                    $this->eventDispatcher->dispatch(new CurrencyRateSavedEvent($rate));
                 }
-
-                $this->eventDispatcher->dispatch(new CurrencyRateSavedEvent($rate));
             }
+        } catch (Throwable $e) {
+            $this->logger->error('Failed to process rates', [
+                'date' => $date->format('Y-m-d'),
+                'error_message' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            throw $e;
         }
 
         return $count;

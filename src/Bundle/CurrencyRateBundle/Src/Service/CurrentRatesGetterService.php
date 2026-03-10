@@ -8,9 +8,12 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
+use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Money\Currency;
+use Throwable;
 
 class CurrentRatesGetterService
 {
@@ -20,6 +23,7 @@ class CurrentRatesGetterService
     public function __construct(
         private readonly PaginationServiceInterface $paginator,
         private readonly CurrentRateStorageInterface $currentRateStorage,
+        private readonly CurrencyRateHistoryCbrProcessorService $currencyRateHistoryProcessorService,
     ) {
     }
 
@@ -30,7 +34,17 @@ class CurrentRatesGetterService
         PaginationConfigInterface $paginatorConfig,
         CurrentRateContainer $dto,
     ): array {
+        $today = new DateTimeImmutable('today');
         $latestDate = $this->currentRateStorage->getLatestDate();
+
+        if (!$latestDate || !DateCompare::eq($today, $latestDate)) {
+            try {
+                $this->currencyRateHistoryProcessorService->process($today);
+                $latestDate = $this->currentRateStorage->getLatestDate();
+            } catch (Throwable) {
+                // do nothing
+            }
+        }
 
         if (empty($dto->baseCurrencyCode)) {
             return [$latestDate, null];
