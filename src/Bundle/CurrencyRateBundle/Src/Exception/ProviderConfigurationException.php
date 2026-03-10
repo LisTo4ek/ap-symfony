@@ -19,7 +19,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Exception;
  * - Invalid timeout values
  * - API returns unexpected response structure
  */
-class CurrencyRateProviderConfigurationException extends CurrencyRateProviderException
+class ProviderConfigurationException extends ProviderException
 {
     protected int $statusCode = 500;
 }

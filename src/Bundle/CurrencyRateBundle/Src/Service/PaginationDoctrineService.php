@@ -21,8 +21,17 @@ use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
 class PaginationDoctrineService implements PaginationServiceInterface
 {
     /**
-     * @param PaginationPageableServiceInterface<TItem> $pageable
-     * @return PaginationResultInterface<TItem>
+     * Paginates a pageable query, returning a result container with items and metadata.
+     *
+     * Clamps the page number to valid bounds (1 … totalPages).
+     * Fetches only the items for the requested page via the pageable abstraction.
+     *
+     * @param PaginationPageableServiceInterface<TItem> $pageable The query abstraction to paginate
+     * @param PaginationConfigInterface                 $config   Pagination configuration (per-page options, etc.)
+     * @param int                                       $perPage  Number of items per page
+     * @param int                                       $page     The requested page number (1-indexed, default 1)
+     *
+     * @return PaginationResultInterface<TItem> The paginated result with items, counts, and page info
      */
     public function paginate(
         PaginationPageableServiceInterface $pageable,

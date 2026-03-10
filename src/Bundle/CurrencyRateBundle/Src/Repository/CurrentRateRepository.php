@@ -18,11 +18,19 @@ use Money\Currency;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
+ * Doctrine repository for CurrentRate entities.
+ *
+ * Implements CurrentRateStorageInterface to provide persistence operations
+ * including upsert, date-based lookup, and paginated queries for current exchange rates.
+ *
  * @extends ServiceEntityRepository<CurrentRate>
  */
 #[AsAlias(CurrentRateStorageInterface::class)]
 class CurrentRateRepository extends ServiceEntityRepository implements CurrentRateStorageInterface
 {
+    /**
+     * @param ManagerRegistry $registry The Doctrine manager registry
+     */
     public function __construct(
         ManagerRegistry $registry,
     ) {
@@ -30,7 +38,12 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     }
 
     /**
-     * Find rate for a specific currency pair
+     * Finds a current rate record for a specific base/target currency pair.
+     *
+     * @param Currency $baseCurrency   The base currency to search for
+     * @param Currency $targetCurrency The target currency to search for
+     *
+     * @return CurrentRate|null The matching entity, or null if not found
      */
     private function findByCurrencyPair(Currency $baseCurrency, Currency $targetCurrency): ?CurrentRate
     {
@@ -41,7 +54,17 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     }
 
     /**
-     * Upsert (insert or update) rate for currency pair
+     * Inserts a new current rate or updates the existing one for the given currency pair.
+     *
+     * If a record already exists for the base/target pair, its value and date are updated.
+     * Otherwise, a new CurrentRate entity is created and persisted.
+     *
+     * @param Currency          $baseCurrency   The base (source) currency
+     * @param Currency          $targetCurrency The target (destination) currency
+     * @param BigDecimal        $value          The exchange rate value
+     * @param DateTimeInterface $date           The date the rate applies to
+     *
+     * @return CurrentRate The persisted (inserted or updated) entity
      */
     public function upsertForCurrencyPair(
         Currency $baseCurrency,
@@ -64,6 +87,13 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         return $entity;
     }
 
+    /**
+     * Checks whether any current rate records exist for the given date.
+     *
+     * @param DateTimeImmutable $date The date to check for records
+     *
+     * @return bool True if at least one record exists for the date
+     */
     public function hasRecordsByDay(DateTimeImmutable $date): bool
     {
         return $this->createQueryBuilder('cr')
@@ -75,6 +105,11 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
             ->getOneOrNullResult() !== null;
     }
 
+    /**
+     * Returns the most recent date for which current rate records exist.
+     *
+     * @return DateTimeImmutable|null The latest date, or null if no records exist
+     */
     public function getLatestDate(): ?DateTimeImmutable
     {
         $res = $this
@@ -91,7 +126,14 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
     }
 
     /**
-     * @return PaginationPageableServiceInterface<CurrentRate>
+     * Returns a pageable query for current rates filtered by date and base currency.
+     *
+     * Results are ordered by target currency ascending.
+     *
+     * @param DateTimeImmutable $date         The date to filter by
+     * @param Currency          $baseCurrency The base currency to filter by
+     *
+     * @return PaginationPageableServiceInterface<CurrentRate> Pageable query adapter for the results
      */
     public function findByDateAndBaseCurrency(
         DateTimeImmutable $date,

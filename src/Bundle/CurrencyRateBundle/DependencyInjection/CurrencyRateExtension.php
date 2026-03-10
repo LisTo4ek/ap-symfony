@@ -14,8 +14,25 @@ use function dirname;
 use function file_exists;
 use function sprintf;
 
+/**
+ * Dependency injection extension for the CurrencyRateBundle.
+ *
+ * Loads and processes the bundle configuration, registers container parameters,
+ * and prepends configuration for Monolog, Doctrine ORM mappings, custom DBAL types,
+ * and Doctrine Migrations paths.
+ */
 class CurrencyRateExtension extends Extension implements PrependExtensionInterface
 {
+    /**
+     * Loads the bundle configuration and registers container parameters.
+     *
+     * Processes the validated configuration tree and sets parameters for
+     * rate precision, CBR provider API URL, timeout, base currency,
+     * and monitored currencies.
+     *
+     * @param array<int, array<string, mixed>> $configs   Raw configuration arrays from various sources
+     * @param ContainerBuilder                 $container The service container builder
+     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
@@ -41,6 +58,15 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         );
     }
 
+    /**
+     * Prepends configuration for third-party bundles before the container is compiled.
+     *
+     * Registers Monolog logging channels, Doctrine ORM entity mappings,
+     * custom DBAL types (MoneyCurrencyType, BigDecimalStringType),
+     * and Doctrine Migrations namespace paths.
+     *
+     * @param ContainerBuilder $container The service container builder
+     */
     public function prepend(ContainerBuilder $container): void
     {
         $this->prependMonolog($container);
@@ -48,6 +74,16 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         $this->prependDoctrineMigrations($container);
     }
 
+    /**
+     * Prepends Monolog configuration from the bundle's Resources/config/monolog.yaml.
+     *
+     * Loads both the base monolog configuration and environment-specific
+     * configuration (e.g., when@dev, when@test) if present.
+     *
+     * @param ContainerBuilder $container The service container builder
+     *
+     * @throws RuntimeException If the monolog config file is missing or not an array
+     */
     private function prependMonolog(ContainerBuilder $container): void
     {
         $configPath = dirname(__DIR__) . '/Resources/config/monolog.yaml';
@@ -80,6 +116,14 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         }
     }
 
+    /**
+     * Prepends Doctrine ORM entity mappings and custom DBAL types.
+     *
+     * Registers the bundle's entity directory with attribute-based mapping
+     * and adds custom DBAL types for Money\Currency and Brick\Math\BigDecimal.
+     *
+     * @param ContainerBuilder $container The service container builder
+     */
     private function prependDoctrine(ContainerBuilder $container): void
     {
         /** @var array<string, mixed> $doctrineConfig */
@@ -105,6 +149,13 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         $container->prependExtensionConfig('doctrine', $doctrineConfig);
     }
 
+    /**
+     * Prepends Doctrine Migrations configuration with the bundle's migration namespace and path.
+     *
+     * Skips registration if the doctrine_migrations extension is not loaded.
+     *
+     * @param ContainerBuilder $container The service container builder
+     */
     private function prependDoctrineMigrations(ContainerBuilder $container): void
     {
         if (!$container->hasExtension('doctrine_migrations')) {
@@ -118,6 +169,11 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
         ]);
     }
 
+    /**
+     * Returns the extension alias used in configuration files.
+     *
+     * @return string The alias 'currency_rate_provider'
+     */
     public function getAlias(): string
     {
         return 'currency_rate_provider';

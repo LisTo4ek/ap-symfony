@@ -7,8 +7,27 @@ namespace App\Bundle\CurrencyRateBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Defines the configuration tree for the CurrencyRateBundle.
+ *
+ * Validates and structures bundle settings including rate precision,
+ * CBR provider API URL, timeout, base currency, and monitored currencies.
+ */
 class Configuration implements ConfigurationInterface
 {
+    /**
+     * Builds and returns the configuration tree for the 'currency_rate_provider' extension.
+     *
+     * Configuration keys:
+     * - calculate_rate_precision: non-negative int (0–38), decimal places for internal rate calculations
+     * - display_rate_precision: non-negative int (0–38), decimal places for displayed rates
+     * - cbr_provider.api_url: valid URL for the CBR API endpoint
+     * - cbr_provider.timeout: positive int, HTTP request timeout in seconds
+     * - cbr_provider.base_currency: 3-letter ISO 4217 currency code (e.g. RUB)
+     * - cbr_provider.monitored_currencies: non-empty list of 3-letter ISO 4217 currency codes
+     *
+     * @return TreeBuilder The configuration tree builder
+     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('currency_rate_provider');

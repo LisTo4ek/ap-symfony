@@ -14,18 +14,30 @@ use Money\Currency;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
+ * Doctrine repository for RateHistory entities.
+ *
+ * Implements RateHistoryStorageInterface to provide batch persistence
+ * and paginated currency-pair lookups for historical exchange rate data.
+ *
  * @extends ServiceEntityRepository<RateHistory>
  */
 #[AsAlias(RateHistoryStorageInterface::class)]
 class RateHistoryRepository extends ServiceEntityRepository implements RateHistoryStorageInterface
 {
+    /**
+     * @param ManagerRegistry $registry The Doctrine manager registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, RateHistory::class);
     }
 
     /**
-     * @param array<RateHistory> $entities
+     * Persists a batch of RateHistory entities within a single database transaction.
+     *
+     * Does nothing if the array is empty.
+     *
+     * @param array<RateHistory> $entities The rate history entities to persist
      */
     public function saveBatch(array $entities): void
     {
@@ -44,7 +56,14 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
     }
 
     /**
-     * @return PaginationPageableServiceInterface<RateHistory>
+     * Returns a pageable query for rate history records filtered by a currency pair.
+     *
+     * Results are ordered by date descending, then by ID descending.
+     *
+     * @param Currency $baseCurrency   The base currency to filter by
+     * @param Currency $targetCurrency The target currency to filter by
+     *
+     * @return PaginationPageableServiceInterface<RateHistory> Pageable query adapter for the results
      */
     public function findByCurrencyPair(
         Currency $baseCurrency,

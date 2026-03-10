@@ -14,6 +14,12 @@ use Sonata\DoctrineORMAdminBundle\Filter\DateFilter;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
+ * Sonata Admin controller for managing RateHistory entities.
+ *
+ * Provides admin CRUD views (list, show, edit, delete, datagrid filters, form) for the
+ * rate_history table, allowing administrators to inspect and manage historical exchange rates.
+ * Default sort is by date descending.
+ *
  * @extends AbstractAdmin<RateHistory>
  */
 #[AutoconfigureTag('sonata.admin', [
@@ -23,6 +29,13 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 ])]
 final class RateHistoryAdminController extends AbstractAdmin
 {
+    /**
+     * Configures the datagrid filters for the RateHistory list.
+     *
+     * Filters: date (DateFilter), baseCurrency, targetCurrency, value.
+     *
+     * @param DatagridMapper<RateHistory> $filter The datagrid filter mapper
+     */
     protected function configureDatagridFilters(DatagridMapper $filter): void
     {
         $filter
@@ -35,6 +48,13 @@ final class RateHistoryAdminController extends AbstractAdmin
             ->add('value', null, ['label' => 'Rate']);
     }
 
+    /**
+     * Configures the columns displayed in the RateHistory admin list view.
+     *
+     * Columns: date, baseCurrency, targetCurrency, value, and show/edit/delete actions.
+     *
+     * @param ListMapper<RateHistory> $list The list field mapper
+     */
     protected function configureListFields(ListMapper $list): void
     {
         $list
@@ -55,6 +75,13 @@ final class RateHistoryAdminController extends AbstractAdmin
             ]);
     }
 
+    /**
+     * Configures the form fields for creating/editing a RateHistory entity.
+     *
+     * Fields: date (single_text widget), baseCurrency, targetCurrency, value.
+     *
+     * @param FormMapper<RateHistory> $form The form field mapper
+     */
     protected function configureFormFields(FormMapper $form): void
     {
         $form
@@ -67,6 +94,13 @@ final class RateHistoryAdminController extends AbstractAdmin
             ->add('value', null, ['label' => 'Rate']);
     }
 
+    /**
+     * Configures the fields displayed on the RateHistory detail (show) page.
+     *
+     * Fields: id, date, baseCurrency, targetCurrency, value.
+     *
+     * @param ShowMapper<RateHistory> $show The show field mapper
+     */
     protected function configureShowFields(ShowMapper $show): void
     {
         $show
@@ -80,6 +114,11 @@ final class RateHistoryAdminController extends AbstractAdmin
             ->add('value', null, ['label' => 'Rate']);
     }
 
+    /**
+     * Sets the default sort order for the RateHistory list to date descending.
+     *
+     * @param array<string, string> $sortValues Sort configuration array (modified by reference)
+     */
     protected function configureDefaultSortValues(array &$sortValues): void
     {
         $sortValues['_sort_order'] = 'DESC';

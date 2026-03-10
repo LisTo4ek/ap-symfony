@@ -19,11 +19,26 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Handles HTTP requests for viewing current exchange rates and rate history.
+ *
+ * Provides two routes:
+ * - /current-rates/{baseCurrencyCode}: displays the latest rates for a base currency
+ * - /rate-history/{baseCurrencyCode}/{targetCurrencyCode}: displays paginated rate history for a currency pair
+ */
 class CurrencyRateController extends AbstractController
 {
+    /**
+     * @param CurrentRatesGetterService    $currentRatesGetter   Service that fetches (and optionally imports) current
+     *                                                           rates
+     * @param RateHistoryPaginatorService  $rateHistoryPaginator Service that paginates rate history records
+     * @param PaginationConfigInterface    $paginatorConfig      Default pagination configuration
+     *                                                           (per-page options, etc.)
+     * @param int                          $displayRatePrecision Number of decimal places to display for rates
+     */
     public function __construct(
-        private CurrentRatesGetterService $currentRatesGetterService,
-        private RateHistoryPaginatorService $rateHistoryPaginatorService,
+        private CurrentRatesGetterService $currentRatesGetter,
+        private RateHistoryPaginatorService $rateHistoryPaginator,
         #[Autowire(service: PaginationConfigDefault::class)]
         private readonly PaginationConfigInterface $paginatorConfig,
         #[Autowire(param: 'currency_rate_provider.display_rate_precision')]
@@ -31,12 +46,22 @@ class CurrencyRateController extends AbstractController
     ) {
     }
 
+    /**
+     * Displays the latest exchange rates for the given base currency.
+     *
+     * If today's rates are not yet stored, attempts to import them from CBR first.
+     * Renders a paginated list of current rates.
+     *
+     * @param CurrentRateContainer $container Validated request DTO with pagination and base currency
+     *
+     * @return Response The rendered current-rates template
+     */
     #[Route('/current-rates/{baseCurrencyCode}', name: 'app_current_rates')]
     public function currentRates(
         #[ValueResolver(CurrentRateContainerResolver::class)]
         CurrentRateContainer $container,
     ): Response {
-        [$latestDate, $pagination] = $this->currentRatesGetterService->get($this->paginatorConfig, $container);
+        [$latestDate, $pagination] = $this->currentRatesGetter->get($this->paginatorConfig, $container);
 
         return $this->render('currency-rate/current-rates.html.twig', [
             'displayRatePrecision' => $this->displayRatePrecision,
@@ -47,6 +72,13 @@ class CurrencyRateController extends AbstractController
         ]);
     }
 
+    /**
+     * Displays paginated exchange rate history for a specific currency pair.
+     *
+     * @param RateHistoryContainer $container Validated request DTO with pagination, base and target currency codes
+     *
+     * @return Response The rendered rate-history template
+     */
     #[Route('/rate-history/{baseCurrencyCode}/{targetCurrencyCode}', name: 'app_rates_history')]
     public function rateHistory(
         #[ValueResolver(RateHistoryContainerResolver::class)]
@@ -54,7 +86,7 @@ class CurrencyRateController extends AbstractController
     ): Response {
         return $this->render('currency-rate/rate-history.html.twig', [
             'displayRatePrecision' => $this->displayRatePrecision,
-            'pagination' => $this->rateHistoryPaginatorService->get($this->paginatorConfig, $container),
+            'pagination' => $this->rateHistoryPaginator->get($this->paginatorConfig, $container),
             'baseCurrencyCode' => $container->baseCurrencyCode,
             'targetCurrencyCode' => $container->targetCurrencyCode,
         ]);

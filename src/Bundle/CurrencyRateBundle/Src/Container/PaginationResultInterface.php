@@ -20,6 +20,9 @@ interface PaginationResultInterface
      */
     public function getCurrentPage(): int;
 
+    /**
+     * Get items per page count
+     */
     public function getPerPage(): int;
 
     /**

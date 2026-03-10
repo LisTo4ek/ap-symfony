@@ -17,13 +17,25 @@ use Doctrine\ORM\QueryBuilder;
  */
 class PaginationDoctrinePageableService implements PaginationPageableServiceInterface
 {
+    /** @var int|null Cached total item count to avoid repeated COUNT queries */
     private ?int $cachedTotalCount = null;
 
+    /**
+     * @param QueryBuilder $queryBuilder The Doctrine QueryBuilder representing the base query
+     */
     public function __construct(
         private readonly QueryBuilder $queryBuilder,
     ) {
     }
 
+    /**
+     * Returns the total number of items matching the query.
+     *
+     * The result is cached after the first call to avoid duplicate COUNT queries.
+     * Clones the QueryBuilder internally so the original is not mutated.
+     *
+     * @return int Total item count
+     */
     public function getTotalCount(): int
     {
         if ($this->cachedTotalCount !== null) {
@@ -45,7 +57,15 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
     }
 
     /**
-     * @return array<T>
+     * Fetches items for a specific page from the query.
+     *
+     * Clones the QueryBuilder to apply OFFSET/LIMIT without mutating the original.
+     * Clamps page to minimum 1 and itemsPerPage to minimum 10.
+     *
+     * @param int $page         The 1-indexed page number
+     * @param int $itemsPerPage Number of items to fetch per page
+     *
+     * @return array<T> The items for the requested page
      */
     public function getPage(int $page, int $itemsPerPage): array
     {
@@ -72,6 +92,15 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
         return $result;
     }
 
+    /**
+     * Calculates the total number of pages for the given items-per-page count.
+     *
+     * Clamps itemsPerPage to minimum 10 to prevent division by zero.
+     *
+     * @param int $itemsPerPage Number of items per page
+     *
+     * @return int Total page count (rounded up)
+     */
     public function getTotalPages(int $itemsPerPage): int
     {
         if ($itemsPerPage < 1) {

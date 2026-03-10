@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\Config;
 
+/**
+ * Enumeration of ISO 4217 currency codes.
+ *
+ * Backed by string values representing the 3-letter currency codes.
+ * Used throughout the bundle for type-safe currency references.
+ */
 enum CurrencyEnum: string
 {
     // ISO 4217 Currency Codes (Alphabetically ordered)

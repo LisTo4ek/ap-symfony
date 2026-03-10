@@ -8,15 +8,29 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Database migration that creates the current_rate and rate_history tables.
+ *
+ * Creates:
+ * - current_rate: stores the latest exchange rate per currency pair with indexes on date and currency pairs
+ * - rate_history: stores historical exchange rates with indexes on currency pair + date
  */
 final class Version20260310110555 extends AbstractMigration
 {
+    /**
+     * Returns a human-readable description of this migration.
+     *
+     * @return string The migration description
+     */
     public function getDescription(): string
     {
         return '';
     }
 
+    /**
+     * Executes the migration: creates current_rate and rate_history tables with indexes.
+     *
+     * @param Schema $schema The database schema object
+     */
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
@@ -29,6 +43,11 @@ final class Version20260310110555 extends AbstractMigration
         $this->addSql('CREATE INDEX idx_rate_history_date ON rate_history (date)');
     }
 
+    /**
+     * Reverts the migration: drops the current_rate and rate_history tables.
+     *
+     * @param Schema $schema The database schema object
+     */
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

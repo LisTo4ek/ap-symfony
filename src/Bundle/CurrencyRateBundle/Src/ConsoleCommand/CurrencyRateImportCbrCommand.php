@@ -27,20 +27,44 @@ use function count;
 use function iterator_count;
 use function sprintf;
 
+/**
+ * Console command that imports currency exchange rates from the Central Bank of Russia (CBR)
+ * for a specified date range.
+ *
+ * Usage: app:import:currency-rates:cbr [from] [to] [--force]
+ *
+ * Iterates day-by-day over the given range, fetching and persisting rates.
+ * Displays a progress bar and summary of successes/errors on completion.
+ */
 #[AsCommand(
     name: 'app:import:currency-rates:cbr',
     description: 'Import currency rates from CBR for a date range',
 )]
 class CurrencyRateImportCbrCommand extends Command
 {
+    /**
+     * @param CurrencyRateHistoryCbrProcessorService $processor Service that fetches and persists rates for a single
+     *                                                          date
+     * @param LoggerInterface                        $logger    Logger for the currency_rate_bundle channel
+     */
     public function __construct(
-        private readonly CurrencyRateHistoryCbrProcessorService $currencyRateHistoryProcessorService,
+        private readonly CurrencyRateHistoryCbrProcessorService $processor,
         #[Target('monolog.logger.currency_rate_bundle')]
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct();
     }
 
+    /**
+     * Configures the command arguments and options.
+     *
+     * Arguments:
+     * - from (optional): Start date in Y-m-d format (defaults to today)
+     * - to   (optional): End date in Y-m-d format (defaults to today)
+     *
+     * Options:
+     * - --force / -f: Reserved for forcing re-import (not yet implemented)
+     */
     protected function configure(): void
     {
         $this
@@ -50,6 +74,14 @@ class CurrencyRateImportCbrCommand extends Command
     }
 
     /**
+     * Executes the import command: parses date arguments, iterates over each day in the range,
+     * fetches rates via the processor service, and reports progress and errors.
+     *
+     * @param InputInterface  $input  The console input (arguments: from, to; option: force)
+     * @param OutputInterface $output The console output for progress bar and messages
+     *
+     * @return int Command::SUCCESS on full success, Command::FAILURE on date errors or any import errors
+     *
      * @throws DateMalformedStringException
      * @throws DateMalformedPeriodStringException
      */
@@ -121,7 +153,7 @@ class CurrencyRateImportCbrCommand extends Command
             $progressBar->setMessage($date->format('Y-m-d'));
 
             try {
-                $successCount += $this->currencyRateHistoryProcessorService->process($date);
+                $successCount += $this->processor->process($date);
             } catch (Throwable $e) {
                 $errorMessage = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
                 $errors[] = $errorMessage;

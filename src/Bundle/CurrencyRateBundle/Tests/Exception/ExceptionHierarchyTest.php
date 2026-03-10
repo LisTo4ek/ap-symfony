@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Exception;
 
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\InvalidRateDataException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -55,14 +55,14 @@ class ExceptionHierarchyTest extends TestCase
 
     public function testProviderExceptionExtendsBundleException(): void
     {
-        $e = new CurrencyRateProviderException('fail');
+        $e = new ProviderException('fail');
 
         $this->assertInstanceOf(CurrencyRateBundleException::class, $e);
     }
 
     public function testProviderExceptionStatusCode503(): void
     {
-        $e = new CurrencyRateProviderException('fail');
+        $e = new ProviderException('fail');
 
         $this->assertSame(503, $e->getStatusCode());
     }
@@ -71,15 +71,15 @@ class ExceptionHierarchyTest extends TestCase
 
     public function testConfigurationExceptionExtendsProviderException(): void
     {
-        $e = new CurrencyRateProviderConfigurationException('bad config');
+        $e = new ProviderConfigurationException('bad config');
 
-        $this->assertInstanceOf(CurrencyRateProviderException::class, $e);
+        $this->assertInstanceOf(ProviderException::class, $e);
         $this->assertInstanceOf(CurrencyRateBundleException::class, $e);
     }
 
     public function testConfigurationExceptionStatusCode500(): void
     {
-        $e = new CurrencyRateProviderConfigurationException('bad config');
+        $e = new ProviderConfigurationException('bad config');
 
         $this->assertSame(500, $e->getStatusCode());
     }
@@ -88,15 +88,15 @@ class ExceptionHierarchyTest extends TestCase
 
     public function testInvalidRateDataExceptionExtendsProviderException(): void
     {
-        $e = new CurrencyRateProviderInvalidRateDataException('bad data');
+        $e = new InvalidRateDataException('bad data');
 
-        $this->assertInstanceOf(CurrencyRateProviderException::class, $e);
+        $this->assertInstanceOf(ProviderException::class, $e);
         $this->assertInstanceOf(CurrencyRateBundleException::class, $e);
     }
 
     public function testInvalidRateDataExceptionStatusCode422(): void
     {
-        $e = new CurrencyRateProviderInvalidRateDataException('bad data');
+        $e = new InvalidRateDataException('bad data');
 
         $this->assertSame(422, $e->getStatusCode());
     }
@@ -107,8 +107,8 @@ class ExceptionHierarchyTest extends TestCase
     {
         $caught = false;
         try {
-            throw new CurrencyRateProviderConfigurationException('x');
-        } catch (CurrencyRateProviderException) {
+            throw new ProviderConfigurationException('x');
+        } catch (ProviderException) {
             $caught = true;
         }
         $this->assertTrue($caught);
@@ -117,9 +117,9 @@ class ExceptionHierarchyTest extends TestCase
     public function testCatchBundleExceptionCatchesAllDescendants(): void
     {
         $exceptions = [
-            new CurrencyRateProviderException('a'),
-            new CurrencyRateProviderConfigurationException('b'),
-            new CurrencyRateProviderInvalidRateDataException('c'),
+            new ProviderException('a'),
+            new ProviderConfigurationException('b'),
+            new InvalidRateDataException('c'),
         ];
 
         foreach ($exceptions as $exception) {

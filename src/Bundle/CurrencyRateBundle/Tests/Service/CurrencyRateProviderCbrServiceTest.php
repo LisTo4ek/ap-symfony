@@ -6,11 +6,11 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserServiceInterface;
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\ProviderLoggerServiceInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
@@ -30,14 +30,14 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     use CurrencyTrait;
 
     private HttpClientInterface&MockObject $httpClient;
-    private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
+    private ProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserServiceInterface&MockObject $rateProcessor;
     private CurrencyRateProviderCbrService $provider;
 
     protected function setUp(): void
     {
         $this->httpClient = $this->createMock(HttpClientInterface::class);
-        $this->logger = $this->createMock(CurrencyRateProviderLoggerServiceInterface::class);
+        $this->logger = $this->createMock(ProviderLoggerServiceInterface::class);
         $this->rateProcessor = $this->createMock(CurrencyRateParserServiceInterface::class);
 
         $this->provider = new CurrencyRateProviderCbrService(
@@ -135,7 +135,7 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             ->willThrowException($exception);
 
         // Assert exception is thrown
-        $this->expectException(CurrencyRateProviderConfigurationException::class);
+        $this->expectException(ProviderConfigurationException::class);
         $this->expectExceptionMessageMatches('/HTTP 404/');
 
         // Execute
@@ -189,7 +189,7 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             ->willThrowException($exception);
 
         // Assert exception is thrown
-        $this->expectException(CurrencyRateProviderConfigurationException::class);
+        $this->expectException(ProviderConfigurationException::class);
 
         // Execute
         iterator_to_array($this->provider->getRates($date));
@@ -242,7 +242,7 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             ->willThrowException($exception);
 
         // Assert ProviderException (retriable) is thrown
-        $this->expectException(CurrencyRateProviderException::class);
+        $this->expectException(ProviderException::class);
         $this->expectExceptionMessageMatches('/retriable/');
 
         // Execute
@@ -345,7 +345,7 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
 
         try {
             iterator_to_array($this->provider->getRates($date));
-        } catch (CurrencyRateProviderConfigurationException) {
+        } catch (ProviderConfigurationException) {
             // Expected
         }
     }

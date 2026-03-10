@@ -15,19 +15,28 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 interface PaginationPageableServiceInterface
 {
     /**
-     * Get the total count of items matching the query
+     * Get the total count of items matching the query.
+     *
+     * @return int Total number of matching items
      */
     public function getTotalCount(): int;
 
     /**
-     * Get items for a specific page
+     * Get items for a specific page.
      *
-     * @return array<T>
+     * @param int $page         The 1-indexed page number
+     * @param int $itemsPerPage Number of items to fetch per page
+     *
+     * @return array<T> The items for the requested page
      */
     public function getPage(int $page, int $itemsPerPage): array;
 
     /**
-     * Get total number of pages for the given items per page
+     * Get total number of pages for the given items per page.
+     *
+     * @param int $itemsPerPage Number of items per page
+     *
+     * @return int Total page count
      */
     public function getTotalPages(int $itemsPerPage): int;
 }

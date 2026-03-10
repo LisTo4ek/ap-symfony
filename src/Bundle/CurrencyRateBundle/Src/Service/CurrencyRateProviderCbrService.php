@@ -7,8 +7,8 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DurationCalculator;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
@@ -30,16 +30,30 @@ use function get_class;
 use function mb_strlen;
 use function str_contains;
 
+/**
+ * CBR (Central Bank of Russia) implementation of the currency rate provider.
+ *
+ * Fetches daily exchange rates from the CBR XML API, parses the response,
+ * computes inverse rates, and yields results in configurable-size chunks.
+ * Handles HTTP errors with detailed logging and appropriate exception types.
+ */
 #[AsAlias(CurrencyRateProviderServiceInterface::class)]
 class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInterface
 {
     /**
-     * @param array<string> $monitoredCurrencies
-     * @param non-negative-int $ratePrecision
+     * @param HttpClientInterface                $httpClient          Symfony HTTP client for API requests
+     * @param ProviderLoggerServiceInterface     $logger              Bundle-specific logger
+     * @param CurrencyRateParserServiceInterface $rateProcessor       XML parser that converts API response to
+     *                                                                RateContainers
+     * @param string                             $apiUrl              CBR API endpoint URL
+     * @param int                                $ratePrecision       Decimal precision for inverse rate calculations
+     * @param array<string>                      $monitoredCurrencies ISO 4217 currency codes to monitor
+     * @param string                             $baseCurrencyCode    ISO 4217 base currency code (default: RUB)
+     * @param int                                $timeout             HTTP request timeout in seconds
      */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly CurrencyRateProviderLoggerServiceInterface $logger,
+        private readonly ProviderLoggerServiceInterface $logger,
         #[Autowire(service: CurrencyRateParserXmlService::class)]
         private readonly CurrencyRateParserServiceInterface $rateProcessor,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.api_url')]
@@ -61,8 +75,17 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
     }
 
     /**
-     * @return Generator<int, array<RateContainer>>
-     * @throws CurrencyRateBundleException
+     * Fetches exchange rates from the CBR API for a specific date and yields them in chunks.
+     *
+     * For each parsed rate, also computes and includes the inverse rate.
+     * Chunks are yielded as arrays of RateContainer objects.
+     *
+     * @param DateTimeImmutable $date      The date to fetch rates for
+     * @param int               $chunkSize Maximum number of RateContainer items per yielded chunk
+     *
+     * @return Generator<int, array<RateContainer>> Generator yielding arrays of rate containers
+     *
+     * @throws CurrencyRateBundleException On any provider, parsing, or unexpected error
      */
     public function getRates(DateTimeImmutable $date, int $chunkSize = 1000): Generator
     {
@@ -105,7 +128,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
             if (!empty($chunk)) {
                 yield $chunk;
             }
-        } catch (CurrencyRateProviderException $e) {
+        } catch (ProviderException $e) {
             throw $e;
         } catch (Throwable $e) {
             // Unexpected error - log and wrap
@@ -115,7 +138,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 'exception_class' => get_class($e),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new CurrencyRateProviderException(
+            throw new ProviderException(
                 "Unexpected error: {$e->getMessage()}",
                 0,
                 $e
@@ -128,10 +151,10 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
      *
      * Handles various HTTP and network errors with appropriate logging and exception handling.
      * Note: Retries are NOT handled here - implement retry logic at a higher level if needed.
-     * @todo Implement retry logic
+     * @throws ProviderConfigurationException For non-retryable errors (4xx, 3xx)
+     * @throws ProviderException For retriable errors (5xx, network)
      *
-     * @throws CurrencyRateProviderConfigurationException For non-retryable errors (4xx, 3xx)
-     * @throws CurrencyRateProviderException For retriable errors (5xx, network)
+     * @todo Implement retry logic
      */
     private function requestRates(DateTimeInterface $date): string
     {
@@ -169,7 +192,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
             $errorContext = $this->getErrorContext($startTime, $date, $e, $statusCode);
 
             $this->logger->error('HTTP redirect error - configuration issue', $errorContext);
-            throw new CurrencyRateProviderConfigurationException(
+            throw new ProviderConfigurationException(
                 "CBR API returned HTTP {$statusCode} - verify API URL",
                 0,
                 $e
@@ -181,7 +204,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
 
             $this->logger->error('HTTP client error', $errorContext);
 
-            throw new CurrencyRateProviderConfigurationException(
+            throw new ProviderConfigurationException(
                 "CBR API returned HTTP {$statusCode} - check request configuration",
                 0,
                 $e
@@ -192,7 +215,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
 
             $this->logger->warning('HTTP server error', $errorContext);
 
-            throw new CurrencyRateProviderException(
+            throw new ProviderException(
                 "CBR API server error (HTTP {$statusCode}) - retriable",
                 0,
                 $e
@@ -208,7 +231,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 $this->logger->warning('Network transport error', $errorContext);
             }
 
-            throw new CurrencyRateProviderException(
+            throw new ProviderException(
                 "Network error - retriable",
                 0,
                 $e
@@ -217,7 +240,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
             $errorContext = $this->getErrorContext($startTime, $date, $e);
 
             $this->logger->error('Generic HTTP exception', $errorContext);
-            throw new CurrencyRateProviderException(
+            throw new ProviderException(
                 "HTTP error: {$e->getMessage()}",
                 0,
                 $e
@@ -228,7 +251,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 'Unexpected error in requestRates',
                 $this->getErrorContext($startTime, $date, $e)
             );
-            throw new CurrencyRateProviderException(
+            throw new ProviderException(
                 "Unexpected error: {$e->getMessage()}",
                 0,
                 $e

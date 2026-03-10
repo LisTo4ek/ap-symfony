@@ -18,7 +18,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Exception;
  * - Malformed rate values
  * - Duplicate currencies
  */
-class CurrencyRateProviderInvalidRateDataException extends CurrencyRateProviderException
+class InvalidRateDataException extends ProviderException
 {
     protected int $statusCode = 422;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerService;
+use App\Bundle\CurrencyRateBundle\Src\Service\ProviderLoggerService;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,12 +17,12 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
     use CurrencyTrait;
 
     private LoggerInterface&MockObject $psr3Logger;
-    private CurrencyRateProviderLoggerService $logger;
+    private ProviderLoggerService $logger;
 
     protected function setUp(): void
     {
         $this->psr3Logger = $this->createMock(LoggerInterface::class);
-        $this->logger = new CurrencyRateProviderLoggerService($this->psr3Logger);
+        $this->logger = new ProviderLoggerService($this->psr3Logger);
     }
 
     /**

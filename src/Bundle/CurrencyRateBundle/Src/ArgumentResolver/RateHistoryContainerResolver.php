@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\ArgumentResolver;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
-use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateHistoryContainer;
 use Generator;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+/**
+ * Resolves HTTP request data into a validated RateHistoryContainer for rate-history controller actions.
+ *
+ * Extracts pagination query parameters and currency pair codes from route attributes,
+ * validates the assembled DTO, and yields it for controller injection.
+ */
 class RateHistoryContainerResolver extends AbstractContainerResolver
 {
-    public function __construct(
-        private readonly ValidatorInterface $validator,
-        #[Autowire(service: PaginationConfigDefault::class)]
-        private readonly PaginationConfigInterface $paginatorConfig,
-    ) {
-    }
-
+    /**
+     * @inheritDoc
+     * @return Generator<int, RateHistoryContainer> Yields the validated CurrentRateContainer
+     * @throws BadRequestHttpException When validation fails
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): Generator
     {
         if ($argument->getType() !== RateHistoryContainer::class) {
