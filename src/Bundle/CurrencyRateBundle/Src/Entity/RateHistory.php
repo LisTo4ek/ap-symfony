@@ -13,9 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Money\Currency;
 
 #[ORM\Entity(repositoryClass: RateHistoryRepository::class)]
-#[ORM\Index(name: 'idx_base_currency_date', columns: ['base_currency', 'date'])]
-#[ORM\Index(name: 'idx_target_currency_date', columns: ['target_currency', 'date'])]
-#[ORM\Index(name: 'idx_date', columns: ['date'])]
+#[ORM\Index(name: 'idx_rate_history_base_target_date', columns: ['base_currency', 'target_currency', 'date'])]
+#[ORM\Index(name: 'idx_rate_history_date', columns: ['date'])]
 class RateHistory
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

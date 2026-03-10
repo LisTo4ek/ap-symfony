@@ -128,6 +128,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
      *
      * Handles various HTTP and network errors with appropriate logging and exception handling.
      * Note: Retries are NOT handled here - implement retry logic at a higher level if needed.
+     * @todo Implement retry logic
      *
      * @throws CurrencyRateProviderConfigurationException For non-retryable errors (4xx, 3xx)
      * @throws CurrencyRateProviderException For retriable errors (5xx, network)

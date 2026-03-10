@@ -14,7 +14,8 @@ use Money\Currency;
 
 #[ORM\Entity(repositoryClass: CurrentRateRepository::class)]
 #[ORM\UniqueConstraint(name: 'idx_base_target_currency', columns: ['base_currency', 'target_currency'])]
-#[ORM\Index(name: 'idx_updated_at', columns: ['updated_at'])]
+#[ORM\Index(name: 'idx_current_rate_date', columns: ['date'])]
+#[ORM\Index(name: 'idx_current_rate_date_base_target', columns: ['date', 'base_currency', 'target_currency'])]
 class CurrentRate
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

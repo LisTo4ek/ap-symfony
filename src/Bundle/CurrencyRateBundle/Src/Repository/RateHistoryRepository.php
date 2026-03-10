@@ -35,11 +35,12 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
 
         $em = $this->getEntityManager();
 
-        foreach ($entities as $entity) {
-            $em->persist($entity);
-        }
-
-        $em->flush();
+        $em->wrapInTransaction(function () use ($entities, $em): void {
+            foreach ($entities as $entity) {
+                $em->persist($entity);
+            }
+            $em->flush();
+        });
     }
 
     /**

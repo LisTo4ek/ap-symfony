@@ -45,6 +45,7 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
     {
         $this->prependMonolog($container);
         $this->prependDoctrine($container);
+        $this->prependDoctrineMigrations($container);
     }
 
     private function prependMonolog(ContainerBuilder $container): void
@@ -102,6 +103,19 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
             ],
         ];
         $container->prependExtensionConfig('doctrine', $doctrineConfig);
+    }
+
+    private function prependDoctrineMigrations(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('doctrine_migrations')) {
+            return;
+        }
+
+        $container->prependExtensionConfig('doctrine_migrations', [
+            'migrations_paths' => [
+                'App\\Bundle\\CurrencyRateBundle\\Migrations' => dirname(__DIR__) . '/Migrations',
+            ],
+        ]);
     }
 
     public function getAlias(): string

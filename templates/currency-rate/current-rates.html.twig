@@ -22,7 +22,8 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Date</th>
+                        <th>Rate Date</th>
+                        <th class="text-muted">Updated at</th>
                         <th>Currency</th>
                         <th class="text-end">Rate</th>
                     </tr>
@@ -31,6 +32,7 @@
                     {% for rate in pagination.getItems() %}
                         <tr>
                             <td>{{ rate.date|date('d.m.Y') }}</td>
+                            <td class="text-muted">{{ rate.updatedAt|date('d.m.Y H:i:s') }}</td>
                             <td><a href="{{ path('app_rates_history', {'baseCurrencyCode': baseCurrencyCode, 'targetCurrencyCode': rate.targetCurrency}) }}">{{ rate.targetCurrency }}</a></td>
                             <td class="text-end">{{ (rate.value.toString()|number_format(displayRatePrecision, '.', '')) }}</td>
                         </tr>
