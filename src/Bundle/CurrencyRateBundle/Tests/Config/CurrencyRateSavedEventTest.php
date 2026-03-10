@@ -16,11 +16,6 @@ class CurrencyRateSavedEventTest extends TestCase
 {
     use CurrencyTrait;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testExtendsSymfonyEvent(): void
     {
         $event = $this->createEvent();

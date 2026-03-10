@@ -8,8 +8,6 @@ use App\Bundle\CurrencyRateBundle\DependencyInjection\CurrencyRateExtension;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-use function dirname;
-
 /**
  * Symfony bundle that provides currency rate import, storage, and display functionality.
  *

@@ -13,11 +13,6 @@ class RateHistoryContainerTest extends TestCase
 {
     use CurrencyTrait;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testConstructorSetsAllProperties(): void
     {
         $pagination = new PaginationContainer(page: 3, perPage: 50);

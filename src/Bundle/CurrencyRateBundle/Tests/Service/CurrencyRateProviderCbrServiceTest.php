@@ -180,7 +180,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-        $exception->__construct('Moved Permanently');
 
         $this->httpClient
             ->expects($this->once())
@@ -233,7 +232,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-        $exception->__construct('Service Unavailable');
 
         $this->httpClient
             ->expects($this->once())
@@ -333,7 +331,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-        $exception->__construct('Not Found');
 
         $this->httpClient->method('request')->willThrowException($exception);
 

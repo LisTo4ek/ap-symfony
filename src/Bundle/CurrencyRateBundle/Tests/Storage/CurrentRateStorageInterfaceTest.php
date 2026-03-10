@@ -20,11 +20,6 @@ class CurrentRateStorageInterfaceTest extends TestCase
 {
     use CurrencyTrait;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testUpsertForCurrencyPairReturnsCurrentRateEntity(): void
     {
         $date = new DateTimeImmutable('2026-03-06');
