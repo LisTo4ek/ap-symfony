@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerService;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTime;
@@ -32,8 +31,8 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
     public function testLogRateRetrieval(): void
     {
         $context = [
-            'from' => CurrencyEnum::RUB->value,
-            'to' => CurrencyEnum::USD->value,
+            'from' => self::getRub()->getCode(),
+            'to' => self::getUsd()->getCode(),
             'rate' => '90.5',
             'duration_ms' => 100,
         ];
@@ -118,13 +117,18 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
             ->expects($this->once())
             ->method('warning')
             ->with('Rate retrieval failed', [
-                'from' => CurrencyEnum::RUB->value,
-                'to' => CurrencyEnum::USD->value,
+                'from' => self::getRub()->getCode(),
+                'to' => self::getUsd()->getCode(),
                 'reason' => 'Connection timeout',
                 'attempt' => 2,
             ]);
 
-        $this->logger->logRetrievalFailure(CurrencyEnum::RUB->value, CurrencyEnum::USD->value, 'Connection timeout', 2);
+        $this->logger->logRetrievalFailure(
+            self::getRub()->getCode(),
+            self::getUsd()->getCode(),
+            'Connection timeout',
+            2
+        );
     }
 
     /**
@@ -132,7 +136,10 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
      */
     public function testLogValidationError(): void
     {
-        $errors = [CurrencyEnum::USD->value => 'Invalid currency code', self::getEur()->getCode() => 'Not in monitored list'];
+        $errors = [
+            self::getUsd()->getCode() => 'Invalid currency code',
+            self::getEur()->getCode() => 'Not in monitored list'
+        ];
 
         $this->psr3Logger
             ->expects($this->once())

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Container;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationContainer;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
@@ -31,7 +30,7 @@ class CurrentRateContainerTest extends TestCase
         $dto = new CurrentRateContainer(
             pagination: new PaginationContainer(),
         );
-        $this->assertSame(CurrencyEnum::RUB->value, $dto->baseCurrencyCode);
+        $this->assertSame(self::getRub()->getCode(), $dto->baseCurrencyCode);
     }
 
     public function testPaginationObjectIsShared(): void

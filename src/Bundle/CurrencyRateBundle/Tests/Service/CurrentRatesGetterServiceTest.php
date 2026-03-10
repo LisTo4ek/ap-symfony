@@ -21,6 +21,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 class CurrentRatesGetterServiceTest extends KernelTestCase
 {
     use CurrencyTrait;
+
     private PaginationServiceInterface&MockObject $paginator;
     private CurrentRateStorageInterface&MockObject $storage;
     private CurrentRatesGetterService $service;

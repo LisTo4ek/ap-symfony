@@ -6,7 +6,6 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Trait;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
-use function dump;
 
 trait DatabaseSetupTrait
 {

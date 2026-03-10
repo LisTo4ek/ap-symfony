@@ -226,4 +226,3 @@ class RateHistoryRepositoryTest extends KernelTestCase
         $this->assertSame(100, $result->getTotalCount());
     }
 }
-

@@ -140,4 +140,3 @@ class CurrentRateStorageInterfaceTest extends TestCase
         $this->assertSame('baseCurrency', $findMethod->getParameters()[1]->getName());
     }
 }
-

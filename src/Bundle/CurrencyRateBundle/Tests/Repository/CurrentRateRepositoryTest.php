@@ -13,7 +13,6 @@ use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\DatabaseSetupTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
-use function dump;
 
 class CurrentRateRepositoryTest extends KernelTestCase
 {
@@ -273,4 +272,3 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $this->assertSame(self::getUsd()->getCode(), $items[1]->getTargetCurrency()->getCode());
     }
 }
-

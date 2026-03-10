@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderInvalidRateDataException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -19,6 +19,8 @@ use function iterator_to_array;
 
 class CurrencyRateParserXmlServiceTest extends KernelTestCase
 {
+    use CurrencyTrait;
+
     private CurrencyRateProviderLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserXmlService $parser;
 
@@ -39,8 +41,8 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $xml = $this->getSampleXml();
         $result = iterator_to_array($this->parser->parse(
             $xml,
-            CurrencyEnum::RUB->value,
-            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
+            self::getRub()->getCode(),
+            [self::getUsd()->getCode(), self::getEur()->getCode()],
             $date
         ));
 
@@ -60,7 +62,7 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
 
         iterator_to_array($this->parser->parse(
             $xml,
-            CurrencyEnum::RUB->value,
+            self::getRub()->getCode(),
             [], // No monitored currencies
             $date
         ));
@@ -78,8 +80,8 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
 
         iterator_to_array($this->parser->parse(
             $invalidXml,
-            CurrencyEnum::RUB->value,
-            [CurrencyEnum::USD->value],
+            self::getRub()->getCode(),
+            [self::getUsd()->getCode()],
             $date
         ));
     }
@@ -96,8 +98,8 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
 
         iterator_to_array($this->parser->parse(
             $malformedXml,
-            CurrencyEnum::RUB->value,
-            [CurrencyEnum::USD->value],
+            self::getRub()->getCode(),
+            [self::getUsd()->getCode()],
             $date
         ));
     }
@@ -119,8 +121,8 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         // Execute
         iterator_to_array($this->parser->parse(
             $xml,
-            CurrencyEnum::RUB->value,
-            [CurrencyEnum::USD->value, CurrencyEnum::EUR->value],
+            self::getRub()->getCode(),
+            [self::getUsd()->getCode(), self::getEur()->getCode()],
             $date
         ));
     }
@@ -136,15 +138,15 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         // Execute with different precision values
         $result2Precision = iterator_to_array($this->parser->parse(
             $xml,
-            CurrencyEnum::RUB->value,
-            [CurrencyEnum::USD->value],
+            self::getRub()->getCode(),
+            [self::getUsd()->getCode()],
             $date
         ));
 
         $result4Precision = iterator_to_array($this->parser->parse(
             $xml,
-            CurrencyEnum::RUB->value,
-            [CurrencyEnum::USD->value],
+            self::getRub()->getCode(),
+            [self::getUsd()->getCode()],
             $date
         ));
 

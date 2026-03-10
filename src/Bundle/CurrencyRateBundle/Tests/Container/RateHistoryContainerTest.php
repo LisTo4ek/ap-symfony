@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Container;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateHistoryContainer;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
@@ -37,7 +36,7 @@ class RateHistoryContainerTest extends TestCase
         $dto = new RateHistoryContainer(
             pagination: new PaginationContainer(),
         );
-        $this->assertSame(CurrencyEnum::RUB->value, $dto->baseCurrencyCode);
+        $this->assertSame(self::getRub()->getCode(), $dto->baseCurrencyCode);
     }
 
     public function testDefaultTargetCurrencyIsEmpty(): void

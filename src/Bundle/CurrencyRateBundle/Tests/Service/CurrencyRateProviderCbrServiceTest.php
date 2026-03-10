@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateProviderConfigurationException;
@@ -366,9 +365,9 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
         $this->httpClient->method('request')->willReturn($response);
 
         // Create rates with proper currency objects
-        $rub = new Currency(CurrencyEnum::RUB->value);
-        $usd = new Currency(CurrencyEnum::USD->value);
-        $eur = new Currency(CurrencyEnum::EUR->value);
+        $rub = new Currency(self::getRub()->getCode());
+        $usd = new Currency(self::getUsd()->getCode());
+        $eur = new Currency(self::getEur()->getCode());
 
         $rates = [
             new RateContainer($rub, $usd, BigDecimal::of('90.5'), $date),

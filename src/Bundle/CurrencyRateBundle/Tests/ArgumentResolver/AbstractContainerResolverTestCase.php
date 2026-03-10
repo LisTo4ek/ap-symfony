@@ -98,4 +98,3 @@ abstract class AbstractContainerResolverTestCase extends TestCase
         }
     }
 }
-
