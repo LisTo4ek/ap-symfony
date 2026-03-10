@@ -127,7 +127,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-        $exception->__construct('Not Found');
 
         $this->httpClient
             ->expects($this->once())
