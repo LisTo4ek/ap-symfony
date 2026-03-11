@@ -92,7 +92,7 @@ class CurrentRateTest extends TestCase
 
         $rate->setDate($newDate);
 
-        $this->assertSame('2026-01-01', $rate->getDate()->format('Y-m-d'));
+        $this->assertSame($newDate->format('Y-m-d'), $rate->getDate()->format('Y-m-d'));
     }
 
     public function testSetDateReturnsSelf(): void
