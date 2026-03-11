@@ -10,13 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  * DTO that holds pagination request parameters.
  *
  * Validated via Symfony constraints to ensure page ≥ 1 and perPage within 1–100.
+ *
+ * @property int $page The requested page number (must be ≥ 1)
+ * @property int $perPage The number of items per page (must be between 1 and 100)
  */
 class PaginationContainer
 {
-    /**
-     * @param int $page The requested page number (must be ≥ 1)
-     * @param int $perPage The number of items per page (must be between 1 and 100)
-     */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Type('integer', 'Page must be an integer')]

@@ -11,23 +11,23 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
  *
  * @template T of object
  * @implements PaginationResultInterface<T>
+ *
+ * @property int $currentPage The current page number (1-indexed)
+ * @property int $perPage Number of items per page
+ * @property int $totalCount Total number of items across all pages
+ * @property PaginationConfigInterface $config Pagination configuration (allowed per-page options, etc.)
+ * @property int $totalPages Total number of pages
+ * @property array<T> $items Items for the current page
  */
 class PaginationResultContainer implements PaginationResultInterface
 {
-    /**
-     * @param int $currentPage The current page number (1-indexed)
-     * @param int $perPage Number of items per page
-     * @param int $totalCount Total number of items across all pages
-     * @param PaginationConfigInterface $config Pagination configuration (allowed per-page options, etc.)
-     * @param int $totalPages Total number of pages
-     * @param array<T> $items Items for the current page
-     */
     public function __construct(
         private readonly int $currentPage,
         private readonly int $perPage,
         private readonly int $totalCount,
         private readonly PaginationConfigInterface $config,
         private readonly int $totalPages,
+        /** @var array<T> */
         private readonly array $items,
     ) {
     }

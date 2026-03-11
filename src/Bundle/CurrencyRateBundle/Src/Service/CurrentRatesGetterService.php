@@ -19,15 +19,15 @@ use Throwable;
  * Checks whether today's rates are already stored; if not, triggers an import
  * from the CBR provider. Returns the latest available date and a paginated
  * list of CurrentRate entities filtered by base currency.
+ *
+ * @property PaginationServiceInterface<CurrentRate> $paginator Pagination service for slicing query results
+ * @property CurrentRateStorageInterface $currentRateStorage Storage for querying current rate records
+ * @property CurrencyRateHistoryCbrProcessorService $processor Processor for importing rates from CBR
  */
 class CurrentRatesGetterService
 {
-    /**
-     * @param PaginationServiceInterface<CurrentRate> $paginator Pagination service for slicing query results
-     * @param CurrentRateStorageInterface $currentRateStorage Storage for querying current rate records
-     * @param CurrencyRateHistoryCbrProcessorService $processor Processor for importing rates from CBR
-     */
     public function __construct(
+        /** @var PaginationServiceInterface<CurrentRate> */
         private readonly PaginationServiceInterface $paginator,
         private readonly CurrentRateStorageInterface $currentRateStorage,
         private readonly CurrencyRateHistoryCbrProcessorService $processor,

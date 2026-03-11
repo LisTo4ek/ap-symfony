@@ -26,13 +26,12 @@ use function mb_strlen;
  * Parses the ValCurs XML structure returned by the Central Bank of Russia API,
  * validates the date and structure, and yields RateContainer objects for each
  * monitored currency found in the response.
+ *
+ * @property ProviderLoggerServiceInterface $logger Logger for XML processing diagnostics
  */
 #[AsAlias(CurrencyRateParserServiceInterface::class)]
 class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
 {
-    /**
-     * @param ProviderLoggerServiceInterface $logger Logger for XML processing diagnostics
-     */
     public function __construct(
         private ProviderLoggerServiceInterface $logger,
     ) {

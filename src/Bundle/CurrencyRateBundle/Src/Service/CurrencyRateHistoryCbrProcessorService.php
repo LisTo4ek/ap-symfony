@@ -24,18 +24,17 @@ use function count;
  * Fetches rates from the CBR provider in chunks, persists them as RateHistory entities,
  * and dispatches CurrencyRateSavedEvent for each rate whose date matches today
  * (triggering current-rate synchronization).
+ *
+ * @property CurrencyRateProviderServiceInterface $provider The CBR rate provider service
+ * @property RateHistoryStorageInterface $rateHistoryStorage Storage for persisting rate history entities
+ * @property EventDispatcherInterface $eventDispatcher Dispatcher for CurrencyRateSavedEvent events
+ * @property LoggerInterface $logger Logger for the currency_rate_bundle channel
  */
 class CurrencyRateHistoryCbrProcessorService
 {
     /** @var int Maximum number of rate containers per processing chunk */
     private const int CHUNK_SIZE = 1000;
 
-    /**
-     * @param CurrencyRateProviderServiceInterface $provider The CBR rate provider service
-     * @param RateHistoryStorageInterface $rateHistoryStorage Storage for persisting rate history entities
-     * @param EventDispatcherInterface $eventDispatcher Dispatcher for CurrencyRateSavedEvent events
-     * @param LoggerInterface $logger Logger for the currency_rate_bundle channel
-     */
     public function __construct(
         #[Autowire(service: CurrencyRateProviderCbrService::class)]
         private readonly CurrencyRateProviderServiceInterface $provider,

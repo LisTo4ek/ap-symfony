@@ -16,12 +16,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Listens for CurrencyRateSavedEvent and, when the saved rate's date matches today,
  * upserts the corresponding current rate entry so that the current_rate table always
  * reflects the latest known rate for each currency pair.
+ *
+ * @property CurrentRateStorageInterface $storage Storage for upserting current rate records
  */
 class CurrentCurrencyRateSyncListener implements EventSubscriberInterface
 {
-    /**
-     * @param CurrentRateStorageInterface $storage Storage for upserting current rate records
-     */
     public function __construct(
         private readonly CurrentRateStorageInterface $storage,
     ) {

@@ -21,13 +21,12 @@ use function implode;
  * Base class for controller argument resolvers that validate request data into container DTOs.
  *
  * Provides shared validation error handling for concrete resolver implementations.
+ *
+ * @property ValidatorInterface $validator Symfony validator for DTO constraint checking
+ * @property PaginationConfigInterface $paginatorConfig Default pagination settings (per-page default, etc.)
  */
 abstract class AbstractContainerResolver implements ValueResolverInterface
 {
-    /**
-     * @param ValidatorInterface $validator Symfony validator for DTO constraint checking
-     * @param PaginationConfigInterface $paginatorConfig Default pagination settings (per-page default, etc.)
-     */
     public function __construct(
         protected readonly ValidatorInterface $validator,
         #[Autowire(service: PaginationConfigDefault::class)]

@@ -15,14 +15,14 @@ use Money\Currency;
  * Service that retrieves paginated rate history for a specific currency pair.
  *
  * Delegates to the storage layer for querying and the pagination service for slicing results.
+ *
+ * @property PaginationServiceInterface<RateHistory> $paginator Pagination service for slicing query results
+ * @property RateHistoryStorageInterface $storage Storage for querying rate history records
  */
 class RateHistoryPaginatorService
 {
-    /**
-     * @param PaginationServiceInterface<RateHistory> $paginator Pagination service for slicing query results
-     * @param RateHistoryStorageInterface $storage Storage for querying rate history records
-     */
     public function __construct(
+        /** @var PaginationServiceInterface<RateHistory> */
         private readonly PaginationServiceInterface $paginator,
         private readonly RateHistoryStorageInterface $storage,
     ) {

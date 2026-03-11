@@ -19,13 +19,12 @@ use function count;
  * Wraps a PSR-3 LoggerInterface (targeted to the currency_rate_bundle Monolog channel)
  * and provides domain-specific logging methods for rate retrieval, provider initialization,
  * rate updates, errors, and validation failures. Also delegates all standard PSR-3 log levels.
+ *
+ * @property LoggerInterface $logger The Monolog logger for the currency_rate_bundle channel
  */
 #[AsAlias(ProviderLoggerServiceInterface::class)]
 class ProviderLoggerService implements ProviderLoggerServiceInterface
 {
-    /**
-     * @param LoggerInterface $logger The Monolog logger for the currency_rate_bundle channel
-     */
     public function __construct(
         #[Target('monolog.logger.currency_rate_bundle')]
         private LoggerInterface $logger,

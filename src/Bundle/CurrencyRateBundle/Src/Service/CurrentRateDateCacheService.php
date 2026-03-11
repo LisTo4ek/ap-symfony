@@ -19,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  * Uses Symfony's CacheInterface (tagged 'currency_rates_cache') to store
  * the most recent date for which current rates exist, avoiding repeated
  * database queries. Supports warm-up and manual cache invalidation.
+ *
+ * @property CacheInterface $cache Symfony cache pool for currency rate data
+ * @property CurrentRateStorageInterface $storage Storage for querying the latest date from the database
  */
 #[AsAlias(CurrentRateDateCacheServiceInterface::class)]
 class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterface
@@ -32,10 +35,6 @@ class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterfac
     /** @var string Date format used for cache serialization */
     private const string DATE_FORMAT = 'Y-m-d';
 
-    /**
-     * @param CacheInterface $cache Symfony cache pool for currency rate data
-     * @param CurrentRateStorageInterface $storage Storage for querying the latest date from the database
-     */
     public function __construct(
         #[Target('currency_rates_cache')]
         private readonly CacheInterface $cache,

@@ -17,6 +17,11 @@ use Money\Currency;
  *
  * Stored in the current_rate table with a unique constraint on (base_currency, target_currency).
  * When a new rate is imported for an existing pair, the row is updated (upsert) rather than duplicated.
+ *
+ * @property Currency $baseCurrency The base (source) currency
+ * @property Currency $targetCurrency The target (destination) currency
+ * @property BigDecimal $value The exchange rate value
+ * @property DateTimeInterface $date The date the rate applies to
  */
 #[ORM\Entity(repositoryClass: CurrentRateRepository::class)]
 #[ORM\UniqueConstraint(name: 'idx_base_target_currency', columns: ['base_currency', 'target_currency'])]
@@ -43,12 +48,6 @@ class CurrentRate
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $updatedAt;
 
-    /**
-     * @param Currency $baseCurrency The base (source) currency
-     * @param Currency $targetCurrency The target (destination) currency
-     * @param BigDecimal $value The exchange rate value
-     * @param DateTimeInterface $date The date the rate applies to
-     */
     public function __construct(
         Currency $baseCurrency,
         Currency $targetCurrency,

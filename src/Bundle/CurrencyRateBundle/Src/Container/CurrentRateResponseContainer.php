@@ -13,19 +13,19 @@ use Throwable;
  *
  * Holds the latest stored rate date, an optional paginated result set of current rates,
  * and any exception thrown during the CBR import attempt.
+ *
+ * @property DateTimeImmutable|null $latestDate The most recent rate date found in storage, or null if no rates exist
+ * @property Throwable|null $importRatesException Exception caught during CBR import, or null on success / when
+ *           import was skipped
+ * @property PaginationResultInterface<CurrentRate>|null $pagination Current rates for the requested base currency,
+ *           or null when the currency code is empty or no rates are available
  */
 class CurrentRateResponseContainer
 {
-    /**
-     * @param DateTimeImmutable|null $latestDate The most recent rate date found in storage, or null if no rates exist
-     * @param Throwable|null $importRatesException Exception caught during CBR import, or null on success / when import
-     *        was skipped
-     * @param PaginationResultInterface<CurrentRate>|null $pagination current rates for the requested base currency,
-     *        or null when the currency code is empty or no rates are available
-     */
     public function __construct(
         public readonly ?DateTimeImmutable $latestDate = null,
         public readonly ?Throwable $importRatesException = null,
+        /** @var PaginationResultInterface<CurrentRate>|null */
         public readonly ?PaginationResultInterface $pagination = null,
     ) {
     }

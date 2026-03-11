@@ -35,6 +35,9 @@ use function sprintf;
  *
  * Iterates day-by-day over the given range, fetching and persisting rates.
  * Displays a progress bar and summary of successes/errors on completion.
+ *
+ * @property CurrencyRateHistoryCbrProcessorService $processor Service that fetches and persists rates for a single date
+ * @property LoggerInterface $logger Logger for the currency_rate_bundle channel
  */
 #[AsCommand(
     name: 'app:import:currency-rates:cbr',
@@ -42,11 +45,6 @@ use function sprintf;
 )]
 class CurrencyRateImportCbrCommand extends Command
 {
-    /**
-     * @param CurrencyRateHistoryCbrProcessorService $processor Service that fetches and persists rates for a single
-     *        date
-     * @param LoggerInterface $logger Logger for the currency_rate_bundle channel
-     */
     public function __construct(
         private readonly CurrencyRateHistoryCbrProcessorService $processor,
         #[Target('monolog.logger.currency_rate_bundle')]

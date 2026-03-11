@@ -14,15 +14,14 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @template T of object
  * @implements PaginationPageableServiceInterface<T>
+ *
+ * @property QueryBuilder $queryBuilder The Doctrine QueryBuilder representing the base query
  */
 class PaginationDoctrinePageableService implements PaginationPageableServiceInterface
 {
     /** @var int|null Cached total item count to avoid repeated COUNT queries */
     private ?int $cachedTotalCount = null;
 
-    /**
-     * @param QueryBuilder $queryBuilder The Doctrine QueryBuilder representing the base query
-     */
     public function __construct(
         private readonly QueryBuilder $queryBuilder,
     ) {

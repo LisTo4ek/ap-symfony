@@ -35,21 +35,19 @@ use function str_contains;
  * Fetches daily exchange rates from the CBR XML API, parses the response,
  * computes inverse rates, and yields results in configurable-size chunks.
  * Handles HTTP errors with detailed logging and appropriate exception types.
+ *
+ * @property HttpClientInterface $httpClient Symfony HTTP client for API requests
+ * @property ProviderLoggerServiceInterface $logger Bundle-specific logger
+ * @property CurrencyRateParserServiceInterface $rateProcessor XML parser that converts API response to RateContainers
+ * @property string $apiUrl CBR API endpoint URL
+ * @property int $ratePrecision Decimal precision for inverse rate calculations
+ * @property array<string> $monitoredCurrencies ISO 4217 currency codes to monitor
+ * @property string $baseCurrencyCode ISO 4217 base currency code (default: RUB)
+ * @property int $timeout HTTP request timeout in seconds
  */
 #[AsAlias(CurrencyRateProviderServiceInterface::class)]
 class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInterface
 {
-    /**
-     * @param HttpClientInterface $httpClient Symfony HTTP client for API requests
-     * @param ProviderLoggerServiceInterface $logger Bundle-specific logger
-     * @param CurrencyRateParserServiceInterface $rateProcessor XML parser that converts
-     *        API response to RateContainers
-     * @param string $apiUrl CBR API endpoint URL
-     * @param int $ratePrecision Decimal precision for inverse rate calculations
-     * @param array<string> $monitoredCurrencies ISO 4217 currency codes to monitor
-     * @param string $baseCurrencyCode ISO 4217 base currency code (default: RUB)
-     * @param int $timeout HTTP request timeout in seconds
-     */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly ProviderLoggerServiceInterface $logger,
@@ -59,6 +57,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         private readonly string $apiUrl,
         #[Autowire(param: 'currency_rate_provider.calculate_rate_precision')]
         private readonly int $ratePrecision,
+        /** @var array<string> */
         #[Autowire(param: 'currency_rate_provider.cbr_provider.monitored_currencies')]
         private readonly array $monitoredCurrencies = [],
         #[Autowire(param: 'currency_rate_provider.cbr_provider.base_currency')]

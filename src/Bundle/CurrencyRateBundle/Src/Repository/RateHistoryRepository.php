@@ -24,9 +24,6 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 #[AsAlias(RateHistoryStorageInterface::class)]
 class RateHistoryRepository extends ServiceEntityRepository implements RateHistoryStorageInterface
 {
-    /**
-     * @param ManagerRegistry $registry The Doctrine manager registry
-     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, RateHistory::class);

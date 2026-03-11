@@ -17,6 +17,11 @@ use Money\Currency;
  *
  * Stored in the rate_history table. Multiple rows can exist for the same currency pair
  * across different dates, providing a full history of rate changes.
+ *
+ * @property Currency $baseCurrency The base (source) currency
+ * @property Currency $targetCurrency The target (destination) currency
+ * @property BigDecimal $value The exchange rate value
+ * @property DateTimeInterface $date The date the rate applies to
  */
 #[ORM\Entity(repositoryClass: RateHistoryRepository::class)]
 #[ORM\Index(name: 'idx_rate_history_base_target_date', columns: ['base_currency', 'target_currency', 'date'])]
@@ -42,12 +47,6 @@ class RateHistory
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $updatedAt;
 
-    /**
-     * @param Currency $baseCurrency The base (source) currency
-     * @param Currency $targetCurrency The target (destination) currency
-     * @param BigDecimal $value The exchange rate value
-     * @param DateTimeInterface $date The date the rate applies to
-     */
     public function __construct(
         Currency $baseCurrency,
         Currency $targetCurrency,

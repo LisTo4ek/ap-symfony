@@ -12,12 +12,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * Carries the saved RateContainer so listeners (e.g. current-rate sync)
  * can react to newly persisted rate data.
+ *
+ * @property RateContainer $rate The rate data that was just saved
  */
 class CurrencyRateSavedEvent extends Event
 {
-    /**
-     * @param RateContainer $rate The rate data that was just saved
-     */
     public function __construct(
         private readonly RateContainer $rate
     ) {

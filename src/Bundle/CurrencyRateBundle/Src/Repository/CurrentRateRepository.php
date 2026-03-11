@@ -28,9 +28,6 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 #[AsAlias(CurrentRateStorageInterface::class)]
 class CurrentRateRepository extends ServiceEntityRepository implements CurrentRateStorageInterface
 {
-    /**
-     * @param ManagerRegistry $registry The Doctrine manager registry
-     */
     public function __construct(
         ManagerRegistry $registry,
     ) {

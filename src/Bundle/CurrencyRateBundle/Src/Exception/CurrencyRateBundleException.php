@@ -18,11 +18,6 @@ class CurrencyRateBundleException extends Exception
      */
     protected int $statusCode = 500;
 
-    /**
-     * @param string $message The exception message
-     * @param int $code The exception code
-     * @param Throwable|null $previous The previous throwable used for exception chaining
-     */
     public function __construct(
         string $message = "",
         int $code = 0,

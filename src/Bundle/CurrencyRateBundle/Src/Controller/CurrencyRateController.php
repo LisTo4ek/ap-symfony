@@ -25,16 +25,14 @@ use Symfony\Component\Routing\Attribute\Route;
  * Provides two routes:
  * - /current-rates/{baseCurrencyCode}: displays the latest rates for a base currency
  * - /rate-history/{baseCurrencyCode}/{targetCurrencyCode}: displays paginated rate history for a currency pair
+ *
+ * @property CurrentRatesGetterService $currentRatesGetter Service that fetches (and optionally imports) current rates
+ * @property RateHistoryPaginatorService $rateHistoryPaginator Service that paginates rate history records
+ * @property PaginationConfigInterface $paginatorConfig Default pagination configuration (per-page options, etc.)
+ * @property int $displayRatePrecision Number of decimal places to display for rates
  */
 class CurrencyRateController extends AbstractController
 {
-    /**
-     * @param CurrentRatesGetterService $currentRatesGetter Service that fetches (and optionally imports) current
-     *        rates
-     * @param RateHistoryPaginatorService $rateHistoryPaginator Service that paginates rate history records
-     * @param PaginationConfigInterface $paginatorConfig Default pagination configuration (per-page options, etc.)
-     * @param int $displayRatePrecision Number of decimal places to display for rates
-     */
     public function __construct(
         private CurrentRatesGetterService $currentRatesGetter,
         private RateHistoryPaginatorService $rateHistoryPaginator,

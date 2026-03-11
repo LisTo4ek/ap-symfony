@@ -13,13 +13,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Holds validated pagination parameters and the base currency code
  * extracted from the HTTP request by CurrentRateContainerResolver.
+ *
+ * @property PaginationContainer $pagination Validated pagination parameters (page, perPage)
+ * @property string $baseCurrencyCode ISO 4217 base currency code (defaults to RUB)
  */
 class CurrentRateContainer
 {
-    /**
-     * @param PaginationContainer $pagination Validated pagination parameters (page, perPage)
-     * @param string $baseCurrencyCode ISO 4217 base currency code (defaults to RUB)
-     */
     public function __construct(
         #[Assert\Valid]
         #[MapQueryString]
