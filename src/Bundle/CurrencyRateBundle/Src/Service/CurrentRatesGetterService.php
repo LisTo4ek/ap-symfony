@@ -6,10 +6,12 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
+use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateResponseContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
 use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
+use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Money\Currency;
@@ -45,31 +47,34 @@ class CurrentRatesGetterService
      * @param PaginationConfigInterface $paginatorConfig Pagination configuration (per-page options, etc.)
      * @param CurrentRateContainer      $dto             Validated request DTO with pagination and base currency
      *
-     * @return array{0: DateTimeInterface|null, 1: PaginationResultInterface<CurrentRate>|null}
-     *         Tuple of [latest rate date, paginated current rates or null]
+     * @return CurrentRateResponseContainer Container with the latest rate date, paginated current rates, and any
+     *                                      import exception
      */
     public function get(
         PaginationConfigInterface $paginatorConfig,
         CurrentRateContainer $dto,
-    ): array {
-        $today = new DateTimeImmutable('today');
+        ?DateTimeImmutable $date = null,
+    ): CurrentRateResponseContainer {
+        $date ??= new DateTimeImmutable('today');
         $latestDate = $this->currentRateStorage->getLatestDate();
+        $importException = null;
 
-        if (!$latestDate || !DateCompare::eq($today, $latestDate)) {
+        if (!$latestDate || !DateCompare::eq($date, $latestDate)) {
             try {
-                $this->processor->process($today);
+                $this->processor->process($date);
                 $latestDate = $this->currentRateStorage->getLatestDate();
-            } catch (Throwable) {
-                // do nothing
+            } catch (Throwable $e) {
+                $importException = $e;
             }
         }
 
         if (empty($dto->baseCurrencyCode)) {
-            return [$latestDate, null];
+            return new CurrentRateResponseContainer($latestDate, $importException);
         }
 
-        return [
+        return new CurrentRateResponseContainer(
             $latestDate,
+            $importException,
             $latestDate
                 ? $this->paginator->paginate(
                     $this->currentRateStorage->findByDateAndBaseCurrency(
@@ -80,7 +85,7 @@ class CurrentRatesGetterService
                     $dto->pagination->perPage,
                     $dto->pagination->page,
                 )
-                : null
-        ];
+                : null,
+        );
     }
 }

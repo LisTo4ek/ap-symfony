@@ -61,13 +61,14 @@ class CurrencyRateController extends AbstractController
         #[ValueResolver(CurrentRateContainerResolver::class)]
         CurrentRateContainer $container,
     ): Response {
-        [$latestDate, $pagination] = $this->currentRatesGetter->get($this->paginatorConfig, $container);
+        $result = $this->currentRatesGetter->get($this->paginatorConfig, $container);
 
         return $this->render('currency-rate/current-rates.html.twig', [
             'displayRatePrecision' => $this->displayRatePrecision,
             'baseCurrencyCode' => $container->baseCurrencyCode,
-            'pagination' => $pagination,
-            'latestDate' => $latestDate?->format('Y-m-d'),
+            'pagination' => $result->pagination,
+            'latestDate' => $result->latestDate?->format('Y-m-d'),
+            'importExceptionMessage' => $result->importRatesException?->getMessage(),
             'today' => new DateTimeImmutable('today')->format('Y-m-d'),
         ]);
     }

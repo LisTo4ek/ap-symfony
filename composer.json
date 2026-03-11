@@ -80,6 +80,10 @@
         "lint:fix": "phpcbf",
         "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
         "analyse:baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=512M",
+        "quality:code": [
+            "@lint",
+            "@analyse"
+        ],
         "test:db:create": "php bin/console doctrine:database:create --env=test --if-not-exists",
         "test:db:schema": "php bin/console doctrine:schema:update --force --env=test",
         "test:db:reset": [
@@ -90,7 +94,8 @@
         "test:db:setup": [
             "@test:db:create",
             "@test:db:schema"
-        ]
+        ],
+        "clear:cache": "php bin/console cache:clear"
     },
     "conflict": {
         "symfony/symfony": "*"

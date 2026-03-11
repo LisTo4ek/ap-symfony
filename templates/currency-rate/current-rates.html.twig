@@ -6,13 +6,18 @@
 {# @var rate \App\Entity\CurrentRate #}
 {# @var baseCurrencyCode string #}
 {# @var displayRatePrecision int #}
+{# @var importExceptionMessage null|string #}
 
 {% block title %}Current Rates{% endblock %}
 
 {% block body %}
     <div class="container">
         <h1>Current Rates</h1>
-
+        {% if importExceptionMessage !== null %}
+            <div class="alert alert-danger">
+                Obtaining current rates finished with an exception: [{{ importExceptionMessage }}].
+            </div>
+        {% endif %}
         {% if pagination and pagination.getTotalCount()|length > 0 %}
             {% if latestDate !== today %}
                 <div class="alert alert-warning">
