@@ -21,6 +21,7 @@ class CurrentRateContainerResolverTest extends AbstractContainerResolverTestCase
         $validator = Validation::createValidatorBuilder()
             ->enableAttributeMapping()
             ->getValidator();
+
         return new CurrentRateContainerResolver($validator, new PaginationConfigDefault());
     }
 

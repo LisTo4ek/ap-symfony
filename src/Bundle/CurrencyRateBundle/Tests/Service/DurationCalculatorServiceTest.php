@@ -18,7 +18,6 @@ class DurationCalculatorServiceTest extends TestCase
     public function testStartReturnsFloatTimestamp(): void
     {
         $start = DurationCalculatorService::start();
-
         $this->assertIsFloat($start);
         $this->assertGreaterThan(0, $start);
     }
@@ -31,7 +30,6 @@ class DurationCalculatorServiceTest extends TestCase
         $start = DurationCalculatorService::start();
         usleep(100000); // Sleep 100ms
         $elapsed = DurationCalculatorService::elapsed($start);
-
         $this->assertIsInt($elapsed);
         $this->assertGreaterThanOrEqual(100, $elapsed);
     }
@@ -44,8 +42,6 @@ class DurationCalculatorServiceTest extends TestCase
         $start = DurationCalculatorService::start();
         usleep(500000); // Sleep 500ms
         $elapsed = DurationCalculatorService::elapsed($start);
-
-        // Allow some margin for timing variance
         $this->assertGreaterThanOrEqual(450, $elapsed);
         $this->assertLessThan(700, $elapsed);
     }
@@ -56,14 +52,12 @@ class DurationCalculatorServiceTest extends TestCase
     public function testMeasureReturnsResultAndDuration(): void
     {
         $result = DurationCalculatorService::measure(function () {
-            usleep(100000); // Sleep 100ms
+            usleep(100000);
             return 'test_result';
         });
-
         $this->assertIsArray($result);
         $this->assertArrayHasKey('result', $result);
         $this->assertArrayHasKey('duration_ms', $result);
-
         $this->assertEquals('test_result', $result['result']);
         $this->assertIsInt($result['duration_ms']);
         $this->assertGreaterThanOrEqual(100, $result['duration_ms']);
@@ -75,9 +69,7 @@ class DurationCalculatorServiceTest extends TestCase
     public function testMeasureWithCallableValue(): void
     {
         $callable = static fn() => 42;
-
         $result = DurationCalculatorService::measure($callable);
-
         $this->assertEquals(42, $result['result']);
         $this->assertIsInt($result['duration_ms']);
     }
@@ -90,10 +82,8 @@ class DurationCalculatorServiceTest extends TestCase
         $callable = function () {
             throw new RuntimeException('Test error');
         };
-
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Test error');
-
         DurationCalculatorService::measure($callable);
     }
 
@@ -103,16 +93,13 @@ class DurationCalculatorServiceTest extends TestCase
     public function testMultipleMeasurementsIndependent(): void
     {
         $duration1 = DurationCalculatorService::measure(function () {
-            usleep(50000); // 50ms
+            usleep(50000);
             return 1;
         });
-
         $duration2 = DurationCalculatorService::measure(function () {
-            usleep(150000); // 150ms
+            usleep(150000);
             return 2;
         });
-
-        // Second should be longer
         $this->assertLessThan($duration2['duration_ms'], $duration1['duration_ms']);
     }
 
@@ -123,8 +110,6 @@ class DurationCalculatorServiceTest extends TestCase
     {
         $start = DurationCalculatorService::start();
         $elapsed = DurationCalculatorService::elapsed($start);
-
-        // Should be at least 0ms
         $this->assertGreaterThanOrEqual(0, $elapsed);
         $this->assertLessThan(50, $elapsed);
     }
@@ -137,7 +122,6 @@ class DurationCalculatorServiceTest extends TestCase
         for ($i = 0; $i < 10; $i++) {
             $start = DurationCalculatorService::start();
             $elapsed = DurationCalculatorService::elapsed($start);
-
             $this->assertGreaterThanOrEqual(0, $elapsed);
         }
     }

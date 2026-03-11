@@ -8,10 +8,12 @@ use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
-use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollectionInterface;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\DoctrineORMAdminBundle\Filter\DateFilter;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+use function sprintf;
 
 /**
  * Sonata Admin controller for managing RateHistory entities.
@@ -65,33 +67,17 @@ final class RateHistoryAdminController extends AbstractAdmin
             ->add('baseCurrency', null, ['label' => 'Base Currency'])
             ->add('targetCurrency', null, ['label' => 'Target Currency'])
             ->add('value', null, ['label' => 'Rate'])
+            ->add('updatedAt', null, [
+                'label' => 'Updated',
+                'format' => 'd.m.Y H:i:s'
+            ])
             ->add(ListMapper::NAME_ACTIONS, null, [
                 'label' => 'Actions',
                 'actions' => [
                     'show' => [],
-                    'edit' => [],
-                    'delete' => [],
                 ],
-            ]);
-    }
-
-    /**
-     * Configures the form fields for creating/editing a RateHistory entity.
-     *
-     * Fields: date (single_text widget), baseCurrency, targetCurrency, value.
-     *
-     * @param FormMapper<RateHistory> $form The form field mapper
-     */
-    protected function configureFormFields(FormMapper $form): void
-    {
-        $form
-            ->add('date', null, [
-                'label' => 'Date',
-                'widget' => 'single_text'
             ])
-            ->add('baseCurrency', null, ['label' => 'Base Currency'])
-            ->add('targetCurrency', null, ['label' => 'Target Currency'])
-            ->add('value', null, ['label' => 'Rate']);
+        ;
     }
 
     /**
@@ -111,7 +97,11 @@ final class RateHistoryAdminController extends AbstractAdmin
             ])
             ->add('baseCurrency', null, ['label' => 'Base Currency'])
             ->add('targetCurrency', null, ['label' => 'Target Currency '])
-            ->add('value', null, ['label' => 'Rate']);
+            ->add('value', null, ['label' => 'Rate'])
+            ->add('updatedAt', null, [
+                'label' => 'Updated',
+                'format' => 'd.m.Y H:i:s'
+            ]);
     }
 
     /**
@@ -123,5 +113,15 @@ final class RateHistoryAdminController extends AbstractAdmin
     {
         $sortValues['_sort_order'] = 'DESC';
         $sortValues['_sort_by'] = 'date';
+    }
+
+    protected function configureRoutes(RouteCollectionInterface $collection): void
+    {
+        $collection->remove('create');
+    }
+
+    public function toString(object $object): string
+    {
+        return sprintf('Rate History: %s', $object->getId());
     }
 }

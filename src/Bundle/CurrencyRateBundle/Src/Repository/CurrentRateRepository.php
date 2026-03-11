@@ -70,7 +70,6 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
         DateTimeInterface $date,
     ): CurrentRate {
         $entity = $this->findByCurrencyPair($baseCurrency, $targetCurrency);
-
         if ($entity) {
             $entity->setValue($value);
             $entity->setDate($date);
@@ -114,7 +113,6 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
             ->select('MAX(cr.date)')
             ->getQuery()
             ->getSingleScalarResult();
-
         if (!is_string($res) || $res === '') {
             return null;
         }

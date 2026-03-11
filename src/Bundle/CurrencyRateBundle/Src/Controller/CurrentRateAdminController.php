@@ -9,8 +9,11 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollectionInterface;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+use function sprintf;
 
 /**
  * Sonata Admin controller for managing CurrentRate entities.
@@ -94,6 +97,7 @@ final class CurrentRateAdminController extends AbstractAdmin
     protected function configureShowFields(ShowMapper $show): void
     {
         $show
+            ->add('id', null, ['label' => 'Id'])
             ->add('baseCurrency', null, ['label' => 'Base Currency'])
             ->add('targetCurrency', null, ['label' => 'Target Currency'])
             ->add('value', null, ['label' => 'Rate'])
@@ -101,5 +105,15 @@ final class CurrentRateAdminController extends AbstractAdmin
                 'label' => 'Updated',
                 'format' => 'd.m.Y H:i:s'
             ]);
+    }
+
+    protected function configureRoutes(RouteCollectionInterface $collection): void
+    {
+        $collection->remove('create');
+    }
+
+    public function toString(object $object): string
+    {
+        return sprintf('Current Rate: %s', $object->getId());
     }
 }

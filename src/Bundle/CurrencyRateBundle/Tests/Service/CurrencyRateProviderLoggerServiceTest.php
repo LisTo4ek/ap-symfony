@@ -157,36 +157,25 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
      */
     public function testPsr3ProxyMethods(): void
     {
-        // Test debug
         $this->psr3Logger
             ->expects($this->once())
             ->method('debug')
             ->with('Debug message', ['key' => 'value']);
-
         $this->logger->debug('Debug message', ['key' => 'value']);
-
-        // Test info
         $this->psr3Logger
             ->expects($this->once())
             ->method('info')
             ->with('Info message', []);
-
         $this->logger->info('Info message');
-
-        // Test warning
         $this->psr3Logger
             ->expects($this->once())
             ->method('warning')
             ->with('Warning message', []);
-
         $this->logger->warning('Warning message');
-
-        // Test error
         $this->psr3Logger
             ->expects($this->once())
             ->method('error')
             ->with('Error message', []);
-
         $this->logger->error('Error message');
     }
 
@@ -196,7 +185,6 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
     public function testGetLogger(): void
     {
         $result = $this->logger->getLogger();
-
         $this->assertSame($this->psr3Logger, $result);
     }
 
@@ -210,12 +198,10 @@ class CurrencyRateProviderLoggerServiceTest extends TestCase
             'content_size' => 5000,
             'status_code' => 200,
         ];
-
         $this->psr3Logger
             ->expects($this->once())
             ->method('debug')
             ->with('Test message', $context);
-
         $this->logger->debug('Test message', $context);
     }
 }

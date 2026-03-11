@@ -93,7 +93,6 @@ class CurrencyRateImportCbrCommandTest extends TestCase
 
     public function testDefaultDatesAreToday(): void
     {
-        // When no arguments passed, defaults should be today
         $this->processor->method('process')->willReturn(0);
         $this->tester->execute([]);
         $this->assertSame(Command::SUCCESS, $this->tester->getStatusCode());

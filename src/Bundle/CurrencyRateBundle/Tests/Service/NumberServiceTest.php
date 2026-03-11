@@ -40,10 +40,7 @@ class NumberServiceTest extends TestCase
 
     public function testNormalizeScientificNotation(): void
     {
-        // sprintf('%.50f', '1e-8') converts to fixed-point
         $result = NumberService::normalize('14839200e-40');
-
-        // Must not contain 'e'
         $this->assertStringNotContainsString('e', $result->toString());
         $this->assertStringNotContainsString('E', $result->toString());
     }
@@ -51,7 +48,6 @@ class NumberServiceTest extends TestCase
     public function testNormalizeUppercaseScientific(): void
     {
         $result = NumberService::normalize('1.5E+3');
-
         $this->assertStringNotContainsString('e', $result->toString());
         $this->assertStringNotContainsString('E', $result->toString());
     }
@@ -60,7 +56,6 @@ class NumberServiceTest extends TestCase
     {
         $this->expectException(NumberFormatException::class);
         $this->expectExceptionMessage('Value "" does not represent a valid number');
-
         NumberService::normalize('');
     }
 }

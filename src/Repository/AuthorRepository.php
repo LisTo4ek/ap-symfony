@@ -45,8 +45,6 @@ class AuthorRepository extends ServiceEntityRepository
             ->orderBy('a.name', 'ASC')
             ->getQuery()
             ->getResult();
-
-        // PHPStan: getResult() returns mixed, but Doctrine ORM guarantees an array
         /** @var array<Author> $result */
         return $result;
     }

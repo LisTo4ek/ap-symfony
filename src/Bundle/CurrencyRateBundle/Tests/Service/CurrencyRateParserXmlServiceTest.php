@@ -111,14 +111,9 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
-
-
-        // Assert logging is called
         $this->logger
             ->expects($this->atLeastOnce())
             ->method('debug');
-
-        // Execute
         iterator_to_array($this->parser->parse(
             $xml,
             self::getRub()->getCode(),
@@ -134,23 +129,18 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
-
-        // Execute with different precision values
         $result2Precision = iterator_to_array($this->parser->parse(
             $xml,
             self::getRub()->getCode(),
             [self::getUsd()->getCode()],
             $date
         ));
-
         $result4Precision = iterator_to_array($this->parser->parse(
             $xml,
             self::getRub()->getCode(),
             [self::getUsd()->getCode()],
             $date
         ));
-
-        // Assert different precision is applied
         if (!empty($result2Precision) && !empty($result4Precision)) {
             $this->assertInstanceOf(RateContainer::class, $result2Precision[0]);
             $this->assertInstanceOf(RateContainer::class, $result4Precision[0]);

@@ -54,7 +54,6 @@ class CurrentRatesGetterService
         $date ??= new DateTimeImmutable('today');
         $latestDate = $this->currentRateStorage->getLatestDate();
         $importException = null;
-
         if (!$latestDate || !DateCompareService::eq($date, $latestDate)) {
             try {
                 $this->processor->process($date);

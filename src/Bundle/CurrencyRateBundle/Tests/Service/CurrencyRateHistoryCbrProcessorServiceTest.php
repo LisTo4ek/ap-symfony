@@ -31,7 +31,6 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->provider = $this->createMock(CurrencyRateProviderServiceInterface::class);
         $this->storage = $this->createMock(RateHistoryStorageInterface::class);
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);

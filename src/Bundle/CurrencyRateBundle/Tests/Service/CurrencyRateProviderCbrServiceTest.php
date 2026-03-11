@@ -59,12 +59,9 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $xmlContent = $this->getSampleXmlContent();
-
-        // Mock HTTP response
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(200);
         $response->method('getContent')->willReturn($xmlContent);
-
         $this->httpClient
             ->expects($this->once())
             ->method('request')
@@ -74,17 +71,11 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 'headers' => ['Accept' => 'text/xml'],
             ])
             ->willReturn($response);
-
-        // Mock processor to return empty generator
         $this->rateProcessor
             ->expects($this->once())
             ->method('parse')
             ->willReturn($this->createGeneratorFromRates([]));
-
-        // Execute - must iterate generator to trigger HTTP request
         $result = iterator_to_array($this->provider->getRates($date));
-
-        // Assert it returns array
         $this->assertIsArray($result);
     }
 
@@ -94,8 +85,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     public function testHandles4xxClientError(): void
     {
         $date = new DateTimeImmutable('2026-03-02');
-
-        // Create inline exception implementation
         $exception = new class extends Exception implements ClientExceptionInterface {
             public function getResponse(): ResponseInterface
             {
@@ -132,12 +121,8 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             ->expects($this->once())
             ->method('request')
             ->willThrowException($exception);
-
-        // Assert exception is thrown
         $this->expectException(ProviderConfigurationException::class);
         $this->expectExceptionMessageMatches('/HTTP 404/');
-
-        // Execute
         iterator_to_array($this->provider->getRates($date));
     }
 
@@ -147,8 +132,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     public function testHandles3xxRedirectError(): void
     {
         $date = new DateTimeImmutable('2026-03-02');
-
-        // Create inline exception implementation
         $exception = new class extends Exception implements RedirectionExceptionInterface {
             public function getResponse(): ResponseInterface
             {
@@ -180,16 +163,11 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-
         $this->httpClient
             ->expects($this->once())
             ->method('request')
             ->willThrowException($exception);
-
-        // Assert exception is thrown
         $this->expectException(ProviderConfigurationException::class);
-
-        // Execute
         iterator_to_array($this->provider->getRates($date));
     }
 
@@ -199,8 +177,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     public function testHandles5xxServerError(): void
     {
         $date = new DateTimeImmutable('2026-03-02');
-
-        // Create inline exception implementation
         $exception = new class extends Exception implements ServerExceptionInterface {
             public function getResponse(): ResponseInterface
             {
@@ -232,17 +208,12 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-
         $this->httpClient
             ->expects($this->once())
             ->method('request')
             ->willThrowException($exception);
-
-        // Assert ProviderException (retriable) is thrown
         $this->expectException(ProviderException::class);
         $this->expectExceptionMessageMatches('/retriable/');
-
-        // Execute
         iterator_to_array($this->provider->getRates($date));
     }
 
@@ -252,20 +223,13 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     public function testHandlesNetworkError(): void
     {
         $date = new DateTimeImmutable('2026-03-02');
-
-        // Use actual exception class
         $exception = new Exception('Connection timeout');
-
         $this->httpClient
             ->expects($this->once())
             ->method('request')
             ->willThrowException($exception);
-
-        // Plain exceptions are unexpected, so wrapped as CurrencyRateProviderBundleException
         $this->expectException(CurrencyRateBundleException::class);
         $this->expectExceptionMessageMatches('/Unexpected error/');
-
-        // Execute
         iterator_to_array($this->provider->getRates($date));
     }
 
@@ -283,13 +247,9 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
 
         $this->httpClient->method('request')->willReturn($response);
         $this->rateProcessor->method('parse')->willReturn($this->createGeneratorFromRates([]));
-
-        // Assert logger is called
         $this->logger
             ->expects($this->atLeastOnce())
             ->method('debug');
-
-        // Execute
         iterator_to_array($this->provider->getRates($date));
     }
 
@@ -331,18 +291,13 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
                 return $resp;
             }
         };
-
         $this->httpClient->method('request')->willThrowException($exception);
-
-        // Assert logger is called with error (at least once for 404)
         $this->logger
             ->expects($this->atLeastOnce())
             ->method('error');
-
         try {
             iterator_to_array($this->provider->getRates($date));
         } catch (ProviderConfigurationException) {
-            // Expected
         }
     }
 
@@ -353,33 +308,22 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $xmlContent = $this->getSampleXmlContent();
-
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(200);
         $response->method('getContent')->willReturn($xmlContent);
-
         $this->httpClient->method('request')->willReturn($response);
-
-        // Create rates with proper currency objects
         $rub = new Currency(self::getRub()->getCode());
         $usd = new Currency(self::getUsd()->getCode());
         $eur = new Currency(self::getEur()->getCode());
-
         $rates = [
             new RateContainer($rub, $usd, BigDecimal::of('90.5'), $date),
             new RateContainer($usd, $rub, BigDecimal::of('0.01105'), $date),
             new RateContainer($rub, $eur, BigDecimal::of('97.2'), $date),
             new RateContainer($eur, $rub, BigDecimal::of('0.01029'), $date),
         ];
-
         $this->rateProcessor->method('parse')->willReturn($this->createGeneratorFromRates($rates));
-
-        // Execute - collect all yielded arrays
         $result = iterator_to_array($this->provider->getRates($date));
-
-        // Assert we got arrays of rates
         $this->assertIsArray($result);
-        // Each element is an array of Rate objects
         foreach ($result as $chunk) {
             $this->assertIsArray($chunk);
             foreach ($chunk as $rate) {

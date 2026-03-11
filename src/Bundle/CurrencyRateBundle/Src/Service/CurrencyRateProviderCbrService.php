@@ -90,17 +90,13 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         try {
             $startTime = DurationCalculatorService::start();
             $chunk = [];
-
             $content = $this->requestRates($date);
-
             $duration = DurationCalculatorService::elapsed($startTime);
             $this->logger->info('Retrieved rates from CBR', [
                 'date' => $date->format('Y-m-d'),
                 'duration_ms' => $duration,
                 'content_size' => strlen($content),
             ]);
-
-            // Process and yield rates
             foreach (
                 $this->rateProcessor->parse(
                     $content,
@@ -129,7 +125,6 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         } catch (ProviderException $e) {
             throw $e;
         } catch (Throwable $e) {
-            // Unexpected error - log and wrap
             $this->logger->error('Unexpected error in getRates', [
                 'date' => $date->format('Y-m-d'),
                 'error' => $e->getMessage(),
@@ -185,7 +180,6 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
 
             return $content;
         } catch (RedirectionExceptionInterface $e) {
-            // 3xx - configuration issue, DO NOT RETRY
             $statusCode = $e->getResponse()->getStatusCode();
             $errorContext = $this->getErrorContext($startTime, $date, $e, $statusCode);
 
@@ -196,7 +190,6 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 $e
             );
         } catch (ClientExceptionInterface $e) {
-            // 4xx - client or request issue, DO NOT RETRY
             $statusCode = $e->getResponse()->getStatusCode();
             $errorContext = $this->getErrorContext($startTime, $date, $e, $statusCode);
 
@@ -244,7 +237,6 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 $e
             );
         } catch (Throwable $e) {
-            // Unexpected/unknown error
             $this->logger->error(
                 'Unexpected error in requestRates',
                 $this->getErrorContext($startTime, $date, $e)

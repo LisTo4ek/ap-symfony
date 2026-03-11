@@ -43,7 +43,6 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
         }
 
         $em = $this->getEntityManager();
-
         $em->wrapInTransaction(function () use ($entities, $em): void {
             foreach ($entities as $entity) {
                 $em->persist($entity);
@@ -62,19 +61,26 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
      *
      * @return PaginationPageableServiceInterface<RateHistory> Pageable query adapter for the results
      */
-    public function findByCurrencyPair(
+    public function findByCurrencyPairGroupedByDate(
         Currency $baseCurrency,
         Currency $targetCurrency
     ): PaginationPageableServiceInterface {
-        $queryBuilder = $this->createQueryBuilder('rh')
-            ->where('rh.baseCurrency = :baseCurrency')
+        $qb = $this->createQueryBuilder('rh');
+        $subQb = $this->createQueryBuilder('rh2')
+            ->select('MAX(rh2.id)')
+            ->where('rh2.baseCurrency = :baseCurrency')
+            ->andWhere('rh2.targetCurrency = :targetCurrency')
+            ->groupBy('rh2.date');
+
+        $qb->where('rh.baseCurrency = :baseCurrency')
             ->setParameter('baseCurrency', $baseCurrency->getCode())
             ->andWhere('rh.targetCurrency = :targetCurrency')
             ->setParameter('targetCurrency', $targetCurrency->getCode())
-            ->orderBy('rh.date', 'DESC')
+            ->andWhere($qb->expr()->in('rh.id', '(' . $subQb->getDQL() . ')'))
+            ->orderBy('rh.updatedAt', 'DESC')
             ->addOrderBy('rh.id', 'DESC');
 
         /** @phpstan-ignore-next-line varTag.nativeType */
-        return new PaginationDoctrinePageableService($queryBuilder);
+        return new PaginationDoctrinePageableService($qb);
     }
 }

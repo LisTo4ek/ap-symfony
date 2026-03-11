@@ -43,16 +43,13 @@ class PaginationDoctrineService implements PaginationServiceInterface
             $page = 1;
         }
 
-        // Get total count and pages from the query
         $totalCount = $pageable->getTotalCount();
         $totalPages = $pageable->getTotalPages($perPage);
 
-        // Ensure page is within bounds
         if ($page > $totalPages && $totalPages > 0) {
             $page = $totalPages;
         }
 
-        // Fetch items for current page
         $items = $pageable->getPage($page, $perPage);
 
         return new PaginationResultContainer(

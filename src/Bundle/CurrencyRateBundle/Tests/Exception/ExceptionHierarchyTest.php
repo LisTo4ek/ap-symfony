@@ -13,8 +13,6 @@ use RuntimeException;
 
 class ExceptionHierarchyTest extends TestCase
 {
-    // -- CurrencyRateBundleException (root) --
-
     public function testBundleExceptionDefaultStatusCode(): void
     {
         $e = new CurrencyRateBundleException('msg');
@@ -51,8 +49,6 @@ class ExceptionHierarchyTest extends TestCase
         $this->assertSame('', $e->getMessage());
     }
 
-    // -- CurrencyRateProviderException --
-
     public function testProviderExceptionExtendsBundleException(): void
     {
         $e = new ProviderException('fail');
@@ -66,8 +62,6 @@ class ExceptionHierarchyTest extends TestCase
 
         $this->assertSame(503, $e->getStatusCode());
     }
-
-    // -- CurrencyRateProviderConfigurationException --
 
     public function testConfigurationExceptionExtendsProviderException(): void
     {
@@ -84,8 +78,6 @@ class ExceptionHierarchyTest extends TestCase
         $this->assertSame(500, $e->getStatusCode());
     }
 
-    // -- CurrencyRateProviderInvalidRateDataException --
-
     public function testInvalidRateDataExceptionExtendsProviderException(): void
     {
         $e = new InvalidRateDataException('bad data');
@@ -100,8 +92,6 @@ class ExceptionHierarchyTest extends TestCase
 
         $this->assertSame(422, $e->getStatusCode());
     }
-
-    // -- catch hierarchy --
 
     public function testCatchProviderExceptionCatchesConfigurationException(): void
     {

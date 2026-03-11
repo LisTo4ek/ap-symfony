@@ -66,8 +66,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $value2 = BigDecimal::of('80.00');
         $date1 = new DateTimeImmutable('2026-03-05');
         $date2 = new DateTimeImmutable('2026-03-06');
-
-        // Create initial entity
         $created = $this->repository->upsertForCurrencyPair(
             self::getRub(),
             self::getUsd(),
@@ -75,8 +73,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
             $date1
         );
         $originalId = $created->getId();
-
-        // Update with same currency pair
         $updated = $this->repository->upsertForCurrencyPair(
             self::getRub(),
             self::getUsd(),
@@ -84,7 +80,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
             $date2
         );
 
-        // Should be the same entity with updated values
         $this->assertSame($originalId, $updated->getId());
         $this->assertSame('80.00', $updated->getValue()->toString());
         $this->assertSame('2026-03-06', $updated->getDate()->format('Y-m-d'));
@@ -158,7 +153,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $date2 = new DateTimeImmutable('2026-03-06');
         $date3 = new DateTimeImmutable('2026-03-04');
 
-        // Insert in random order
         $this->repository->upsertForCurrencyPair(
             self::getRub(),
             self::getUsd(),
@@ -208,7 +202,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-06');
         $otherDate = new DateTimeImmutable('2026-03-05');
 
-        // Create rates for the target date and base currency
         $this->repository->upsertForCurrencyPair(
             self::getRub(),
             self::getUsd(),
@@ -223,7 +216,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
             $date
         );
 
-        // Create rates that should NOT match (different date and different currency pair)
         $this->repository->upsertForCurrencyPair(
             self::getEur(),
             self::getUsd(),
@@ -231,7 +223,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
             $otherDate
         );
 
-        // Create rates that should NOT match (different base currency)
         $this->repository->upsertForCurrencyPair(
             self::getUsd(),
             self::getEur(),
@@ -250,7 +241,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
     {
         $date = new DateTimeImmutable('2026-03-06');
 
-        // Insert in reverse order to verify sorting
         $this->repository->upsertForCurrencyPair(
             self::getRub(),
             self::getUsd(),
@@ -267,7 +257,6 @@ class CurrentRateRepositoryTest extends KernelTestCase
         $result = $this->repository->findByDateAndBaseCurrency($date, self::getRub());
         $items = $result->getPage(1, 10);
 
-        // EUR should come before USD alphabetically
         $this->assertSame(self::getEur()->getCode(), $items[0]->getTargetCurrency()->getCode());
         $this->assertSame(self::getUsd()->getCode(), $items[1]->getTargetCurrency()->getCode());
     }

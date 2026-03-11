@@ -92,7 +92,6 @@ class ProviderLoggerService implements ProviderLoggerServiceInterface
             'provider' => $providerName,
             'error_message' => $message,
         ];
-
         if ($exception !== null) {
             $context['exception'] = $exception->getMessage();
             $context['exception_code'] = $exception->getCode();

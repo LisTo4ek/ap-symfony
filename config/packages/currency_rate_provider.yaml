@@ -26,4 +26,5 @@ when@dev:
             monitored_currencies:
                 - EUR
                 - IRR
+                - USD
 

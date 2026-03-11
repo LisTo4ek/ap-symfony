@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
+use App\Bundle\CurrencyRateBundle\Src\Config\ConstantsConfig;
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
@@ -32,9 +33,6 @@ use function count;
  */
 class CurrencyRateHistoryCbrProcessorService
 {
-    /** @var int Maximum number of rate containers per processing chunk */
-    private const int CHUNK_SIZE = 1000;
-
     public function __construct(
         #[Autowire(service: CurrencyRateProviderCbrService::class)]
         private readonly CurrencyRateProviderServiceInterface $provider,
@@ -56,15 +54,16 @@ class CurrencyRateHistoryCbrProcessorService
      * @return int The total number of rate records processed and saved
      *
      * @throws Throwable Re-throws any exception after logging it
+     * @todo: n+1 problem when dispathing the eventbut we can live with it for now, because we are
+     *        going process rates once per day I think
      */
     public function process(DateTimeImmutable $date): int
     {
         $today = new DateTimeImmutable('today');
         $count = 0;
-
         try {
             /** @var array<RateContainer> $chunk */
-            foreach ($this->provider->getRates($date, self::CHUNK_SIZE) as $chunk) {
+            foreach ($this->provider->getRates($date, ConstantsConfig::CHUNK_SIZE) as $chunk) {
                 $historyEntities = array_map(
                     static fn(RateContainer $rate) => new RateHistory(
                         $rate->baseCurrency,
@@ -74,13 +73,8 @@ class CurrencyRateHistoryCbrProcessorService
                     ),
                     $chunk
                 );
-
                 $this->rateHistoryStorage->saveBatch($historyEntities);
-
                 $count += count($chunk);
-
-                // todo: n+1 problem,
-                // todo: but we can live with it for now, because we are going process rates once per day I think
                 /** @var RateContainer $rate */
                 foreach ($chunk as $rate) {
                     if (!DateCompareService::eq($rate->date, $today)) {

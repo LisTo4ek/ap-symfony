@@ -25,7 +25,6 @@ class RateHistoryTest extends TestCase
     {
         $value = BigDecimal::of('75.50');
         $history = new RateHistory(self::getRub(), self::getUsd(), $value, $this->date);
-
         $this->assertSame(self::getRub(), $history->getBaseCurrency());
         $this->assertSame(self::getUsd(), $history->getTargetCurrency());
         $this->assertSame($value->toString(), $history->getValue()->toString());
@@ -35,7 +34,6 @@ class RateHistoryTest extends TestCase
     public function testIdIsNullBeforePersistence(): void
     {
         $history = new RateHistory(self::getRub(), self::getUsd(), BigDecimal::of('1'), $this->date);
-
         $this->assertNull($history->getId());
     }
 
@@ -44,7 +42,6 @@ class RateHistoryTest extends TestCase
         $before = new DateTimeImmutable();
         $history = new RateHistory(self::getRub(), self::getUsd(), BigDecimal::of('1'), $this->date);
         $after = new DateTimeImmutable();
-
         $this->assertGreaterThanOrEqual($before->getTimestamp(), $history->getUpdatedAt()->getTimestamp());
         $this->assertLessThanOrEqual($after->getTimestamp(), $history->getUpdatedAt()->getTimestamp());
     }
@@ -52,7 +49,6 @@ class RateHistoryTest extends TestCase
     public function testSameCurrencyPairIsAllowed(): void
     {
         $history = new RateHistory(self::getRub(), self::getRub(), BigDecimal::of('1'), $this->date);
-
         $this->assertSame(self::getRub(), $history->getBaseCurrency());
         $this->assertSame(self::getRub(), $history->getTargetCurrency());
     }
@@ -61,7 +57,6 @@ class RateHistoryTest extends TestCase
     {
         $value = BigDecimal::of('0.0000000123456789');
         $history = new RateHistory(self::getRub(), self::getUsd(), $value, $this->date);
-
         $this->assertSame($value->toString(), $history->getValue()->toString());
     }
 }

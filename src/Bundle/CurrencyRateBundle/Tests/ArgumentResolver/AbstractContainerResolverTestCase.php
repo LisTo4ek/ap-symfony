@@ -56,10 +56,8 @@ abstract class AbstractContainerResolverTestCase extends TestCase
         ?string $exception,
         ?int $resultCount = null,
     ): void {
-
         $params = $params ?? [];
         $request = new Request($actualQuery ?? []);
-
         foreach ($params as $name => $config) {
             if ($config['value'] === null) {
                 continue;
@@ -78,14 +76,12 @@ abstract class AbstractContainerResolverTestCase extends TestCase
         }
 
         $results = iterator_to_array($this->resolver->resolve($request, $metadata));
-
         if (empty($params)) {
             $this->assertEmpty($results);
             return;
         }
 
         $this->assertInstanceOf($metadataClass, $results[0]);
-
         if ($resultCount !== null) {
             $this->assertCount($resultCount, $results);
         }

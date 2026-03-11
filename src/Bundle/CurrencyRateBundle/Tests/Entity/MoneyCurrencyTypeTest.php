@@ -33,14 +33,12 @@ class MoneyCurrencyTypeTest extends TestCase
     public function testConvertToPHPValueReturnsNullForNull(): void
     {
         $result = $this->type->convertToPHPValue(null, $this->platform);
-
         $this->assertNull($result);
     }
 
     public function testConvertToPHPValueReturnsCurrencyForString(): void
     {
         $result = $this->type->convertToPHPValue(self::getUsd()->getCode(), $this->platform);
-
         $this->assertInstanceOf(Currency::class, $result);
         $this->assertSame(self::getUsd()->getCode(), $result->getCode());
     }
@@ -48,42 +46,36 @@ class MoneyCurrencyTypeTest extends TestCase
     public function testConvertToPHPValueThrowsOnEmptyString(): void
     {
         $this->expectException(InvalidArgumentException::class);
-
         $this->type->convertToPHPValue('', $this->platform);
     }
 
     public function testConvertToPHPValueThrowsOnInteger(): void
     {
         $this->expectException(InvalidArgumentException::class);
-
         $this->type->convertToPHPValue(123, $this->platform);
     }
 
     public function testConvertToDatabaseValueReturnsNullForNull(): void
     {
         $result = $this->type->convertToDatabaseValue(null, $this->platform);
-
         $this->assertNull($result);
     }
 
     public function testConvertToDatabaseValueReturnsCodeForCurrency(): void
     {
         $result = $this->type->convertToDatabaseValue(self::getEur(), $this->platform);
-
         $this->assertSame(self::getEur()->getCode(), $result);
     }
 
     public function testConvertToDatabaseValuePassesThroughString(): void
     {
         $result = $this->type->convertToDatabaseValue(self::getGbp()->getCode(), $this->platform);
-
         $this->assertSame(self::getGbp()->getCode(), $result);
     }
 
     public function testConvertToDatabaseValueThrowsOnInvalidType(): void
     {
         $this->expectException(InvalidArgumentException::class);
-
         $this->type->convertToDatabaseValue(123, $this->platform);
     }
 
@@ -92,7 +84,6 @@ class MoneyCurrencyTypeTest extends TestCase
         $original = self::getJpy();
         $dbValue = $this->type->convertToDatabaseValue($original, $this->platform);
         $phpValue = $this->type->convertToPHPValue($dbValue, $this->platform);
-
         $this->assertInstanceOf(Currency::class, $phpValue);
         $this->assertSame($original->getCode(), $phpValue->getCode());
     }

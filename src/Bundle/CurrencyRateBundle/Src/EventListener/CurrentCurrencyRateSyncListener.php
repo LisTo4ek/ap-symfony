@@ -44,12 +44,12 @@ class CurrentCurrencyRateSyncListener implements EventSubscriberInterface
      * Skips the upsert if the rate's date does not match today's date.
      *
      * @param CurrencyRateSavedEvent $event The event carrying the saved rate data
+     * @todo: set cache for current rates by date
      */
     public function onRateSaved(CurrencyRateSavedEvent $event): void
     {
         $rate = $event->getRate();
         $today = new DateTimeImmutable('today');
-
         if (!DateCompareService::eq($rate->date, $today)) {
             return;
         }
@@ -60,7 +60,5 @@ class CurrentCurrencyRateSyncListener implements EventSubscriberInterface
             $rate->rate,
             $rate->date,
         );
-
-        // todo: set cache for current rates by date
     }
 }

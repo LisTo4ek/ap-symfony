@@ -86,13 +86,11 @@ class CurrencyRateImportCbrCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-
         $this->logger->info('Currency rates import started', [
             'from' => $input->getArgument('from'),
             'to' => $input->getArgument('to'),
             'force' => $input->getOption('force'),
         ]);
-
         try {
             $fromArg = $input->getArgument('from')
                 ?? new DateTime()->format('Y-m-d');
@@ -130,32 +128,25 @@ class CurrencyRateImportCbrCommand extends Command
             $from->format('Y-m-d'),
             $to->format('Y-m-d')
         ));
-
         $this->logger->info('Import process started', [
             'from' => $from->format('Y-m-d'),
             'to' => $to->format('Y-m-d'),
         ]);
-
         $interval = new DateInterval('P1D');
         $period = new DatePeriod($from, $interval, $to->modify('+1 day'));
         $totalDays = iterator_count($period->getIterator());
-
         $progressBar = new ProgressBar($output, $totalDays);
         $progressBar->setFormat('verbose');
         $progressBar->start();
-
         $successCount = 0;
         $errors = [];
-
         foreach ($period as $date) {
             $progressBar->setMessage($date->format('Y-m-d'));
-
             try {
                 $successCount += $this->processor->process($date);
             } catch (Throwable $e) {
                 $errorMessage = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
                 $errors[] = $errorMessage;
-
                 $this->logger->error('Error importing rates for date', [
                     'date' => $date->format('Y-m-d'),
                     'error_message' => $e->getMessage(),
@@ -170,7 +161,6 @@ class CurrencyRateImportCbrCommand extends Command
 
         $progressBar->finish();
         $io->newLine(2);
-
         $errorCount = count($errors);
         if ($errorCount > 0) {
             $io->warning(sprintf(
@@ -179,7 +169,6 @@ class CurrencyRateImportCbrCommand extends Command
                 $errorCount
             ));
             $io->listing($errors);
-
             $this->logger->warning('Import process completed with errors', [
                 'success_count' => $successCount,
                 'error_count' => $errorCount,
@@ -189,7 +178,6 @@ class CurrencyRateImportCbrCommand extends Command
             return Command::FAILURE;
         } else {
             $io->success(sprintf('Import completed: %d rates imported', $successCount));
-
             $this->logger->info('Import process completed', [
                 'success_count' => $successCount,
                 'total_days_processed' => $totalDays,

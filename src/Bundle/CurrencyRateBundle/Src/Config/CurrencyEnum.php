@@ -12,7 +12,6 @@ namespace App\Bundle\CurrencyRateBundle\Src\Config;
  */
 enum CurrencyEnum: string
 {
-    // ISO 4217 Currency Codes (Alphabetically ordered)
     case AED = 'AED'; // United Arab Emirates Dirham
     case AFN = 'AFN'; // Afghan Afghani
     case ALL = 'ALL'; // Albanian Lek

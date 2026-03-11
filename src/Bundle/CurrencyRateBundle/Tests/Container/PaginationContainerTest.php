@@ -38,7 +38,6 @@ class PaginationContainerTest extends TestCase
     public function testPropertiesArePublic(): void
     {
         $c = new PaginationContainer(page: 3, perPage: 25);
-        // Direct property access (DTO pattern)
         $c->page = 4;
         $c->perPage = 30;
         $this->assertSame(4, $c->page);

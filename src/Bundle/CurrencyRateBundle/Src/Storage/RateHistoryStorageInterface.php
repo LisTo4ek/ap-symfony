@@ -31,7 +31,7 @@ interface RateHistoryStorageInterface
      *
      * @return PaginationPageableServiceInterface<RateHistory> Pageable query adapter
      */
-    public function findByCurrencyPair(
+    public function findByCurrencyPairGroupedByDate(
         Currency $baseCurrency,
         Currency $targetCurrency,
     ): PaginationPageableServiceInterface;

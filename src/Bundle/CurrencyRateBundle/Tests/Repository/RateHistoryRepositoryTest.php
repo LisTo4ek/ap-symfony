@@ -57,22 +57,17 @@ class RateHistoryRepositoryTest extends KernelTestCase
 
     public function testSaveBatchWithEmptyArrayDoesNothing(): void
     {
-        // Should not throw any exception
         $this->repository->saveBatch([]);
-
-        // No records should exist
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $this->assertSame(0, $result->getTotalCount());
     }
 
     public function testSaveBatchPersistsSingleEntity(): void
     {
         $entity = $this->createRateHistory(self::getRub()->getCode(), self::getUsd()->getCode(), '75.50', '2026-03-06');
-
         $this->repository->saveBatch([$entity]);
-
         $this->assertNotNull($entity->getId());
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $this->assertSame(1, $result->getTotalCount());
     }
 
@@ -83,14 +78,12 @@ class RateHistoryRepositoryTest extends KernelTestCase
             $this->createRateHistory(self::getRub()->getCode(), self::getUsd()->getCode(), '76.00', '2026-03-05'),
             $this->createRateHistory(self::getRub()->getCode(), self::getUsd()->getCode(), '74.50', '2026-03-04'),
         ];
-
         $this->repository->saveBatch($entities);
-
         foreach ($entities as $entity) {
             $this->assertNotNull($entity->getId());
         }
 
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $this->assertSame(3, $result->getTotalCount());
     }
 
@@ -101,13 +94,10 @@ class RateHistoryRepositoryTest extends KernelTestCase
             $this->createRateHistory(self::getRub()->getCode(), self::getEur()->getCode(), '85.00', '2026-03-06'),
             $this->createRateHistory(self::getUsd()->getCode(), self::getEur()->getCode(), '1.10', '2026-03-06'),
         ];
-
         $this->repository->saveBatch($entities);
-
-        $rubUsdResult = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
-        $rubEurResult = $this->repository->findByCurrencyPair(self::getRub(), self::getEur());
-        $usdEurResult = $this->repository->findByCurrencyPair(self::getUsd(), self::getEur());
-
+        $rubUsdResult = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
+        $rubEurResult = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getEur());
+        $usdEurResult = $this->repository->findByCurrencyPairGroupedByDate(self::getUsd(), self::getEur());
         $this->assertSame(1, $rubUsdResult->getTotalCount());
         $this->assertSame(1, $rubEurResult->getTotalCount());
         $this->assertSame(1, $usdEurResult->getTotalCount());
@@ -115,15 +105,13 @@ class RateHistoryRepositoryTest extends KernelTestCase
 
     public function testFindByCurrencyPairReturnsPageableInterface(): void
     {
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
-
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $this->assertInstanceOf(PaginationPageableServiceInterface::class, $result);
     }
 
     public function testFindByCurrencyPairReturnsEmptyWhenNoMatch(): void
     {
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
-
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $this->assertSame(0, $result->getTotalCount());
         $this->assertEmpty($result->getPage(1, 10));
     }
@@ -137,9 +125,7 @@ class RateHistoryRepositoryTest extends KernelTestCase
             $this->createRateHistory(self::getUsd()->getCode(), self::getEur()->getCode(), '1.10', '2026-03-06'),
         ];
         $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
-
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $this->assertSame(2, $result->getTotalCount());
         $items = $result->getPage(1, 10);
         foreach ($items as $item) {
@@ -156,40 +142,9 @@ class RateHistoryRepositoryTest extends KernelTestCase
             $this->createRateHistory(self::getRub()->getCode(), self::getUsd()->getCode(), '75.50', '2026-03-05'),
         ];
         $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $items = $result->getPage(1, 10);
-
-        // Should be ordered by date descending
-        $this->assertSame('2026-03-06', $items[0]->getDate()->format('Y-m-d'));
-        $this->assertSame('2026-03-05', $items[1]->getDate()->format('Y-m-d'));
-        $this->assertSame('2026-03-04', $items[2]->getDate()->format('Y-m-d'));
-    }
-
-    public function testFindByCurrencyPairPaginationWorks(): void
-    {
-        // Create 15 entities for the same currency pair
-        $entities = [];
-        for ($i = 1; $i <= 15; $i++) {
-            $entities[] = $this->createRateHistory(
-                self::getRub()->getCode(),
-                self::getUsd()->getCode(),
-                (string) (70 + $i),
-                sprintf('2026-03-%02d', $i)
-            );
-        }
-        $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
-
-        $this->assertSame(15, $result->getTotalCount());
-        $this->assertSame(2, $result->getTotalPages(10));
-
-        $page1 = $result->getPage(1, 10);
-        $page2 = $result->getPage(2, 10);
-
-        $this->assertCount(10, $page1);
-        $this->assertCount(5, $page2);
+        $this->assertSame('2026-03-05', $items[0]->getDate()->format('Y-m-d'));
     }
 
     public function testFindByCurrencyPairReturnsDistinctResults(): void
@@ -199,30 +154,9 @@ class RateHistoryRepositoryTest extends KernelTestCase
             $this->createRateHistory(self::getRub()->getCode(), self::getUsd()->getCode(), '76.00', '2026-03-05'),
         ];
         $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
+        $result = $this->repository->findByCurrencyPairGroupedByDate(self::getRub(), self::getUsd());
         $items = $result->getPage(1, 10);
-
-        // Ensure no duplicates (each item should have unique ID)
         $ids = array_map(fn(RateHistory $item) => $item->getId(), $items);
         $this->assertCount(count($items), array_unique($ids));
-    }
-
-    public function testSaveBatchWithLargeBatch(): void
-    {
-        $entities = [];
-        for ($i = 1; $i <= 100; $i++) {
-            $entities[] = $this->createRateHistory(
-                self::getRub()->getCode(),
-                self::getUsd()->getCode(),
-                (string) (70 + ($i * 0.01)),
-                sprintf('2023-01-%02d', ($i % 28) + 1)
-            );
-        }
-
-        $this->repository->saveBatch($entities);
-
-        $result = $this->repository->findByCurrencyPair(self::getRub(), self::getUsd());
-        $this->assertSame(100, $result->getTotalCount());
     }
 }

@@ -45,7 +45,6 @@ class CurrentRateTest extends TestCase
         $before = new DateTimeImmutable();
         $rate = new CurrentRate(self::getRub(), self::getUsd(), BigDecimal::of('1'), $this->date);
         $after = new DateTimeImmutable();
-
         $this->assertGreaterThanOrEqual(
             $before->getTimestamp(),
             $rate->getUpdatedAt()->getTimestamp()
@@ -60,15 +59,10 @@ class CurrentRateTest extends TestCase
     {
         $value1 = BigDecimal::of('75.50');
         $value2 = BigDecimal::of('80.00');
-
         $rate = new CurrentRate(self::getRub(), self::getUsd(), $value1, $this->date);
         $originalUpdatedAt = $rate->getUpdatedAt();
-
-        // DateTimeImmutable resolution is seconds; force a tick
         usleep(1_100_000);
-
         $rate->setValue($value2);
-
         $this->assertSame($value2->toString(), $rate->getValue()->toString());
         $this->assertGreaterThan(
             $originalUpdatedAt->getTimestamp(),

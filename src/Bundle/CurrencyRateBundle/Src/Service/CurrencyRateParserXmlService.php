@@ -83,7 +83,6 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             throw new InvalidRateDataException("Invalid XML: {$e->getMessage()}", 0, $e);
         }
 
-        // Validate structure
         $containerNode = $this->resolveContainerNode($xml);
         if ($containerNode === null) {
             throw new InvalidRateDataException('Invalid XML structure: missing ValCurs node');
@@ -100,11 +99,9 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             );
         }
 
-        // Process and yield rates
         $processedCount = 0;
         foreach ($containerNode->Valute as $currencyNode) {
             $targetCurrencyCode = (string) ($currencyNode->CharCode ?? '');
-
             if (empty($targetCurrencyCode)) {
                 throw new InvalidRateDataException('Invalid currency code');
             }
@@ -113,7 +110,6 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
                 continue;
             }
 
-            // todo: rate precision should be handled by provider config, not hardcoded
             $rateValue = $this->processRate($targetCurrencyCode, $currencyNode);
 
             yield new RateContainer(
@@ -178,20 +174,20 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      * Extracts and normalizes the VunitRate value from a currency XML node.
      *
      * @param string $currencyCode The ISO 4217 currency code (for error messages)
-     * @param SimpleXMLElement $currencyNode The Valute XML element containing rate data
+     * @param SimpleXMLElement $node The Valute XML element containing rate data
      *
      * @return BigDecimal The normalized rate value
      *
      * @throws InvalidRateDataException If the VunitRate element is missing
      */
-    private function processRate(string $currencyCode, SimpleXMLElement $currencyNode): BigDecimal
+    private function processRate(string $currencyCode, SimpleXMLElement $node): BigDecimal
     {
-        if (!$currencyNode->VunitRate) {
+        if (!$node->VunitRate) {
             throw new InvalidRateDataException(
                 "Invalid rate data for {$currencyCode}: missing VunitRate"
             );
         }
 
-        return NumberService::normalize((string) $currencyNode->VunitRate);
+        return NumberService::normalize((string) $node->VunitRate);
     }
 }

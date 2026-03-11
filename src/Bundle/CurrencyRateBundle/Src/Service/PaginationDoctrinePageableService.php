@@ -36,13 +36,9 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
             return $this->cachedTotalCount;
         }
 
-        // clone is safe here — Doctrine's QueryBuilder::__clone() deep-clones
-        // all DQL part expression objects and creates a fresh ArrayCollection
-        // with cloned parameters, so mutations on the clone cannot affect the original.
         $countQb = clone $this->queryBuilder;
         $countQb->resetDQLPart('orderBy');
         $countQb->select('COUNT(DISTINCT ' . $countQb->getRootAliases()[0] . ')');
-
         $this->cachedTotalCount = (int) $countQb
             ->getQuery()
             ->getSingleScalarResult();
@@ -64,16 +60,13 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
         }
 
         $offset = ($page - 1) * $itemsPerPage;
-
         $qb = clone $this->queryBuilder;
-
         $result = $qb
             ->setFirstResult($offset)
             ->setMaxResults($itemsPerPage)
             ->getQuery()
             ->getResult();
 
-        // PHPStan: getResult() returns mixed, but Doctrine ORM guarantees an array
         /** @var array<T> $result */
         return $result;
     }

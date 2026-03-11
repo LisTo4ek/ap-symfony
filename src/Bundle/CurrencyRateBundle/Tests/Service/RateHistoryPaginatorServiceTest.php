@@ -66,7 +66,7 @@ class RateHistoryPaginatorServiceTest extends TestCase
     public function testReturnsPaginationResultForValidPair(): void
     {
         $pageable = $this->createMock(PaginationPageableServiceInterface::class);
-        $this->storage->method('findByCurrencyPair')->willReturn($pageable);
+        $this->storage->method('findByCurrencyPairGroupedByDate')->willReturn($pageable);
         $expected = $this->createMock(PaginationResultInterface::class);
         $this->paginator->method('paginate')->willReturn($expected);
         $dto = new RateHistoryContainer(
@@ -83,7 +83,7 @@ class RateHistoryPaginatorServiceTest extends TestCase
         $pageable = $this->createMock(PaginationPageableServiceInterface::class);
         $this->storage
             ->expects($this->once())
-            ->method('findByCurrencyPair')
+            ->method('findByCurrencyPairGroupedByDate')
             ->with(
                 $this->callback(fn($c) => $c->getCode() === self::getRub()->getCode()),
                 $this->callback(fn($c) => $c->getCode() === 'GBP'),
@@ -102,7 +102,7 @@ class RateHistoryPaginatorServiceTest extends TestCase
     public function testPaginatorReceivesCorrectPageAndPerPage(): void
     {
         $pageable = $this->createMock(PaginationPageableServiceInterface::class);
-        $this->storage->method('findByCurrencyPair')->willReturn($pageable);
+        $this->storage->method('findByCurrencyPairGroupedByDate')->willReturn($pageable);
         $this->paginator
             ->expects($this->once())
             ->method('paginate')

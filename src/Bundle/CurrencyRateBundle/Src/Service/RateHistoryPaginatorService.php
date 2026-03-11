@@ -47,7 +47,7 @@ class RateHistoryPaginatorService
         }
 
         return $this->paginator->paginate(
-            $this->storage->findByCurrencyPair(
+            $this->storage->findByCurrencyPairGroupedByDate(
                 new Currency($dto->baseCurrencyCode),
                 new Currency($dto->targetCurrencyCode),
             ),

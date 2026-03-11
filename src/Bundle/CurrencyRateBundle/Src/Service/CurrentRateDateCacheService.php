@@ -81,7 +81,6 @@ class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterfac
     public function set(?DateTimeInterface $date = null, ?int $ttl = null): void
     {
         $ttl ??= self::DEFAULT_TTL;
-
         $this->cache->delete(self::CACHE_KEY);
 
         if ($date !== null) {
