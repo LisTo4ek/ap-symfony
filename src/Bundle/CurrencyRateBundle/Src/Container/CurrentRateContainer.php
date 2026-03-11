@@ -17,8 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CurrentRateContainer
 {
     /**
-     * @param PaginationContainer $pagination       Validated pagination parameters (page, perPage)
-     * @param string              $baseCurrencyCode ISO 4217 base currency code (defaults to RUB)
+     * @param PaginationContainer $pagination Validated pagination parameters (page, perPage)
+     * @param string $baseCurrencyCode ISO 4217 base currency code (defaults to RUB)
      */
     public function __construct(
         #[Assert\Valid]

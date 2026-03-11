@@ -23,7 +23,7 @@ class MoneyCurrencyType extends StringType
     /**
      * Converts a database string value to a Money\Currency PHP object.
      *
-     * @param mixed            $value    The raw database value (3-letter currency code string or null)
+     * @param mixed $value The raw database value (3-letter currency code string or null)
      * @param AbstractPlatform $platform The database platform
      *
      * @return Currency|null The Currency instance, or null if the value is null
@@ -48,7 +48,7 @@ class MoneyCurrencyType extends StringType
      *
      * Accepts both Currency instances (extracts the code) and plain strings.
      *
-     * @param mixed            $value    The Currency instance, currency code string, or null
+     * @param mixed $value The Currency instance, currency code string, or null
      * @param AbstractPlatform $platform The database platform
      *
      * @return string|null The 3-letter currency code, or null if the value is null

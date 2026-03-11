@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Tests\Helper;
+namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Helper\NumberHelper;
+use App\Bundle\CurrencyRateBundle\Src\Service\NumberService;
 use Brick\Math\Exception\NumberFormatException;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class NumberHelperTest extends TestCase
+class NumberServiceTest extends TestCase
 {
     #[DataProvider('normalizeProvider')]
     public function testNormalize(string $input, string $expected): void
     {
-        $this->assertSame($expected, NumberHelper::normalize($input)->toString());
+        $this->assertSame($expected, NumberService::normalize($input)->toString());
     }
 
     /**
@@ -41,7 +41,7 @@ class NumberHelperTest extends TestCase
     public function testNormalizeScientificNotation(): void
     {
         // sprintf('%.50f', '1e-8') converts to fixed-point
-        $result = NumberHelper::normalize('14839200e-40');
+        $result = NumberService::normalize('14839200e-40');
 
         // Must not contain 'e'
         $this->assertStringNotContainsString('e', $result->toString());
@@ -50,7 +50,7 @@ class NumberHelperTest extends TestCase
 
     public function testNormalizeUppercaseScientific(): void
     {
-        $result = NumberHelper::normalize('1.5E+3');
+        $result = NumberService::normalize('1.5E+3');
 
         $this->assertStringNotContainsString('e', $result->toString());
         $this->assertStringNotContainsString('E', $result->toString());
@@ -61,6 +61,6 @@ class NumberHelperTest extends TestCase
         $this->expectException(NumberFormatException::class);
         $this->expectExceptionMessage('Value "" does not represent a valid number');
 
-        NumberHelper::normalize('');
+        NumberService::normalize('');
     }
 }

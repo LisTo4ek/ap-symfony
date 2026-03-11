@@ -20,7 +20,7 @@ class RateHistoryPaginatorService
 {
     /**
      * @param PaginationServiceInterface<RateHistory> $paginator Pagination service for slicing query results
-     * @param RateHistoryStorageInterface             $storage   Storage for querying rate history records
+     * @param RateHistoryStorageInterface $storage Storage for querying rate history records
      */
     public function __construct(
         private readonly PaginationServiceInterface $paginator,
@@ -34,7 +34,7 @@ class RateHistoryPaginatorService
      * Returns null if either the base or target currency code is empty.
      *
      * @param PaginationConfigInterface $paginatorConfig Pagination configuration (allowed per-page options, etc.)
-     * @param RateHistoryContainer      $dto             Validated request DTO with pagination and currency pair codes
+     * @param RateHistoryContainer $dto Validated request DTO with pagination and currency pair codes
      *
      * @return PaginationResultInterface<RateHistory>|null Paginated results, or null if currency codes are missing
      */

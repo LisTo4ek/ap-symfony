@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Src\Helper;
+namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use Brick\Math\BigDecimal;
 
@@ -11,7 +11,7 @@ use function str_replace;
 /**
  * Utility class for normalizing numeric string representations.
  */
-class NumberHelper
+class NumberService
 {
     /**
      * Normalizes a numeric string by replacing comma decimal separators with dots

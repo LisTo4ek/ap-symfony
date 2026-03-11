@@ -7,13 +7,9 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateResponseContainer;
-use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
-use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
-use DateInterval;
 use DateTimeImmutable;
-use DateTimeInterface;
 use Money\Currency;
 use Throwable;
 
@@ -27,9 +23,9 @@ use Throwable;
 class CurrentRatesGetterService
 {
     /**
-     * @param PaginationServiceInterface<CurrentRate> $paginator          Pagination service for slicing query results
-     * @param CurrentRateStorageInterface             $currentRateStorage Storage for querying current rate records
-     * @param CurrencyRateHistoryCbrProcessorService  $processor          Processor for importing rates from CBR
+     * @param PaginationServiceInterface<CurrentRate> $paginator Pagination service for slicing query results
+     * @param CurrentRateStorageInterface $currentRateStorage Storage for querying current rate records
+     * @param CurrencyRateHistoryCbrProcessorService $processor Processor for importing rates from CBR
      */
     public function __construct(
         private readonly PaginationServiceInterface $paginator,
@@ -45,10 +41,10 @@ class CurrentRatesGetterService
      * Returns null pagination if the base currency code is empty or no rates exist.
      *
      * @param PaginationConfigInterface $paginatorConfig Pagination configuration (per-page options, etc.)
-     * @param CurrentRateContainer      $dto             Validated request DTO with pagination and base currency
+     * @param CurrentRateContainer $dto Validated request DTO with pagination and base currency
      *
      * @return CurrentRateResponseContainer Container with the latest rate date, paginated current rates, and any
-     *                                      import exception
+     *         import exception
      */
     public function get(
         PaginationConfigInterface $paginatorConfig,
@@ -59,7 +55,7 @@ class CurrentRatesGetterService
         $latestDate = $this->currentRateStorage->getLatestDate();
         $importException = null;
 
-        if (!$latestDate || !DateCompare::eq($date, $latestDate)) {
+        if (!$latestDate || !DateCompareService::eq($date, $latestDate)) {
             try {
                 $this->processor->process($date);
                 $latestDate = $this->currentRateStorage->getLatestDate();

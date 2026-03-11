@@ -35,10 +35,10 @@ class ProviderLoggerService implements ProviderLoggerServiceInterface
     /**
      * Logs a successful exchange rate retrieval.
      *
-     * @param string $from       The source currency code
-     * @param string $to         The target currency code
-     * @param string $rate       The retrieved rate value
-     * @param int    $durationMs Duration of the retrieval operation in milliseconds
+     * @param string $from The source currency code
+     * @param string $to The target currency code
+     * @param string $rate The retrieved rate value
+     * @param int $durationMs Duration of the retrieval operation in milliseconds
      */
     public function logRateRetrieval(string $from, string $to, string $rate, int $durationMs = 0): void
     {
@@ -53,8 +53,8 @@ class ProviderLoggerService implements ProviderLoggerServiceInterface
     /**
      * Logs a provider initialization event with configuration details.
      *
-     * @param string               $providerName The provider name (e.g. 'CBR')
-     * @param array<string, mixed> $config       Configuration parameters used during initialization
+     * @param string $providerName The provider name (e.g. 'CBR')
+     * @param array<string, mixed> $config Configuration parameters used during initialization
      */
     public function logProviderInit(string $providerName, array $config = []): void
     {
@@ -67,8 +67,8 @@ class ProviderLoggerService implements ProviderLoggerServiceInterface
     /**
      * Logs a currency rate update event.
      *
-     * @param string   $currency  The currency code that was updated
-     * @param string   $rate      The new rate value
+     * @param string $currency The currency code that was updated
+     * @param string $rate The new rate value
      * @param DateTime $timestamp The time of the update
      */
     public function logRateUpdate(string $currency, string $rate, DateTime $timestamp): void
@@ -83,9 +83,9 @@ class ProviderLoggerService implements ProviderLoggerServiceInterface
     /**
      * Logs a provider-level error.
      *
-     * @param string         $providerName The name of the provider that encountered the error
-     * @param string         $message      A human-readable error description
-     * @param Throwable|null $exception    The underlying exception, if any
+     * @param string $providerName The name of the provider that encountered the error
+     * @param string $message A human-readable error description
+     * @param Throwable|null $exception The underlying exception, if any
      */
     public function logProviderError(string $providerName, string $message, ?Throwable $exception = null): void
     {
@@ -105,10 +105,10 @@ class ProviderLoggerService implements ProviderLoggerServiceInterface
     /**
      * Logs a rate retrieval failure with retry information.
      *
-     * @param string $from    The source currency code
-     * @param string $to      The target currency code
-     * @param string $reason  The reason for the failure
-     * @param int    $attempt The retry attempt number (0 = first attempt)
+     * @param string $from The source currency code
+     * @param string $to The target currency code
+     * @param string $reason The reason for the failure
+     * @param int $attempt The retry attempt number (0 = first attempt)
      */
     public function logRetrievalFailure(string $from, string $to, string $reason, int $attempt = 0): void
     {

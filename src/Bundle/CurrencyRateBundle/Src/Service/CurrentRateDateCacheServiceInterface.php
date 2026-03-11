@@ -29,7 +29,7 @@ interface CurrentRateDateCacheServiceInterface
      * Replaces or clears the cached latest rate date.
      *
      * @param DateTimeInterface|null $date The date to cache, or null to clear
-     * @param int|null               $ttl  Cache TTL in seconds
+     * @param int|null $ttl Cache TTL in seconds
      */
     public function set(?DateTimeInterface $date, ?int $ttl = null): void;
 

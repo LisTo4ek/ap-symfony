@@ -30,8 +30,8 @@ class CurrencyRateExtension extends Extension implements PrependExtensionInterfa
      * rate precision, CBR provider API URL, timeout, base currency,
      * and monitored currencies.
      *
-     * @param array<int, array<string, mixed>> $configs   Raw configuration arrays from various sources
-     * @param ContainerBuilder                 $container The service container builder
+     * @param array<int, array<string, mixed>> $configs Raw configuration arrays from various sources
+     * @param ContainerBuilder $container The service container builder
      */
     public function load(array $configs, ContainerBuilder $container): void
     {

@@ -33,8 +33,8 @@ class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterfac
     private const string DATE_FORMAT = 'Y-m-d';
 
     /**
-     * @param CacheInterface               $cache   Symfony cache pool for currency rate data
-     * @param CurrentRateStorageInterface  $storage Storage for querying the latest date from the database
+     * @param CacheInterface $cache Symfony cache pool for currency rate data
+     * @param CurrentRateStorageInterface $storage Storage for querying the latest date from the database
      */
     public function __construct(
         #[Target('currency_rates_cache')]
@@ -76,7 +76,7 @@ class CurrentRateDateCacheService implements CurrentRateDateCacheServiceInterfac
      * Deletes the existing cache entry and, if a date is provided, stores it with the given TTL.
      *
      * @param DateTimeInterface|null $date The date to cache, or null to clear the cache
-     * @param int|null               $ttl  Cache TTL in seconds (defaults to 30 days)
+     * @param int|null $ttl Cache TTL in seconds (defaults to 30 days)
      * @throws InvalidArgumentException
      */
     public function set(?DateTimeInterface $date = null, ?int $ttl = null): void

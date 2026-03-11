@@ -26,7 +26,7 @@ interface RateHistoryStorageInterface
     /**
      * Returns a pageable query for rate history records filtered by a currency pair.
      *
-     * @param Currency $baseCurrency   The base currency to filter by
+     * @param Currency $baseCurrency The base currency to filter by
      * @param Currency $targetCurrency The target currency to filter by
      *
      * @return PaginationPageableServiceInterface<RateHistory> Pageable query adapter

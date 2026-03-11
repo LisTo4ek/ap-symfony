@@ -18,10 +18,10 @@ use Money\Currency;
 class RateContainer
 {
     /**
-     * @param Currency          $baseCurrency   The base (source) currency of the rate
-     * @param Currency          $targetCurrency The target (destination) currency of the rate
-     * @param BigDecimal        $rate           The exchange rate value (base → target)
-     * @param DateTimeInterface $date           The date the rate is effective for
+     * @param Currency $baseCurrency The base (source) currency of the rate
+     * @param Currency $targetCurrency The target (destination) currency of the rate
+     * @param BigDecimal $rate The exchange rate value (base → target)
+     * @param DateTimeInterface $date The date the rate is effective for
      */
     public function __construct(
         public readonly Currency $baseCurrency,

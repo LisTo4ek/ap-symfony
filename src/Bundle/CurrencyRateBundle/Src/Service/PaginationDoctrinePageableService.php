@@ -29,12 +29,7 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
     }
 
     /**
-     * Returns the total number of items matching the query.
-     *
-     * The result is cached after the first call to avoid duplicate COUNT queries.
-     * Clones the QueryBuilder internally so the original is not mutated.
-     *
-     * @return int Total item count
+     * @inheritDoc
      */
     public function getTotalCount(): int
     {
@@ -57,15 +52,7 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
     }
 
     /**
-     * Fetches items for a specific page from the query.
-     *
-     * Clones the QueryBuilder to apply OFFSET/LIMIT without mutating the original.
-     * Clamps page to minimum 1 and itemsPerPage to minimum 10.
-     *
-     * @param int $page         The 1-indexed page number
-     * @param int $itemsPerPage Number of items to fetch per page
-     *
-     * @return array<T> The items for the requested page
+     * @inheritDoc
      */
     public function getPage(int $page, int $itemsPerPage): array
     {
@@ -93,13 +80,7 @@ class PaginationDoctrinePageableService implements PaginationPageableServiceInte
     }
 
     /**
-     * Calculates the total number of pages for the given items-per-page count.
-     *
-     * Clamps itemsPerPage to minimum 10 to prevent division by zero.
-     *
-     * @param int $itemsPerPage Number of items per page
-     *
-     * @return int Total page count (rounded up)
+     * @inheritDoc
      */
     public function getTotalPages(int $itemsPerPage): int
     {

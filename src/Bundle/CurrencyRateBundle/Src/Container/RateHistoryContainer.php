@@ -17,9 +17,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class RateHistoryContainer
 {
     /**
-     * @param PaginationContainer $pagination         Validated pagination parameters (page, perPage)
-     * @param string              $baseCurrencyCode   ISO 4217 base currency code (defaults to RUB)
-     * @param string              $targetCurrencyCode ISO 4217 target currency code
+     * @param PaginationContainer $pagination Validated pagination parameters (page, perPage)
+     * @param string $baseCurrencyCode ISO 4217 base currency code (defaults to RUB)
+     * @param string $targetCurrencyCode ISO 4217 target currency code
      */
     public function __construct(
         #[Assert\Valid]

@@ -15,12 +15,12 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
 class PaginationResultContainer implements PaginationResultInterface
 {
     /**
-     * @param int                       $currentPage The current page number (1-indexed)
-     * @param int                       $perPage     Number of items per page
-     * @param int                       $totalCount  Total number of items across all pages
-     * @param PaginationConfigInterface $config      Pagination configuration (allowed per-page options, etc.)
-     * @param int                       $totalPages  Total number of pages
-     * @param array<T>                  $items       Items for the current page
+     * @param int $currentPage The current page number (1-indexed)
+     * @param int $perPage Number of items per page
+     * @param int $totalCount Total number of items across all pages
+     * @param PaginationConfigInterface $config Pagination configuration (allowed per-page options, etc.)
+     * @param int $totalPages Total number of pages
+     * @param array<T> $items Items for the current page
      */
     public function __construct(
         private readonly int $currentPage,
@@ -33,9 +33,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Get the current page number.
-     *
-     * @return int The 1-indexed current page
+     * @inheritDoc
      */
     public function getCurrentPage(): int
     {
@@ -43,9 +41,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Get the number of items per page.
-     *
-     * @return int Items per page count
+     * @inheritDoc
      */
     public function getPerPage(): int
     {
@@ -53,9 +49,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Get the total number of items across all pages.
-     *
-     * @return int Total item count
+     * @inheritDoc
      */
     public function getTotalCount(): int
     {
@@ -63,9 +57,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Get the pagination configuration.
-     *
-     * @return PaginationConfigInterface The configuration with allowed per-page options
+     * @inheritDoc
      */
     public function getConfig(): PaginationConfigInterface
     {
@@ -73,9 +65,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Get the total number of pages.
-     *
-     * @return int Total page count
+     * @inheritDoc
      */
     public function getTotalPages(): int
     {
@@ -83,7 +73,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * @return array<T>
+     * @inheritDoc
      */
     public function getItems(): array
     {
@@ -91,9 +81,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Check whether a next page exists after the current one.
-     *
-     * @return bool True if current page is less than total pages
+     * @inheritDoc
      */
     public function hasNextPage(): bool
     {
@@ -101,9 +89,7 @@ class PaginationResultContainer implements PaginationResultInterface
     }
 
     /**
-     * Check whether a previous page exists before the current one.
-     *
-     * @return bool True if current page is greater than 1
+     * @inheritDoc
      */
     public function hasPreviousPage(): bool
     {

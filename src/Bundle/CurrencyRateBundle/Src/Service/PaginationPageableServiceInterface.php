@@ -24,7 +24,7 @@ interface PaginationPageableServiceInterface
     /**
      * Get items for a specific page.
      *
-     * @param int $page         The 1-indexed page number
+     * @param int $page The 1-indexed page number
      * @param int $itemsPerPage Number of items to fetch per page
      *
      * @return array<T> The items for the requested page

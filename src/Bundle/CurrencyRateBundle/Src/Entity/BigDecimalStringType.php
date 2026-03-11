@@ -23,7 +23,7 @@ class BigDecimalStringType extends StringType
     /**
      * Converts a database string value to a BigDecimal PHP object.
      *
-     * @param mixed            $value    The raw database value (string or null)
+     * @param mixed $value The raw database value (string or null)
      * @param AbstractPlatform $platform The database platform
      *
      * @return BigDecimal|null The BigDecimal instance, or null if the value is null
@@ -48,7 +48,7 @@ class BigDecimalStringType extends StringType
      *
      * Trailing zeros are stripped before persisting.
      *
-     * @param mixed            $value    The BigDecimal instance or null
+     * @param mixed $value The BigDecimal instance or null
      * @param AbstractPlatform $platform The database platform
      *
      * @return string|null The string representation, or null if the value is null

@@ -19,9 +19,9 @@ class CurrentRateResponseContainer
     /**
      * @param DateTimeImmutable|null $latestDate The most recent rate date found in storage, or null if no rates exist
      * @param Throwable|null $importRatesException Exception caught during CBR import, or null on success / when import
-     *      was skipped
+     *        was skipped
      * @param PaginationResultInterface<CurrentRate>|null $pagination current rates for the requested base currency,
-     *      or null when the currency code is empty or no rates are available
+     *        or null when the currency code is empty or no rates are available
      */
     public function __construct(
         public readonly ?DateTimeImmutable $latestDate = null,

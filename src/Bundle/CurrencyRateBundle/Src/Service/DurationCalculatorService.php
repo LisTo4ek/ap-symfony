@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Src\Helper;
+namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use function microtime;
 
 /**
  * DurationCalculator provides utilities for measuring elapsed time in milliseconds
  */
-class DurationCalculator
+class DurationCalculatorService
 {
     /**
      * Get the current timestamp in microseconds

@@ -25,7 +25,7 @@ use function implode;
 abstract class AbstractContainerResolver implements ValueResolverInterface
 {
     /**
-     * @param ValidatorInterface        $validator       Symfony validator for DTO constraint checking
+     * @param ValidatorInterface $validator Symfony validator for DTO constraint checking
      * @param PaginationConfigInterface $paginatorConfig Default pagination settings (per-page default, etc.)
      */
     public function __construct(
@@ -41,7 +41,7 @@ abstract class AbstractContainerResolver implements ValueResolverInterface
      * Builds the DTO from query parameters (page, perPage) and route attribute (baseCurrencyCode),
      * validates it, and yields the result. Skips resolution if the argument type does not match.
      *
-     * @param Request          $request  The current HTTP request
+     * @param Request $request The current HTTP request
      * @param ArgumentMetadata $argument Metadata about the controller argument being resolved
      *
      * @return iterable<int, object>

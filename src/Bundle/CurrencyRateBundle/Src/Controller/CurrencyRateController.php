@@ -29,12 +29,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class CurrencyRateController extends AbstractController
 {
     /**
-     * @param CurrentRatesGetterService    $currentRatesGetter   Service that fetches (and optionally imports) current
-     *                                                           rates
-     * @param RateHistoryPaginatorService  $rateHistoryPaginator Service that paginates rate history records
-     * @param PaginationConfigInterface    $paginatorConfig      Default pagination configuration
-     *                                                           (per-page options, etc.)
-     * @param int                          $displayRatePrecision Number of decimal places to display for rates
+     * @param CurrentRatesGetterService $currentRatesGetter Service that fetches (and optionally imports) current
+     *        rates
+     * @param RateHistoryPaginatorService $rateHistoryPaginator Service that paginates rate history records
+     * @param PaginationConfigInterface $paginatorConfig Default pagination configuration (per-page options, etc.)
+     * @param int $displayRatePrecision Number of decimal places to display for rates
      */
     public function __construct(
         private CurrentRatesGetterService $currentRatesGetter,

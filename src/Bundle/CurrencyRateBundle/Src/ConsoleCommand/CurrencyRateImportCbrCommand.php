@@ -44,8 +44,8 @@ class CurrencyRateImportCbrCommand extends Command
 {
     /**
      * @param CurrencyRateHistoryCbrProcessorService $processor Service that fetches and persists rates for a single
-     *                                                          date
-     * @param LoggerInterface                        $logger    Logger for the currency_rate_bundle channel
+     *        date
+     * @param LoggerInterface $logger Logger for the currency_rate_bundle channel
      */
     public function __construct(
         private readonly CurrencyRateHistoryCbrProcessorService $processor,
@@ -77,7 +77,7 @@ class CurrencyRateImportCbrCommand extends Command
      * Executes the import command: parses date arguments, iterates over each day in the range,
      * fetches rates via the processor service, and reports progress and errors.
      *
-     * @param InputInterface  $input  The console input (arguments: from, to; option: force)
+     * @param InputInterface $input The console input (arguments: from, to; option: force)
      * @param OutputInterface $output The console output for progress bar and messages
      *
      * @return int Command::SUCCESS on full success, Command::FAILURE on date errors or any import errors

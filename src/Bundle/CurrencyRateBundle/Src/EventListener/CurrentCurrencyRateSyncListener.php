@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\EventListener;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
-use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
+use App\Bundle\CurrencyRateBundle\Src\Service\DateCompareService;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
 use DateTimeImmutable;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -51,7 +51,7 @@ class CurrentCurrencyRateSyncListener implements EventSubscriberInterface
         $rate = $event->getRate();
         $today = new DateTimeImmutable('today');
 
-        if (!DateCompare::eq($rate->date, $today)) {
+        if (!DateCompareService::eq($rate->date, $today)) {
             return;
         }
 

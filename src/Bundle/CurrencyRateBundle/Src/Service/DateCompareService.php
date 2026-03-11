@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Src\Helper;
+namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use DateTimeInterface;
 
 /**
  * Utility class for date-only comparisons (ignoring time components).
  */
-class DateCompare
+class DateCompareService
 {
     /**
      * Checks whether two dates represent the same calendar day (Y-m-d).

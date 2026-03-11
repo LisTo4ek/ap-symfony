@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\InvalidRateDataException;
-use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
-use App\Bundle\CurrencyRateBundle\Src\Helper\NumberHelper;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Generator;
@@ -46,10 +44,10 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      * Validates the XML structure, checks that the response date matches the requested date,
      * filters currencies against the monitored list, and normalizes rate values.
      *
-     * @param string              $content              Raw XML response body from the CBR API
-     * @param string              $baseCurrencyCode     ISO 4217 base currency code (e.g. 'RUB')
-     * @param array<string>       $monitoredCurrencies  List of ISO 4217 target currency codes to extract
-     * @param DateTimeImmutable   $date                 The expected date of the rates
+     * @param string $content Raw XML response body from the CBR API
+     * @param string $baseCurrencyCode ISO 4217 base currency code (e.g. 'RUB')
+     * @param array<string> $monitoredCurrencies List of ISO 4217 target currency codes to extract
+     * @param DateTimeImmutable $date The expected date of the rates
      *
      * @return Generator<int, RateContainer> Yields a RateContainer for each monitored currency found
      *
@@ -97,7 +95,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             throw new InvalidRateDataException('Invalid XML: missing or invalid date attribute');
         }
 
-        if (!DateCompare::eq($rateDate, $date)) {
+        if (!DateCompareService::eq($rateDate, $date)) {
             throw new InvalidRateDataException(
                 "Rates date is not current: {$rateDate->format('Y-m-d')}"
             );
@@ -180,7 +178,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
     /**
      * Extracts and normalizes the VunitRate value from a currency XML node.
      *
-     * @param string           $currencyCode The ISO 4217 currency code (for error messages)
+     * @param string $currencyCode The ISO 4217 currency code (for error messages)
      * @param SimpleXMLElement $currencyNode The Valute XML element containing rate data
      *
      * @return BigDecimal The normalized rate value
@@ -195,6 +193,6 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             );
         }
 
-        return NumberHelper::normalize((string) $currencyNode->VunitRate);
+        return NumberService::normalize((string) $currencyNode->VunitRate);
     }
 }

@@ -43,10 +43,10 @@ class RateHistory
     private DateTimeImmutable $updatedAt;
 
     /**
-     * @param Currency          $baseCurrency   The base (source) currency
-     * @param Currency          $targetCurrency The target (destination) currency
-     * @param BigDecimal        $value          The exchange rate value
-     * @param DateTimeInterface $date           The date the rate applies to
+     * @param Currency $baseCurrency The base (source) currency
+     * @param Currency $targetCurrency The target (destination) currency
+     * @param BigDecimal $value The exchange rate value
+     * @param DateTimeInterface $date The date the rate applies to
      */
     public function __construct(
         Currency $baseCurrency,

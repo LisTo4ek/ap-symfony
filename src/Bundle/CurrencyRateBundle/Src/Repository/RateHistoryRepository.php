@@ -60,7 +60,7 @@ class RateHistoryRepository extends ServiceEntityRepository implements RateHisto
      *
      * Results are ordered by date descending, then by ID descending.
      *
-     * @param Currency $baseCurrency   The base currency to filter by
+     * @param Currency $baseCurrency The base currency to filter by
      * @param Currency $targetCurrency The target currency to filter by
      *
      * @return PaginationPageableServiceInterface<RateHistory> Pageable query adapter for the results

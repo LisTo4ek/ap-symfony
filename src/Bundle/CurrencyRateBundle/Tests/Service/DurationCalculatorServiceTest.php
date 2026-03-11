@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Tests\Helper;
+namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Helper\DurationCalculator;
+use App\Bundle\CurrencyRateBundle\Src\Service\DurationCalculatorService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function usleep;
 
-class DurationCalculatorTest extends TestCase
+class DurationCalculatorServiceTest extends TestCase
 {
     /**
      * Test start() returns a float timestamp
      */
     public function testStartReturnsFloatTimestamp(): void
     {
-        $start = DurationCalculator::start();
+        $start = DurationCalculatorService::start();
 
         $this->assertIsFloat($start);
         $this->assertGreaterThan(0, $start);
@@ -28,9 +28,9 @@ class DurationCalculatorTest extends TestCase
      */
     public function testElapsedReturnsMilliseconds(): void
     {
-        $start = DurationCalculator::start();
+        $start = DurationCalculatorService::start();
         usleep(100000); // Sleep 100ms
-        $elapsed = DurationCalculator::elapsed($start);
+        $elapsed = DurationCalculatorService::elapsed($start);
 
         $this->assertIsInt($elapsed);
         $this->assertGreaterThanOrEqual(100, $elapsed);
@@ -41,9 +41,9 @@ class DurationCalculatorTest extends TestCase
      */
     public function testElapsedTimeAccuracy(): void
     {
-        $start = DurationCalculator::start();
+        $start = DurationCalculatorService::start();
         usleep(500000); // Sleep 500ms
-        $elapsed = DurationCalculator::elapsed($start);
+        $elapsed = DurationCalculatorService::elapsed($start);
 
         // Allow some margin for timing variance
         $this->assertGreaterThanOrEqual(450, $elapsed);
@@ -55,7 +55,7 @@ class DurationCalculatorTest extends TestCase
      */
     public function testMeasureReturnsResultAndDuration(): void
     {
-        $result = DurationCalculator::measure(function () {
+        $result = DurationCalculatorService::measure(function () {
             usleep(100000); // Sleep 100ms
             return 'test_result';
         });
@@ -76,7 +76,7 @@ class DurationCalculatorTest extends TestCase
     {
         $callable = static fn() => 42;
 
-        $result = DurationCalculator::measure($callable);
+        $result = DurationCalculatorService::measure($callable);
 
         $this->assertEquals(42, $result['result']);
         $this->assertIsInt($result['duration_ms']);
@@ -94,7 +94,7 @@ class DurationCalculatorTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Test error');
 
-        DurationCalculator::measure($callable);
+        DurationCalculatorService::measure($callable);
     }
 
     /**
@@ -102,12 +102,12 @@ class DurationCalculatorTest extends TestCase
      */
     public function testMultipleMeasurementsIndependent(): void
     {
-        $duration1 = DurationCalculator::measure(function () {
+        $duration1 = DurationCalculatorService::measure(function () {
             usleep(50000); // 50ms
             return 1;
         });
 
-        $duration2 = DurationCalculator::measure(function () {
+        $duration2 = DurationCalculatorService::measure(function () {
             usleep(150000); // 150ms
             return 2;
         });
@@ -121,8 +121,8 @@ class DurationCalculatorTest extends TestCase
      */
     public function testElapsedWithVeryShortDuration(): void
     {
-        $start = DurationCalculator::start();
-        $elapsed = DurationCalculator::elapsed($start);
+        $start = DurationCalculatorService::start();
+        $elapsed = DurationCalculatorService::elapsed($start);
 
         // Should be at least 0ms
         $this->assertGreaterThanOrEqual(0, $elapsed);
@@ -135,8 +135,8 @@ class DurationCalculatorTest extends TestCase
     public function testElapsedAlwaysNonNegative(): void
     {
         for ($i = 0; $i < 10; $i++) {
-            $start = DurationCalculator::start();
-            $elapsed = DurationCalculator::elapsed($start);
+            $start = DurationCalculatorService::start();
+            $elapsed = DurationCalculatorService::elapsed($start);
 
             $this->assertGreaterThanOrEqual(0, $elapsed);
         }

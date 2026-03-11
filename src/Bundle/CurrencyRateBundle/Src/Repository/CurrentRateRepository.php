@@ -59,10 +59,10 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
      * If a record already exists for the base/target pair, its value and date are updated.
      * Otherwise, a new CurrentRate entity is created and persisted.
      *
-     * @param Currency          $baseCurrency   The base (source) currency
-     * @param Currency          $targetCurrency The target (destination) currency
-     * @param BigDecimal        $value          The exchange rate value
-     * @param DateTimeInterface $date           The date the rate applies to
+     * @param Currency $baseCurrency The base (source) currency
+     * @param Currency $targetCurrency The target (destination) currency
+     * @param BigDecimal $value The exchange rate value
+     * @param DateTimeInterface $date The date the rate applies to
      *
      * @return CurrentRate The persisted (inserted or updated) entity
      */
@@ -130,8 +130,8 @@ class CurrentRateRepository extends ServiceEntityRepository implements CurrentRa
      *
      * Results are ordered by target currency ascending.
      *
-     * @param DateTimeImmutable $date         The date to filter by
-     * @param Currency          $baseCurrency The base currency to filter by
+     * @param DateTimeImmutable $date The date to filter by
+     * @param Currency $baseCurrency The base currency to filter by
      *
      * @return PaginationPageableServiceInterface<CurrentRate> Pageable query adapter for the results
      */

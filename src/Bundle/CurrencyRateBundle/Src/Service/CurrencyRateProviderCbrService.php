@@ -9,7 +9,6 @@ use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
-use App\Bundle\CurrencyRateBundle\Src\Helper\DurationCalculator;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use DateTimeImmutable;
@@ -41,15 +40,15 @@ use function str_contains;
 class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInterface
 {
     /**
-     * @param HttpClientInterface                $httpClient          Symfony HTTP client for API requests
-     * @param ProviderLoggerServiceInterface     $logger              Bundle-specific logger
-     * @param CurrencyRateParserServiceInterface $rateProcessor       XML parser that converts API response to
-     *                                                                RateContainers
-     * @param string                             $apiUrl              CBR API endpoint URL
-     * @param int                                $ratePrecision       Decimal precision for inverse rate calculations
-     * @param array<string>                      $monitoredCurrencies ISO 4217 currency codes to monitor
-     * @param string                             $baseCurrencyCode    ISO 4217 base currency code (default: RUB)
-     * @param int                                $timeout             HTTP request timeout in seconds
+     * @param HttpClientInterface $httpClient Symfony HTTP client for API requests
+     * @param ProviderLoggerServiceInterface $logger Bundle-specific logger
+     * @param CurrencyRateParserServiceInterface $rateProcessor XML parser that converts
+     *        API response to RateContainers
+     * @param string $apiUrl CBR API endpoint URL
+     * @param int $ratePrecision Decimal precision for inverse rate calculations
+     * @param array<string> $monitoredCurrencies ISO 4217 currency codes to monitor
+     * @param string $baseCurrencyCode ISO 4217 base currency code (default: RUB)
+     * @param int $timeout HTTP request timeout in seconds
      */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -80,8 +79,8 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
      * For each parsed rate, also computes and includes the inverse rate.
      * Chunks are yielded as arrays of RateContainer objects.
      *
-     * @param DateTimeImmutable $date      The date to fetch rates for
-     * @param int               $chunkSize Maximum number of RateContainer items per yielded chunk
+     * @param DateTimeImmutable $date The date to fetch rates for
+     * @param int $chunkSize Maximum number of RateContainer items per yielded chunk
      *
      * @return Generator<int, array<RateContainer>> Generator yielding arrays of rate containers
      *
@@ -90,12 +89,12 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
     public function getRates(DateTimeImmutable $date, int $chunkSize = 1000): Generator
     {
         try {
-            $startTime = DurationCalculator::start();
+            $startTime = DurationCalculatorService::start();
             $chunk = [];
 
             $content = $this->requestRates($date);
 
-            $duration = DurationCalculator::elapsed($startTime);
+            $duration = DurationCalculatorService::elapsed($startTime);
             $this->logger->info('Retrieved rates from CBR', [
                 'date' => $date->format('Y-m-d'),
                 'duration_ms' => $duration,
@@ -158,7 +157,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
      */
     private function requestRates(DateTimeInterface $date): string
     {
-        $startTime = DurationCalculator::start();
+        $startTime = DurationCalculatorService::start();
 
         try {
             $this->logger->debug('HTTP request starting', [
@@ -180,7 +179,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
 
             $this->logger->debug('HTTP request successful', [
                 'status_code' => $response->getStatusCode(),
-                'duration_ms' => DurationCalculator::elapsed($startTime),
+                'duration_ms' => DurationCalculatorService::elapsed($startTime),
                 'content_size' => mb_strlen($content),
                 'date' => $date->format('d/m/Y'),
             ]);
@@ -274,7 +273,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         ?int $statusCode = null,
     ): array {
         return [
-            'duration_ms' => DurationCalculator::elapsed($startTime),
+            'duration_ms' => DurationCalculatorService::elapsed($startTime),
             'error_class' => get_class($e),
             'trace' => $e->getTraceAsString(),
             'date' => $date->format('d/m/Y'),

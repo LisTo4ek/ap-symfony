@@ -29,9 +29,7 @@ class PaginationConfigDefault implements PaginationConfigInterface
     protected int $perPageMax = 100;
 
     /**
-     * Get all available options as array
-     *
-     * @return array<int>
+     * @inheritDoc
      */
     public function getPerPageOptions(): array
     {
@@ -39,7 +37,7 @@ class PaginationConfigDefault implements PaginationConfigInterface
     }
 
     /**
-     * Get the default option value
+     * @inheritDoc
      */
     public function getPerPageDefault(): int
     {
@@ -47,7 +45,7 @@ class PaginationConfigDefault implements PaginationConfigInterface
     }
 
     /**
-     * Get the minimum allowed value
+     * @inheritDoc
      */
     public function getPerPageMin(): int
     {
@@ -55,7 +53,7 @@ class PaginationConfigDefault implements PaginationConfigInterface
     }
 
     /**
-     * Get the maximum allowed value
+     * @inheritDoc
      */
     public function getPerPageMax(): int
     {
@@ -63,10 +61,7 @@ class PaginationConfigDefault implements PaginationConfigInterface
     }
 
     /**
-     * Validate and return a valid items per page value
-     *
-     * @param mixed $perPage The value to validate
-     * @return int A valid items per page value
+     * @inheritDoc
      */
     public function validatePerPage(mixed $perPage): int
     {
@@ -82,7 +77,7 @@ class PaginationConfigDefault implements PaginationConfigInterface
     }
 
     /**
-     * Check if a value is a valid option
+     * @inheritDoc
      */
     public function isValidPerPage(int $perPage): bool
     {

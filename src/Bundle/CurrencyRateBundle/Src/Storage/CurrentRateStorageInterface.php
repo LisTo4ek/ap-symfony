@@ -22,10 +22,10 @@ interface CurrentRateStorageInterface
     /**
      * Inserts or updates the current rate for a specific currency pair.
      *
-     * @param Currency          $baseCurrency   The base (source) currency
-     * @param Currency          $targetCurrency The target (destination) currency
-     * @param BigDecimal        $value          The exchange rate value
-     * @param DateTimeInterface $date           The date the rate applies to
+     * @param Currency $baseCurrency The base (source) currency
+     * @param Currency $targetCurrency The target (destination) currency
+     * @param BigDecimal $value The exchange rate value
+     * @param DateTimeInterface $date The date the rate applies to
      *
      * @return CurrentRate The persisted entity
      */
@@ -55,8 +55,8 @@ interface CurrentRateStorageInterface
     /**
      * Returns a pageable query for current rates filtered by date and base currency.
      *
-     * @param DateTimeImmutable $date         The date to filter by
-     * @param Currency          $baseCurrency The base currency to filter by
+     * @param DateTimeImmutable $date The date to filter by
+     * @param Currency $baseCurrency The base currency to filter by
      *
      * @return PaginationPageableServiceInterface<CurrentRate> Pageable query adapter
      */

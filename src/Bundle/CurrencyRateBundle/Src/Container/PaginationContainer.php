@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class PaginationContainer
 {
     /**
-     * @param int $page    The requested page number (must be ≥ 1)
+     * @param int $page The requested page number (must be ≥ 1)
      * @param int $perPage The number of items per page (must be between 1 and 100)
      */
     public function __construct(

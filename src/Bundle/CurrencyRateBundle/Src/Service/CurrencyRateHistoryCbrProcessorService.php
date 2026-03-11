@@ -7,7 +7,6 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
-use App\Bundle\CurrencyRateBundle\Src\Helper\DateCompare;
 use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -32,10 +31,10 @@ class CurrencyRateHistoryCbrProcessorService
     private const int CHUNK_SIZE = 1000;
 
     /**
-     * @param CurrencyRateProviderServiceInterface  $provider           The CBR rate provider service
-     * @param RateHistoryStorageInterface           $rateHistoryStorage Storage for persisting rate history entities
-     * @param EventDispatcherInterface              $eventDispatcher    Dispatcher for CurrencyRateSavedEvent events
-     * @param LoggerInterface                       $logger             Logger for the currency_rate_bundle channel
+     * @param CurrencyRateProviderServiceInterface $provider The CBR rate provider service
+     * @param RateHistoryStorageInterface $rateHistoryStorage Storage for persisting rate history entities
+     * @param EventDispatcherInterface $eventDispatcher Dispatcher for CurrencyRateSavedEvent events
+     * @param LoggerInterface $logger Logger for the currency_rate_bundle channel
      */
     public function __construct(
         #[Autowire(service: CurrencyRateProviderCbrService::class)]
@@ -85,7 +84,7 @@ class CurrencyRateHistoryCbrProcessorService
                 // todo: but we can live with it for now, because we are going process rates once per day I think
                 /** @var RateContainer $rate */
                 foreach ($chunk as $rate) {
-                    if (!DateCompare::eq($rate->date, $today)) {
+                    if (!DateCompareService::eq($rate->date, $today)) {
                         continue;
                     }
 
