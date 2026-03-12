@@ -45,7 +45,7 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             'https://cbr.ru/scripts/XML_daily.asp',
             30,
             [self::getUsd()->getCode(), self::getEur()->getCode()],
-            '',
+            self::getRub()->getCode(),
             4
         );
     }
