@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
-use App\Bundle\CurrencyRateBundle\Src\Config\ConstantsConfig;
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
+use App\Bundle\CurrencyRateBundle\Src\Constant\CommonConstant;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
@@ -15,7 +15,6 @@ use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Throwable;
 
 use function array_map;
 use function count;
@@ -63,7 +62,7 @@ class CurrencyRateHistoryCbrProcessorService
         $count = 0;
         try {
             /** @var array<RateContainer> $chunk */
-            foreach ($this->provider->getRates($date, ConstantsConfig::CHUNK_SIZE) as $chunk) {
+            foreach ($this->provider->getRates($date, CommonConstant::CHUNK_SIZE) as $chunk) {
                 $historyEntities = array_map(
                     static fn(RateContainer $rate) => new RateHistory(
                         $rate->baseCurrency,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bundle\CurrencyRateBundle\Src\Config;
+namespace App\Bundle\CurrencyRateBundle\Src\Constant;
 
 /**
  * Bundle-wide immutable configuration constants for currency rate processing.
@@ -14,7 +14,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Config;
  *
  * @internal
  */
-class ConstantsConfig
+class CommonConstant
 {
     /** @const Maximum number of items per processing chunk */
     public const int CHUNK_SIZE = 1000;

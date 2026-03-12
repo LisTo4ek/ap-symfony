@@ -10,6 +10,7 @@ use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
 use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerServiceInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -101,7 +102,10 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         ));
     }
 
-    public static function exceptionsDataProvider()
+    /**
+     * @return Generator<int, array{xml: string, expectedException: class-string, expectedMessage: string}>
+     */
+    public static function exceptionsDataProvider(): Generator
     {
         yield 'missing ValCurs node' => [
             'xml' => '<?xml version="1.0"?><root></root>',
