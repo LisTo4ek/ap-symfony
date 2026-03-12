@@ -6,8 +6,8 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
-use App\Bundle\CurrencyRateBundle\Src\Service\ProviderLoggerService;
-use App\Bundle\CurrencyRateBundle\Src\Service\ProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerService;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerServiceInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -23,7 +23,7 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
     public function testProviderCanBeInstantiated(): void
     {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $logger = $this->createMock(ProviderLoggerServiceInterface::class);
+        $logger = $this->createMock(BundleLoggerServiceInterface::class);
         $processor = new CurrencyRateParserXmlService($logger);
 
         $provider = new CurrencyRateProviderCbrService(
@@ -45,7 +45,7 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
      */
     public function testProcessorCanBeInstantiated(): void
     {
-        $logger = $this->createMock(ProviderLoggerServiceInterface::class);
+        $logger = $this->createMock(BundleLoggerServiceInterface::class);
 
         $processor = new CurrencyRateParserXmlService(
             $logger
@@ -60,9 +60,9 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
     public function testLoggerCanBeInstantiated(): void
     {
         $psr3Logger = $this->createMock(LoggerInterface::class);
-        $logger = new ProviderLoggerService($psr3Logger);
+        $logger = new BundleLoggerService($psr3Logger);
 
-        $this->assertInstanceOf(ProviderLoggerServiceInterface::class, $logger);
+        $this->assertInstanceOf(BundleLoggerServiceInterface::class, $logger);
     }
 
     /**
@@ -72,7 +72,7 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
     {
         $httpClient = $this->createMock(HttpClientInterface::class);
         $psr3Logger = $this->createMock(LoggerInterface::class);
-        $logger = new ProviderLoggerService($psr3Logger);
+        $logger = new BundleLoggerService($psr3Logger);
         $processor = new CurrencyRateParserXmlService(
             $logger
         );
@@ -88,6 +88,6 @@ class CurrencyRateProviderCbrServiceIntegrationTest extends TestCase
         );
         $this->assertInstanceOf(CurrencyRateProviderCbrService::class, $provider);
         $this->assertInstanceOf(CurrencyRateParserXmlService::class, $processor);
-        $this->assertInstanceOf(ProviderLoggerServiceInterface::class, $logger);
+        $this->assertInstanceOf(BundleLoggerServiceInterface::class, $logger);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderServiceInterface;
 use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
@@ -38,7 +39,7 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
             $this->provider,
             $this->storage,
             $this->dispatcher,
-            $this->createMock(LoggerInterface::class),
+            $this->createMock(BundleLoggerService::class),
         );
     }
 

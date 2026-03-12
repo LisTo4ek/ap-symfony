@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\InvalidRateDataException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ParserException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
-use App\Bundle\CurrencyRateBundle\Src\Service\ProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerServiceInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -21,14 +20,14 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
 {
     use CurrencyTrait;
 
-    private ProviderLoggerServiceInterface&MockObject $logger;
+    private BundleLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserXmlService $parser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->logger = $this->createMock(ProviderLoggerServiceInterface::class);
+        $this->logger = $this->createMock(BundleLoggerServiceInterface::class);
         $this->parser = new CurrencyRateParserXmlService($this->logger);
     }
 
@@ -58,12 +57,12 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
 
-        $this->expectException(ProviderConfigurationException::class);
+        $this->expectException(ParserException::class);
 
         iterator_to_array($this->parser->parse(
             $xml,
             self::getRub()->getCode(),
-            [], // No monitored currencies
+            [],
             $date
         ));
     }
@@ -76,7 +75,7 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $invalidXml = '<invalid>Not proper XML';
 
-        $this->expectException(InvalidRateDataException::class);
+        $this->expectException(ParserException::class);
 
         iterator_to_array($this->parser->parse(
             $invalidXml,
@@ -94,7 +93,7 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $date = new DateTimeImmutable('2026-03-02');
         $malformedXml = '<?xml version="1.0"?><root></root>';
 
-        $this->expectException(InvalidRateDataException::class);
+        $this->expectException(ParserException::class);
 
         iterator_to_array($this->parser->parse(
             $malformedXml,

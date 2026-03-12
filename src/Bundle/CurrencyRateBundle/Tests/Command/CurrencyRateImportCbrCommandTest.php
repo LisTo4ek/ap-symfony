@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Command;
 
 use App\Bundle\CurrencyRateBundle\Src\ConsoleCommand\CurrencyRateImportCbrCommand;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -16,14 +18,14 @@ use Symfony\Component\Console\Tester\CommandTester;
 class CurrencyRateImportCbrCommandTest extends TestCase
 {
     private CurrencyRateHistoryCbrProcessorService&MockObject $processor;
-    private LoggerInterface&MockObject $logger;
+    private BundleLoggerService&MockObject $logger;
     private CurrencyRateImportCbrCommand $command;
     private CommandTester $tester;
 
     protected function setUp(): void
     {
         $this->processor = $this->createMock(CurrencyRateHistoryCbrProcessorService::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createMock(BundleLoggerService::class);
         $this->command = new CurrencyRateImportCbrCommand($this->processor, $this->logger);
         $this->tester = new CommandTester($this->command);
     }
@@ -69,21 +71,10 @@ class CurrencyRateImportCbrCommandTest extends TestCase
     {
         $this->processor
             ->method('process')
-            ->willThrowException(new RuntimeException('API down'));
+            ->willThrowException(new ProcessorException('API down'));
         $this->tester->execute(['from' => '2026-03-06', 'to' => '2026-03-06']);
         $this->assertSame(Command::FAILURE, $this->tester->getStatusCode());
         $this->assertStringContainsString('API down', $this->tester->getDisplay());
-    }
-
-    public function testProcessorExceptionLogsError(): void
-    {
-        $this->processor
-            ->method('process')
-            ->willThrowException(new RuntimeException('Connection timeout'));
-        $this->logger
-            ->expects($this->atLeastOnce())
-            ->method('error');
-        $this->tester->execute(['from' => '2026-03-06', 'to' => '2026-03-06']);
     }
 
     public function testCommandNameIsRegistered(): void

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\InvalidRateDataException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ParserException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Generator;
@@ -27,13 +27,13 @@ use function mb_strlen;
  * validates the date and structure, and yields RateContainer objects for each
  * monitored currency found in the response.
  *
- * @property ProviderLoggerServiceInterface $logger Logger for XML processing diagnostics
+ * @property BundleLoggerServiceInterface $logger Logger for XML processing diagnostics
  */
 #[AsAlias(CurrencyRateParserServiceInterface::class)]
 class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
 {
     public function __construct(
-        private ProviderLoggerServiceInterface $logger,
+        private BundleLoggerServiceInterface $logger,
     ) {
     }
 
@@ -50,8 +50,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      *
      * @return Generator<int, RateContainer> Yields a RateContainer for each monitored currency found
      *
-     * @throws ProviderConfigurationException When monitored currencies list is empty
-     * @throws InvalidRateDataException When XML is malformed, date mismatches, or data is invalid
+     * @throws ParserException When XML is malformed, date mismatches, or data is invalid
      */
     public function parse(
         string $content,
@@ -65,11 +64,11 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
         ]);
 
         if (empty($monitoredCurrencies)) {
-            throw new ProviderConfigurationException('Monitored currencies list is empty');
+            throw new ParserException('Monitored currencies list is empty');
         }
 
         if (empty($baseCurrencyCode)) {
-            throw new InvalidRateDataException('Invalid base currency code');
+            throw new ParserException('Invalid base currency code');
         }
 
         try {
@@ -80,21 +79,21 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
         } catch (Throwable $e) {
             libxml_use_internal_errors(false);
             libxml_clear_errors();
-            throw new InvalidRateDataException("Invalid XML: {$e->getMessage()}", 0, $e);
+            throw new ParserException("Invalid XML: {$e->getMessage()}", 0, $e);
         }
 
         $containerNode = $this->resolveContainerNode($xml);
         if ($containerNode === null) {
-            throw new InvalidRateDataException('Invalid XML structure: missing ValCurs node');
+            throw new ParserException('Invalid XML structure: missing ValCurs node');
         }
 
         $rateDate = $this->parseRateDate($containerNode);
         if ($rateDate === null) {
-            throw new InvalidRateDataException('Invalid XML: missing or invalid date attribute');
+            throw new ParserException('Invalid XML: missing or invalid date attribute');
         }
 
         if (!DateCompareService::eq($rateDate, $date)) {
-            throw new InvalidRateDataException(
+            throw new ParserException(
                 "Rates date is not current: {$rateDate->format('Y-m-d')}"
             );
         }
@@ -103,7 +102,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
         foreach ($containerNode->Valute as $currencyNode) {
             $targetCurrencyCode = (string) ($currencyNode->CharCode ?? '');
             if (empty($targetCurrencyCode)) {
-                throw new InvalidRateDataException('Invalid currency code');
+                throw new ParserException('Invalid currency code');
             }
 
             if (!in_array($targetCurrencyCode, $monitoredCurrencies, true)) {
@@ -131,13 +130,13 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
     /**
      * Extracts and parses the date from the ValCurs XML node's "Date" attribute (format: d.m.Y).
      *
-     * @param SimpleXMLElement $valCurs The ValCurs root XML element
+     * @param SimpleXMLElement $node The ValCurs root XML element
      *
      * @return DateTimeImmutable|null The parsed date, or null if missing or invalid
      */
-    private function parseRateDate(SimpleXMLElement $valCurs): ?DateTimeImmutable
+    private function parseRateDate(SimpleXMLElement $node): ?DateTimeImmutable
     {
-        $dateValue = (string) ($valCurs['Date'] ?? '');
+        $dateValue = (string) ($node['Date'] ?? '');
         if ($dateValue !== '') {
             $parsed = DateTimeImmutable::createFromFormat('d.m.Y', $dateValue);
             if ($parsed instanceof DateTimeImmutable) {
@@ -153,18 +152,18 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      *
      * Handles both cases where ValCurs is the root element or a child element.
      *
-     * @param SimpleXMLElement $xml The root XML element
+     * @param SimpleXMLElement $node The root XML element
      *
      * @return SimpleXMLElement|null The ValCurs node, or null if not found
      */
-    private function resolveContainerNode(SimpleXMLElement $xml): ?SimpleXMLElement
+    private function resolveContainerNode(SimpleXMLElement $node): ?SimpleXMLElement
     {
-        if ($xml->getName() === 'ValCurs') {
-            return $xml;
+        if ($node->getName() === 'ValCurs') {
+            return $node;
         }
 
-        if (isset($xml->ValCurs)) {
-            return $xml->ValCurs;
+        if (isset($node->ValCurs)) {
+            return $node->ValCurs;
         }
 
         return null;
@@ -178,12 +177,12 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      *
      * @return BigDecimal The normalized rate value
      *
-     * @throws InvalidRateDataException If the VunitRate element is missing
+     * @throws ParserException If the VunitRate element is missing
      */
     private function processRate(string $currencyCode, SimpleXMLElement $node): BigDecimal
     {
         if (!$node->VunitRate) {
-            throw new InvalidRateDataException(
+            throw new ParserException(
                 "Invalid rate data for {$currencyCode}: missing VunitRate"
             );
         }

@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigDefault;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\PaginationResultInterface;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrentRatesGetterService;
 use App\Bundle\CurrencyRateBundle\Src\Service\PaginationPageableServiceInterface;
@@ -59,7 +60,7 @@ class CurrentRatesGetterServiceTest extends TestCase
     public function testReturnsNullPaginationWhenNoLatestDateAndProcessorFails(): void
     {
         $date = new DateTimeImmutable('2026-03-10');
-        $exception = new RuntimeException('import failed');
+        $exception = new ProcessorException('import failed');
         $this->storage->method('getLatestDate')->willReturn(null);
         $this->processor->method('process')->willThrowException($exception);
         $dto = new CurrentRateContainer(
@@ -194,7 +195,7 @@ class CurrentRatesGetterServiceTest extends TestCase
     public function testImportExceptionIsCapturedAndReturned(): void
     {
         $date = new DateTimeImmutable('2026-03-10');
-        $exception = new RuntimeException('CBR unavailable');
+        $exception = new ProcessorException('CBR unavailable');
         $this->storage->method('getLatestDate')->willReturn(null);
         $this->processor->method('process')->willThrowException($exception);
         $dto = new CurrentRateContainer(

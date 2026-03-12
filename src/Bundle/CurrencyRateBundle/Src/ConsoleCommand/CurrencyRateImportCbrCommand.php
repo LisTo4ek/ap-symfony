@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Bundle\CurrencyRateBundle\Src\ConsoleCommand;
 
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
+use DateException;
 use DateInterval;
 use DateMalformedPeriodStringException;
 use DateMalformedStringException;
 use DatePeriod;
 use DateTime;
 use DateTimeImmutable;
+use Doctrine\Migrations\Provider\Exception\ProviderException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -47,8 +51,7 @@ class CurrencyRateImportCbrCommand extends Command
 {
     public function __construct(
         private readonly CurrencyRateHistoryCbrProcessorService $processor,
-        #[Target('monolog.logger.currency_rate_bundle')]
-        private readonly LoggerInterface $logger,
+        private readonly BundleLoggerService $logger,
     ) {
         parent::__construct();
     }
@@ -79,9 +82,8 @@ class CurrencyRateImportCbrCommand extends Command
      * @param OutputInterface $output The console output for progress bar and messages
      *
      * @return int Command::SUCCESS on full success, Command::FAILURE on date errors or any import errors
-     *
-     * @throws DateMalformedStringException
-     * @throws DateMalformedPeriodStringException
+     * @throws ProcessorException
+     * @throws Throwable
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -103,7 +105,7 @@ class CurrencyRateImportCbrCommand extends Command
 
             $from = new DateTimeImmutable($fromArg);
             $to = new DateTimeImmutable($toArg);
-        } catch (Throwable $e) {
+        } catch (DateException $e) {
             $this->logger->error('Invalid date format provided', [
                 'from' => $input->getArgument('from'),
                 'to' => $input->getArgument('to'),
@@ -144,16 +146,8 @@ class CurrencyRateImportCbrCommand extends Command
             $progressBar->setMessage($date->format('Y-m-d'));
             try {
                 $successCount += $this->processor->process($date);
-            } catch (Throwable $e) {
-                $errorMessage = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
-                $errors[] = $errorMessage;
-                $this->logger->error('Error importing rates for date', [
-                    'date' => $date->format('Y-m-d'),
-                    'error_message' => $e->getMessage(),
-                    'error_code' => $e->getCode(),
-                    'exception_class' => $e::class,
-                    'trace' => $e->getTraceAsString(),
-                ]);
+            } catch (ProcessorException $e) {
+                $errors[] = sprintf('[%s] %s', $date->format('Y-m-d'), $e->getMessage());
             }
 
             $progressBar->advance();

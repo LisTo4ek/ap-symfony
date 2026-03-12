@@ -8,12 +8,13 @@ use App\Bundle\CurrencyRateBundle\Src\Config\ConstantsConfig;
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Entity\RateHistory;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Storage\RateHistoryStorageInterface;
 use DateTimeImmutable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\Target;
 use Throwable;
 
 use function array_map;
@@ -38,8 +39,7 @@ class CurrencyRateHistoryCbrProcessorService
         private readonly CurrencyRateProviderServiceInterface $provider,
         private readonly RateHistoryStorageInterface $rateHistoryStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
-        #[Target('monolog.logger.currency_rate_bundle')]
-        private LoggerInterface $logger,
+        private readonly BundleLoggerServiceInterface $logger,
     ) {
     }
 
@@ -53,8 +53,8 @@ class CurrencyRateHistoryCbrProcessorService
      *
      * @return int The total number of rate records processed and saved
      *
-     * @throws Throwable Re-throws any exception after logging it
-     * @todo: n+1 problem when dispathing the eventbut we can live with it for now, because we are
+     * @throws ProcessorException If there is an error fetching rates from the provider
+     * @todo: n+1 problem when dispatching the event but we can live with it for now, because we are
      *        going process rates once per day I think
      */
     public function process(DateTimeImmutable $date): int
@@ -84,15 +84,13 @@ class CurrencyRateHistoryCbrProcessorService
                     $this->eventDispatcher->dispatch(new CurrencyRateSavedEvent($rate));
                 }
             }
-        } catch (Throwable $e) {
-            $this->logger->error('Failed to process rates', [
+        } catch (ProviderException $e) {
+            $this->logger->error('Provider error', [
                 'date' => $date->format('Y-m-d'),
-                'error_message' => $e->getMessage(),
-                'error_code' => $e->getCode(),
-                'trace' => $e->getTraceAsString(),
+                'exception' => $this->logger->getExceptionContext($e),
             ]);
 
-            throw $e;
+            throw new ProcessorException('Error processing rates', previous: $e);
         }
 
         return $count;

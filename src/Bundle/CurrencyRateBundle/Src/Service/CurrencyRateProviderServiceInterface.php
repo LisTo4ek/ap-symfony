@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use DateTimeImmutable;
 use Generator;
 use RuntimeException;
@@ -23,7 +24,7 @@ interface CurrencyRateProviderServiceInterface
      *
      * @return Generator<int, array<RateContainer>> Generator yielding chunks of Rate domain entities
      *
-     * @throws RuntimeException when service is unavailable
+     * @throws ProviderException When there is an error fetching or processing rates
      */
     public function getRates(DateTimeImmutable $date, int $chunkSize = 1000): Generator;
 }

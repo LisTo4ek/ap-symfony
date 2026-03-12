@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\BundleException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderCbrService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserServiceInterface;
-use App\Bundle\CurrencyRateBundle\Src\Service\ProviderLoggerServiceInterface;
+use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerServiceInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
@@ -20,8 +19,7 @@ use Money\Currency;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -30,14 +28,14 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     use CurrencyTrait;
 
     private HttpClientInterface&MockObject $httpClient;
-    private ProviderLoggerServiceInterface&MockObject $logger;
+    private BundleLoggerServiceInterface&MockObject $logger;
     private CurrencyRateParserServiceInterface&MockObject $rateProcessor;
     private CurrencyRateProviderCbrService $provider;
 
     protected function setUp(): void
     {
         $this->httpClient = $this->createMock(HttpClientInterface::class);
-        $this->logger = $this->createMock(ProviderLoggerServiceInterface::class);
+        $this->logger = $this->createMock(BundleLoggerServiceInterface::class);
         $this->rateProcessor = $this->createMock(CurrencyRateParserServiceInterface::class);
 
         $this->provider = new CurrencyRateProviderCbrService(
@@ -80,156 +78,19 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
     }
 
     /**
-     * Test handling of 4xx client errors (non-retryable)
+     * Test handling of HTTP errors
      */
-    public function testHandles4xxClientError(): void
+    public function testHandlesHttpError(): void
     {
         $date = new DateTimeImmutable('2026-03-02');
-        $exception = new class extends Exception implements ClientExceptionInterface {
-            public function getResponse(): ResponseInterface
-            {
-                $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int
-                    {
-                        return 404;
-                    }
-                    public function getHeaders(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function getContent(bool $throw = true): string
-                    {
-                        return '';
-                    }
-                    public function toArray(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function cancel(): void
-                    {
-                    }
-                    public function getInfo(?string $type = null): mixed
-                    {
-                        return null;
-                    }
-                };
-                return $resp;
-            }
+        $exception = new class extends Exception implements ExceptionInterface {
         };
 
-        $this->httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->willThrowException($exception);
-        $this->expectException(ProviderConfigurationException::class);
-        $this->expectExceptionMessageMatches('/HTTP 404/');
-        iterator_to_array($this->provider->getRates($date));
-    }
-
-    /**
-     * Test handling of 3xx redirect errors (non-retryable)
-     */
-    public function testHandles3xxRedirectError(): void
-    {
-        $date = new DateTimeImmutable('2026-03-02');
-        $exception = new class extends Exception implements RedirectionExceptionInterface {
-            public function getResponse(): ResponseInterface
-            {
-                $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int
-                    {
-                        return 301;
-                    }
-                    public function getHeaders(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function getContent(bool $throw = true): string
-                    {
-                        return '';
-                    }
-                    public function toArray(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function cancel(): void
-                    {
-                    }
-                    public function getInfo(?string $type = null): mixed
-                    {
-                        return null;
-                    }
-                };
-                return $resp;
-            }
-        };
-        $this->httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->willThrowException($exception);
-        $this->expectException(ProviderConfigurationException::class);
-        iterator_to_array($this->provider->getRates($date));
-    }
-
-    /**
-     * Test handling of 5xx server errors (retriable)
-     */
-    public function testHandles5xxServerError(): void
-    {
-        $date = new DateTimeImmutable('2026-03-02');
-        $exception = new class extends Exception implements ServerExceptionInterface {
-            public function getResponse(): ResponseInterface
-            {
-                $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int
-                    {
-                        return 503;
-                    }
-                    public function getHeaders(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function getContent(bool $throw = true): string
-                    {
-                        return '';
-                    }
-                    public function toArray(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function cancel(): void
-                    {
-                    }
-                    public function getInfo(?string $type = null): mixed
-                    {
-                        return null;
-                    }
-                };
-                return $resp;
-            }
-        };
         $this->httpClient
             ->expects($this->once())
             ->method('request')
             ->willThrowException($exception);
         $this->expectException(ProviderException::class);
-        $this->expectExceptionMessageMatches('/retriable/');
-        iterator_to_array($this->provider->getRates($date));
-    }
-
-    /**
-     * Test handling of network/transport errors (retriable)
-     */
-    public function testHandlesNetworkError(): void
-    {
-        $date = new DateTimeImmutable('2026-03-02');
-        $exception = new Exception('Connection timeout');
-        $this->httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->willThrowException($exception);
-        $this->expectException(CurrencyRateBundleException::class);
-        $this->expectExceptionMessageMatches('/Unexpected error/');
         iterator_to_array($this->provider->getRates($date));
     }
 
@@ -251,54 +112,6 @@ class CurrencyRateProviderCbrServiceTest extends TestCase
             ->expects($this->atLeastOnce())
             ->method('debug');
         iterator_to_array($this->provider->getRates($date));
-    }
-
-    /**
-     * Test logging is called for error
-     */
-    public function testLogsErrorRequest(): void
-    {
-        $date = new DateTimeImmutable('2026-03-02');
-
-        $exception = new class extends Exception implements ClientExceptionInterface {
-            public function getResponse(): ResponseInterface
-            {
-                $resp = new class implements ResponseInterface {
-                    public function getStatusCode(): int
-                    {
-                        return 404;
-                    }
-                    public function getHeaders(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function getContent(bool $throw = true): string
-                    {
-                        return '';
-                    }
-                    public function toArray(bool $throw = true): array
-                    {
-                        return [];
-                    }
-                    public function cancel(): void
-                    {
-                    }
-                    public function getInfo(?string $type = null): mixed
-                    {
-                        return null;
-                    }
-                };
-                return $resp;
-            }
-        };
-        $this->httpClient->method('request')->willThrowException($exception);
-        $this->logger
-            ->expects($this->atLeastOnce())
-            ->method('error');
-        try {
-            iterator_to_array($this->provider->getRates($date));
-        } catch (ProviderConfigurationException) {
-        }
     }
 
     /**

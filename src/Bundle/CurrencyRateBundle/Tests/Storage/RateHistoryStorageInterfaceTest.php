@@ -79,7 +79,7 @@ class RateHistoryStorageInterfaceTest extends TestCase
         $this->assertCount(1, $saveBatchMethod->getParameters());
         $this->assertSame('entities', $saveBatchMethod->getParameters()[0]->getName());
         $this->assertTrue($saveBatchMethod->getParameters()[0]->getType()->getName() === 'array');
-        $findMethod = $reflection->getMethod('findByCurrencyPair');
+        $findMethod = $reflection->getMethod('findByCurrencyPairGroupedByDate');
         $this->assertCount(2, $findMethod->getParameters());
         $this->assertSame('baseCurrency', $findMethod->getParameters()[0]->getName());
         $this->assertSame('targetCurrency', $findMethod->getParameters()[1]->getName());
@@ -97,7 +97,7 @@ class RateHistoryStorageInterfaceTest extends TestCase
     public function testFindByCurrencyPairReturnType(): void
     {
         $reflection = new \ReflectionClass(RateHistoryStorageInterface::class);
-        $findMethod = $reflection->getMethod('findByCurrencyPair');
+        $findMethod = $reflection->getMethod('findByCurrencyPairGroupedByDate');
         $returnType = $findMethod->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertSame(

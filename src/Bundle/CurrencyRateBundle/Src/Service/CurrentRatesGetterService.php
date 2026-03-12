@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateBundle\Src\Config\PaginationConfigInterface;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Container\CurrentRateResponseContainer;
 use App\Bundle\CurrencyRateBundle\Src\Entity\CurrentRate;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
 use App\Bundle\CurrencyRateBundle\Src\Storage\CurrentRateStorageInterface;
 use DateTimeImmutable;
 use Money\Currency;
@@ -58,7 +59,7 @@ class CurrentRatesGetterService
             try {
                 $this->processor->process($date);
                 $latestDate = $this->currentRateStorage->getLatestDate();
-            } catch (Throwable $e) {
+            } catch (ProcessorException $e) {
                 $importException = $e;
             }
         }

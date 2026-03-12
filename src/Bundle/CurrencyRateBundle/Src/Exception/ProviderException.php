@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Exception;
 
 /**
- * Base exception for currency rate provider failures
- *
- * This is the main exception type for rate retrieval and processing errors.
- * Status Code: 503 Service Unavailable
+ * Exception thrown when an error occurs while fetching currency rates from the provider
  */
-class ProviderException extends CurrencyRateBundleException
+class ProviderException extends BundleException
 {
-    protected int $statusCode = 503;
 }

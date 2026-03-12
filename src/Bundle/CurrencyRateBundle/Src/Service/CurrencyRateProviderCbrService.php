@@ -6,8 +6,7 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyEnum;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\CurrencyRateBundleException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderConfigurationException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ParserException;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
@@ -16,18 +15,12 @@ use DateTimeInterface;
 use Generator;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
 use function count;
-use function get_class;
 use function mb_strlen;
-use function str_contains;
 
 /**
  * CBR (Central Bank of Russia) implementation of the currency rate provider.
@@ -37,7 +30,7 @@ use function str_contains;
  * Handles HTTP errors with detailed logging and appropriate exception types.
  *
  * @property HttpClientInterface $httpClient Symfony HTTP client for API requests
- * @property ProviderLoggerServiceInterface $logger Bundle-specific logger
+ * @property BundleLoggerServiceInterface $logger Bundle-specific logger
  * @property CurrencyRateParserServiceInterface $rateProcessor XML parser that converts API response to RateContainers
  * @property string $apiUrl CBR API endpoint URL
  * @property int $ratePrecision Decimal precision for inverse rate calculations
@@ -50,7 +43,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
 {
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly ProviderLoggerServiceInterface $logger,
+        private readonly BundleLoggerServiceInterface $logger,
         #[Autowire(service: CurrencyRateParserXmlService::class)]
         private readonly CurrencyRateParserServiceInterface $rateProcessor,
         #[Autowire(param: 'currency_rate_provider.cbr_provider.api_url')]
@@ -65,10 +58,13 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
         #[Autowire(param: 'currency_rate_provider.cbr_provider.timeout')]
         private readonly int $timeout = 30,
     ) {
-        $this->logger->logProviderInit('CBR', [
-            'api_url' => $this->apiUrl,
-            'timeout' => $this->timeout,
-            'monitored_currencies_count' => count($this->monitoredCurrencies),
+        $this->logger->info('Provider initialized', [
+            'provider' => 'CBR',
+            'config' => [
+                'api_url' => $this->apiUrl,
+                'timeout' => $this->timeout,
+                'monitored_currencies_count' => count($this->monitoredCurrencies),
+            ],
         ]);
     }
 
@@ -83,7 +79,7 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
      *
      * @return Generator<int, array<RateContainer>> Generator yielding arrays of rate containers
      *
-     * @throws CurrencyRateBundleException On any provider, parsing, or unexpected error
+     * @throws ProviderException On any provider, parsing, or unexpected error
      */
     public function getRates(DateTimeImmutable $date, int $chunkSize = 1000): Generator
     {
@@ -122,20 +118,10 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
             if (!empty($chunk)) {
                 yield $chunk;
             }
+        } catch (ParserException $e) {
+            throw new ProviderException('Parser error', 0, $e);
         } catch (ProviderException $e) {
             throw $e;
-        } catch (Throwable $e) {
-            $this->logger->error('Unexpected error in getRates', [
-                'date' => $date->format('Y-m-d'),
-                'error' => $e->getMessage(),
-                'exception_class' => get_class($e),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw new ProviderException(
-                "Unexpected error: {$e->getMessage()}",
-                0,
-                $e
-            );
         }
     }
 
@@ -144,15 +130,12 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
      *
      * Handles various HTTP and network errors with appropriate logging and exception handling.
      * Note: Retries are NOT handled here - implement retry logic at a higher level if needed.
-     * @throws ProviderConfigurationException For non-retryable errors (4xx, 3xx)
-     * @throws ProviderException For retriable errors (5xx, network)
+     * @throws ProviderException On any HTTP or network error during the request
      *
      * @todo Implement retry logic
      */
     private function requestRates(DateTimeInterface $date): string
     {
-        $startTime = DurationCalculatorService::start();
-
         try {
             $this->logger->debug('HTTP request starting', [
                 'date' => $date->format('d/m/Y'),
@@ -170,107 +153,15 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 ]
             );
             $content = $response->getContent();
-
             $this->logger->debug('HTTP request successful', [
                 'status_code' => $response->getStatusCode(),
-                'duration_ms' => DurationCalculatorService::elapsed($startTime),
                 'content_size' => mb_strlen($content),
                 'date' => $date->format('d/m/Y'),
             ]);
 
             return $content;
-        } catch (RedirectionExceptionInterface $e) {
-            $statusCode = $e->getResponse()->getStatusCode();
-            $errorContext = $this->getErrorContext($startTime, $date, $e, $statusCode);
-
-            $this->logger->error('HTTP redirect error - configuration issue', $errorContext);
-            throw new ProviderConfigurationException(
-                "CBR API returned HTTP {$statusCode} - verify API URL",
-                0,
-                $e
-            );
-        } catch (ClientExceptionInterface $e) {
-            $statusCode = $e->getResponse()->getStatusCode();
-            $errorContext = $this->getErrorContext($startTime, $date, $e, $statusCode);
-
-            $this->logger->error('HTTP client error', $errorContext);
-
-            throw new ProviderConfigurationException(
-                "CBR API returned HTTP {$statusCode} - check request configuration",
-                0,
-                $e
-            );
-        } catch (ServerExceptionInterface $e) {
-            $statusCode = $e->getResponse()->getStatusCode();
-            $errorContext = $this->getErrorContext($startTime, $date, $e, $statusCode);
-
-            $this->logger->warning('HTTP server error', $errorContext);
-
-            throw new ProviderException(
-                "CBR API server error (HTTP {$statusCode}) - retriable",
-                0,
-                $e
-            );
-        } catch (TransportExceptionInterface $e) {
-            $errorContext = $this->getErrorContext($startTime, $date, $e);
-            $exceptionClass = get_class($e);
-            if (str_contains($exceptionClass, 'Timeout')) {
-                $this->logger->warning('Network timeout error - slow or unresponsive server', $errorContext);
-            } elseif (str_contains($exceptionClass, 'Connect')) {
-                $this->logger->warning('Network connection error - unable to reach server', $errorContext);
-            } else {
-                $this->logger->warning('Network transport error', $errorContext);
-            }
-
-            throw new ProviderException(
-                "Network error - retriable",
-                0,
-                $e
-            );
-        } catch (HttpExceptionInterface $e) {
-            $errorContext = $this->getErrorContext($startTime, $date, $e);
-
-            $this->logger->error('Generic HTTP exception', $errorContext);
-            throw new ProviderException(
-                "HTTP error: {$e->getMessage()}",
-                0,
-                $e
-            );
-        } catch (Throwable $e) {
-            $this->logger->error(
-                'Unexpected error in requestRates',
-                $this->getErrorContext($startTime, $date, $e)
-            );
-            throw new ProviderException(
-                "Unexpected error: {$e->getMessage()}",
-                0,
-                $e
-            );
+        } catch (ExceptionInterface $e) {
+            throw new ProviderException("HTTP error", 0, $e);
         }
-    }
-
-    /**
-     * Build error context array with common error information
-     *
-     * @param float $startTime Start time from DurationCalculator::start()
-     * @param DateTimeInterface $date Date being requested
-     * @param Throwable $e The exception that occurred
-     * @return array<string, mixed> Error context for logging
-     */
-    private function getErrorContext(
-        float $startTime,
-        DateTimeInterface $date,
-        Throwable $e,
-        ?int $statusCode = null,
-    ): array {
-        return [
-            'duration_ms' => DurationCalculatorService::elapsed($startTime),
-            'error_class' => get_class($e),
-            'trace' => $e->getTraceAsString(),
-            'date' => $date->format('d/m/Y'),
-            'error' => $e->getMessage(),
-            'error_code' => $e->getCode(),
-            'status_code' => $statusCode,
-        ];
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
-use App\Bundle\CurrencyRateBundle\Src\Exception\InvalidRateDataException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ParserException;
 use DateTimeImmutable;
 use Generator;
 
@@ -27,7 +27,7 @@ interface CurrencyRateParserServiceInterface
      *
      * @return Generator<int, RateContainer> Yields a RateContainer for each matched currency
      *
-     * @throws InvalidRateDataException When parsing or validation fails
+     * @throws ParserException When parsing or validation fails
      */
     public function parse(
         string $content,
