@@ -6,6 +6,8 @@ namespace App\Bundle\CurrencyRateBundle\Tests\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Config\CurrencyRateSavedEvent;
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProcessorException;
+use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateHistoryCbrProcessorService;
 use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateProviderServiceInterface;
@@ -41,6 +43,20 @@ class CurrencyRateHistoryCbrProcessorServiceTest extends TestCase
             $this->dispatcher,
             $this->createMock(BundleLoggerService::class),
         );
+    }
+
+    /**
+     * Test handling of ProviderException
+     */
+    public function testHandlesParserException(): void
+    {
+        $this->provider
+            ->expects($this->once())
+            ->method('getRates')
+            ->willThrowException(new ProviderException('provider failed'));
+
+        $this->expectException(ProcessorException::class);
+        $this->service->process(new DateTimeImmutable('2026-03-06'));
     }
 
     public function testProcessReturnsZeroForEmptyRates(): void

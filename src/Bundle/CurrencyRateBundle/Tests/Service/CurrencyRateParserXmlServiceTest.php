@@ -10,6 +10,7 @@ use App\Bundle\CurrencyRateBundle\Src\Service\CurrencyRateParserXmlService;
 use App\Bundle\CurrencyRateBundle\Src\Service\BundleLoggerServiceInterface;
 use App\Bundle\CurrencyRateBundle\Tests\Trait\CurrencyTrait;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -40,11 +41,10 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $xml = $this->getSampleXml();
         $result = iterator_to_array($this->parser->parse(
             $xml,
-            self::getRub()->getCode(),
+            self::getRub(),
             [self::getUsd()->getCode(), self::getEur()->getCode()],
             $date
         ));
-
         $this->assertGreaterThan(0, count($result));
         $this->assertInstanceOf(RateContainer::class, $result[0]);
     }
@@ -56,12 +56,10 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $xml = $this->getSampleXml();
-
         $this->expectException(ParserException::class);
-
         iterator_to_array($this->parser->parse(
             $xml,
-            self::getRub()->getCode(),
+            self::getRub(),
             [],
             $date
         ));
@@ -74,12 +72,10 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
     {
         $date = new DateTimeImmutable('2026-03-02');
         $invalidXml = '<invalid>Not proper XML';
-
         $this->expectException(ParserException::class);
-
         iterator_to_array($this->parser->parse(
             $invalidXml,
-            self::getRub()->getCode(),
+            self::getRub(),
             [self::getUsd()->getCode()],
             $date
         ));
@@ -88,19 +84,77 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
     /**
      * Test parsing with malformed XML structure
      */
-    public function testThrowsExceptionForMalformedXml(): void
-    {
+    #[DataProvider('exceptionsDataProvider')]
+    public function testThrowsExceptionForMalformedXml(
+        string $xml,
+        string $expectedException,
+        string $expectedMessage,
+    ): void {
         $date = new DateTimeImmutable('2026-03-02');
-        $malformedXml = '<?xml version="1.0"?><root></root>';
-
-        $this->expectException(ParserException::class);
-
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedMessage);
         iterator_to_array($this->parser->parse(
-            $malformedXml,
-            self::getRub()->getCode(),
+            $xml,
+            self::getRub(),
             [self::getUsd()->getCode()],
             $date
         ));
+    }
+
+    public static function exceptionsDataProvider()
+    {
+        yield 'missing ValCurs node' => [
+            'xml' => '<?xml version="1.0"?><root></root>',
+            'expectedException' => ParserException::class,
+            'expectedMessage' => 'Invalid XML structure: missing ValCurs node',
+        ];
+
+        yield 'missing or invalid date attribute' => [
+            'xml' => '<?xml version="1.0"?><ValCurs name="Foreign Currency Market Extracts"></ValCurs>',
+            'expectedException' => ParserException::class,
+            'expectedMessage' => 'Invalid XML: missing or invalid date attribute',
+        ];
+
+        yield 'Rates date is not current' => [
+            'xml' => '<?xml version="1.0"?><ValCurs Date="01.01.1900" name="..."></ValCurs>',
+            'expectedException' => ParserException::class,
+            'expectedMessage' => 'Rates date is not current: 1900-01-01',
+        ];
+
+        yield 'Invalid currency code' => [
+            'xml' => <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<ValCurs Date="02.03.2026" name="Foreign Currency Market Extracts">
+    <Valute ID="R01235">
+        <NumCode>840</NumCode>
+        <CharCode></CharCode>
+        <Nominal>1</Nominal>
+        <Name>US Dollar</Name>
+        <Value>90.50</Value>
+        <VunitRate>90.50</VunitRate>
+    </Valute>
+</ValCurs>
+XML,
+            'expectedException' => ParserException::class,
+            'expectedMessage' => 'Invalid currency code',
+        ];
+
+        yield 'Invalid rate data' => [
+            'xml' => <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<ValCurs Date="02.03.2026" name="Foreign Currency Market Extracts">
+    <Valute ID="R01235">
+        <NumCode>840</NumCode>
+        <CharCode>USD</CharCode>
+        <Nominal>1</Nominal>
+        <Name>US Dollar</Name>
+        <Value>90.50</Value>
+    </Valute>
+</ValCurs>
+XML,
+            'expectedException' => ParserException::class,
+            'expectedMessage' => 'Invalid rate data for USD',
+        ];
     }
 
     /**
@@ -115,7 +169,7 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
             ->method('debug');
         iterator_to_array($this->parser->parse(
             $xml,
-            self::getRub()->getCode(),
+            self::getRub(),
             [self::getUsd()->getCode(), self::getEur()->getCode()],
             $date
         ));
@@ -130,13 +184,13 @@ class CurrencyRateParserXmlServiceTest extends KernelTestCase
         $xml = $this->getSampleXml();
         $result2Precision = iterator_to_array($this->parser->parse(
             $xml,
-            self::getRub()->getCode(),
+            self::getRub(),
             [self::getUsd()->getCode()],
             $date
         ));
         $result4Precision = iterator_to_array($this->parser->parse(
             $xml,
-            self::getRub()->getCode(),
+            self::getRub(),
             [self::getUsd()->getCode()],
             $date
         ));

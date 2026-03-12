@@ -13,11 +13,11 @@ use Brick\Math\RoundingMode;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
+use Money\Currency;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Throwable;
 
 use function count;
 use function mb_strlen;
@@ -93,10 +93,16 @@ class CurrencyRateProviderCbrService implements CurrencyRateProviderServiceInter
                 'duration_ms' => $duration,
                 'content_size' => strlen($content),
             ]);
+            if ($this->baseCurrencyCode === '') {
+                $this->logger->error('Base currency code is empty in provider configuration');
+                throw new ProviderException('Base currency code is not configured');
+            }
+
+            $baseCurrency = new Currency($this->baseCurrencyCode);
             foreach (
                 $this->rateProcessor->parse(
                     $content,
-                    $this->baseCurrencyCode,
+                    $baseCurrency,
                     $this->monitoredCurrencies,
                     $date
                 ) as $rate

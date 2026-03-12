@@ -6,7 +6,6 @@ namespace App\Bundle\CurrencyRateBundle\Src\Service;
 
 use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ParserException;
-use App\Bundle\CurrencyRateBundle\Src\Exception\ProviderException;
 use Brick\Math\BigDecimal;
 use DateTimeImmutable;
 use Generator;
@@ -15,6 +14,7 @@ use SimpleXMLElement;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Throwable;
 
+use function count;
 use function in_array;
 use function libxml_clear_errors;
 use function libxml_use_internal_errors;
@@ -44,7 +44,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      * filters currencies against the monitored list, and normalizes rate values.
      *
      * @param string $content Raw XML response body from the CBR API
-     * @param string $baseCurrencyCode ISO 4217 base currency code (e.g. 'RUB')
+     * @param Currency $baseCurrency Base currency
      * @param array<string> $monitoredCurrencies List of ISO 4217 target currency codes to extract
      * @param DateTimeImmutable $date The expected date of the rates
      *
@@ -54,7 +54,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
      */
     public function parse(
         string $content,
-        string $baseCurrencyCode,
+        Currency $baseCurrency,
         array $monitoredCurrencies,
         DateTimeImmutable $date,
     ): Generator {
@@ -63,12 +63,8 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             'date' => $date->format('Y-m-d'),
         ]);
 
-        if (empty($monitoredCurrencies)) {
+        if (count($monitoredCurrencies) === 0) {
             throw new ParserException('Monitored currencies list is empty');
-        }
-
-        if (empty($baseCurrencyCode)) {
-            throw new ParserException('Invalid base currency code');
         }
 
         try {
@@ -112,7 +108,7 @@ class CurrencyRateParserXmlService implements CurrencyRateParserServiceInterface
             $rateValue = $this->processRate($targetCurrencyCode, $currencyNode);
 
             yield new RateContainer(
-                new Currency($baseCurrencyCode),
+                $baseCurrency,
                 new Currency($targetCurrencyCode),
                 $rateValue,
                 $rateDate,

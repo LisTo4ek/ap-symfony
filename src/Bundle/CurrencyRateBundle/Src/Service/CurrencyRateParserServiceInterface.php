@@ -8,6 +8,7 @@ use App\Bundle\CurrencyRateBundle\Src\Container\RateContainer;
 use App\Bundle\CurrencyRateBundle\Src\Exception\ParserException;
 use DateTimeImmutable;
 use Generator;
+use Money\Currency;
 
 /**
  * Contract for parsing raw currency rate content into RateContainer objects.
@@ -21,7 +22,7 @@ interface CurrencyRateParserServiceInterface
      * Parses raw content and yields RateContainer objects for monitored currencies.
      *
      * @param string $content Raw response content to parse
-     * @param string $baseCurrencyCode ISO 4217 base currency code
+     * @param Currency $baseCurrency Base currency
      * @param array<string> $monitoredCurrencies List of target ISO 4217 currency codes to extract
      * @param DateTimeImmutable $date Expected date of the rates
      *
@@ -31,7 +32,7 @@ interface CurrencyRateParserServiceInterface
      */
     public function parse(
         string $content,
-        string $baseCurrencyCode,
+        Currency $baseCurrency,
         array $monitoredCurrencies,
         DateTimeImmutable $date,
     ): Generator;
